@@ -8,7 +8,6 @@ import datetime
 FB_TOKEN = os.environ.get('FB_TOKEN')
 
 if not FB_TOKEN:
-    # Thử đọc từ .env nêú chạy local
     try:
         with open('.env', 'r', encoding='utf-8') as f:
             for line in f:
@@ -30,20 +29,7 @@ def fetch_json(url):
         print(f"Failed to fetch {url}: {e}")
         return None
 
-def main():
-    version = 'v17.0'
-    base_url = f"https://graph.facebook.com/{version}"
-    
-    # Lấy accounts
-    acc_url = f"{base_url}/me/adaccounts?fields=id,name,account_status,currency&limit=50&access_token={FB_TOKEN}"
-    acc_data = fetch_json(acc_url)
-    if not acc_data or 'data' not in acc_data:
-        print("Error fetching accounts or no accounts found.")
-        exit(1)
-        
-    accounts_list = acc_data['data']
-    date_preset = 'yesterday'
-    
+def fetch_data_for_preset(accounts_list, base_url, date_preset):
     mapped_accounts = []
     total_spend = 0
     total_convs = 0
@@ -130,22 +116,46 @@ def main():
                 "campaigns": mapped_campaigns
             })
             
-    report_data = {
-        "today": { "summary": {}, "criticalAlerts": [], "priorityActions": [], "accounts": [] },
-        "yesterday": {
-            "summary": {
-                "scannedAccounts": len(accounts_list),
-                "activeAccounts": len(mapped_accounts),
-                "disabledAccounts": 0,
-                "totalSpend": total_spend,
-                "totalConversions": total_convs,
-                "auditMode": "FACEBOOK API TRỰC TIẾP"
-            },
-            "criticalAlerts": [],
-            "priorityActions": [],
-            "accounts": mapped_accounts
+    return {
+        "summary": {
+            "scannedAccounts": len(accounts_list),
+            "activeAccounts": len(mapped_accounts),
+            "disabledAccounts": 0,
+            "totalSpend": total_spend,
+            "totalConversions": total_convs,
+            "auditMode": f"API: {date_preset.upper()}"
         },
-        "last7d": { "summary": {}, "criticalAlerts": [], "priorityActions": [], "accounts": [] },
+        "criticalAlerts": [],
+        "priorityActions": [],
+        "accounts": mapped_accounts
+    }
+
+def main():
+    version = 'v17.0'
+    base_url = f"https://graph.facebook.com/{version}"
+    
+    # Fetch accounts
+    acc_url = f"{base_url}/me/adaccounts?fields=id,name,account_status,currency&limit=50&access_token={FB_TOKEN}"
+    acc_data = fetch_json(acc_url)
+    if not acc_data or 'data' not in acc_data:
+        print("Error fetching accounts or no accounts found.")
+        exit(1)
+        
+    accounts_list = acc_data['data']
+    
+    print("Fetching 'today'...")
+    today_data = fetch_data_for_preset(accounts_list, base_url, 'today')
+    
+    print("Fetching 'yesterday'...")
+    yesterday_data = fetch_data_for_preset(accounts_list, base_url, 'yesterday')
+    
+    print("Fetching 'last_7d'...")
+    last7d_data = fetch_data_for_preset(accounts_list, base_url, 'last_7d')
+    
+    report_data = {
+        "today": today_data,
+        "yesterday": yesterday_data,
+        "last7d": last7d_data,
         "lastUpdated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     
@@ -153,7 +163,7 @@ def main():
     with open('data/reportData.json', 'w', encoding='utf-8') as f:
         json.dump(report_data, f, ensure_ascii=False, indent=4)
         
-    print("Successfully fetched data and wrote to data/reportData.json")
+    print("Successfully fetched all data and wrote to data/reportData.json")
 
 if __name__ == "__main__":
     main()
