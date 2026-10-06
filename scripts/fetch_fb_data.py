@@ -55,7 +55,7 @@ def fetch_data(accounts_list, base_url, mode):
             curr_end = acc_today
             prior_start = acc_today - datetime.timedelta(days=13)
             prior_end = acc_today - datetime.timedelta(days=7)
-            days_divisor = 7
+            days_divisor = 1
             
         ranges = f'[{{"since":"{curr_start}","until":"{curr_end}"}},{{"since":"{prior_start}","until":"{prior_end}"}}]'
         ranges_encoded = urllib.parse.quote(ranges)
@@ -113,7 +113,7 @@ def fetch_data(accounts_list, base_url, mode):
             total_convs += convs_curr
             
             rating = "Stable"
-            if spend_curr > 0 and convs_curr == 0:
+            if spend_curr >= 100000 and convs_curr == 0:
                 rating = "RED"
             elif cpa_curr > 150000:
                 rating = "ORANGE"
