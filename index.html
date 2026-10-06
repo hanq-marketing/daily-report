@@ -1586,7 +1586,7 @@
 
             let tableRowsHTML = '';
             if (filteredCampaigns.length === 0) {
-                tableRowsHTML = `<tr><td colspan="9" class="empty-campaigns">Không có chiến dịch phù hợp bộ lọc</td></tr>`;
+                tableRowsHTML = `<tr><td colspan="10" class="empty-campaigns">Không có chiến dịch phù hợp bộ lọc</td></tr>`;
             } else {
                 filteredCampaigns.forEach((camp, campIdx) => {
                     const cpaText = camp.cpaCurrent === 0 ? 
@@ -1676,6 +1676,10 @@
                         <tr id="row-${acc.id}-${campIdx}">
                             <td class="campaign-name-cell">${camp.name}</td>
                             <td class="metric-cell">
+                                <span class="metric-main">${formatCurrency(camp.spendCurrent || 0)}</span>
+                                <span class="metric-sub">${formatCurrency(camp.spendPrior || 0)}</span>
+                            </td>
+                            <td class="metric-cell">
                                 <span class="metric-main">${camp.conversionsCurrent} tin</span>
                                 <span class="metric-sub">${camp.conversionsPrior} tin ${conversionsChangeIndicator}</span>
                             </td>
@@ -1709,7 +1713,7 @@
                             </td>
                         </tr>
                         <tr id="detail-row-${acc.id}-${campIdx}" class="ad-details-row" style="display: none;">
-                            <td colspan="9">
+                            <td colspan="10">
                                 <div class="ad-details-container">
                                     <div class="active-ads-panel">
                                         <h4>🔗 Links bài viết quảng cáo</h4>
@@ -1748,6 +1752,7 @@
                                 <thead>
                                     <tr>
                                         <th>Tên Chiến dịch</th>
+                                        <th>Chi tiêu (Hiện tại vs TB 3d)</th>
                                         <th>Tin nhắn (Hiện tại vs TB 3d)</th>
                                         <th>CPM (Hiện tại vs TB 3d)</th>
                                         <th>CPC (Hiện tại vs TB 3d)</th>
