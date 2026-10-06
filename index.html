@@ -604,9 +604,12 @@
         .campaign-name-cell {
             font-weight: 600;
             color: var(--text-title);
-            max-width: 250px;
-            white-space: normal;
-            word-break: break-word;
+            width: 300px;
+            max-width: 300px;
+            min-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .metric-cell {
