@@ -1670,7 +1670,7 @@
                             `;
                         });
                     } else {
-                        adsCardsHTML = '<div class="empty-campaigns">Không có dữ liệu quảng cáo chi tiết.</div>';
+                        adsCardsHTML = '<div class="empty-campaigns">Lưu ý: Tính năng phân tích nội dung AI chỉ hoạt động khi dùng script Local (chạy bằng Claude API). Ở chế độ lấy trực tiếp từ Facebook API, phần nội dung này sẽ bị trống.</div>';
                     }
 
                     // Generate Proposals HTML
@@ -1701,7 +1701,7 @@
                             `;
                         });
                     } else {
-                        proposalsHTML = '<div class="empty-campaigns">Không có dữ liệu đề xuất nội dung.</div>';
+                        proposalsHTML = '<div class="empty-campaigns">Vui lòng chạy script Audit bằng AI trên máy tính để tạo tự động nội dung và visual mới.</div>';
                     }
 
                     tableRowsHTML += `
@@ -1731,7 +1731,7 @@
                                 <span class="status-badge ${camp.rating.toLowerCase()}">${camp.rating}</span>
                             </td>
                             <td style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
-                                ${translateText(camp.forecast)}
+                                ${camp.forecast || (camp.rating === 'RED' ? 'Tắt camp ngay lập tức.' : (camp.rating === 'ORANGE' ? 'Theo dõi sát, cân nhắc thay nội dung.' : (camp.rating === 'GREEN' ? 'Tăng ngân sách, duy trì.' : 'Tiếp tục theo dõi.')))}
                             </td>
                             <td class="metric-cell">
                                 <button class="content-audit-btn" onclick="toggleAdDetails(event, '${acc.id}', ${campIdx})">
