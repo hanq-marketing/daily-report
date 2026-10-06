@@ -1284,7 +1284,7 @@
         currentReport.accounts.forEach(acc => {
             let accSpend = 0;
             acc.campaigns.forEach(camp => {
-                accSpend += (camp.spendCurrent * 3) + (camp.spendPrior * 4);
+                accSpend += (camp.spendCurrent || 0);
                 if (counts[camp.rating] !== undefined) {
                     counts[camp.rating]++;
                 }
