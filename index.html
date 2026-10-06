@@ -1517,6 +1517,10 @@
     function renderAccordions() {
         const container = document.getElementById('accounts-accordions-list');
         container.innerHTML = '';
+        
+        // Update table headers based on current mode
+        const compText = currentDataMode === 'last7d' ? 'Kỳ trước' : 'TB 3d';
+        document.querySelectorAll('.compare-label').forEach(el => el.textContent = compText);
 
         currentReport.accounts.forEach(acc => {
             // Filter campaigns based on status and search query
@@ -1681,7 +1685,7 @@
                             </td>
                             <td class="metric-cell">
                                 <span class="metric-main">${camp.conversionsCurrent} tin</span>
-                                ${camp.spendPrior > 0 ? `<span class="metric-sub">${camp.conversionsPrior} tin ${conversionsChangeIndicator}</span>` : ''}
+                                ${camp.spendPrior > 0 ? `<span class="metric-sub">${Number(camp.conversionsPrior.toFixed(1))} tin ${conversionsChangeIndicator}</span>` : ''}
                             </td>
                             <td class="metric-cell">
                                 <span class="metric-main">${formatCurrency(camp.cpmCurrent)}</span>
@@ -1752,12 +1756,12 @@
                                 <thead>
                                     <tr>
                                         <th>Tên Chiến dịch</th>
-                                        <th>Chi tiêu (Hiện tại vs TB 3d)</th>
-                                        <th>Tin nhắn (Hiện tại vs TB 3d)</th>
-                                        <th>CPM (Hiện tại vs TB 3d)</th>
-                                        <th>CPC (Hiện tại vs TB 3d)</th>
-                                        <th>CTR (Hiện tại vs TB 3d)</th>
-                                        <th>CPA (Hiện tại vs TB 3d)</th>
+                                        <th>Chi tiêu (Hiện tại vs <span class="compare-label">TB 3d</span>)</th>
+                                        <th>Tin nhắn (Hiện tại vs <span class="compare-label">TB 3d</span>)</th>
+                                        <th>CPM (Hiện tại vs <span class="compare-label">TB 3d</span>)</th>
+                                        <th>CPC (Hiện tại vs <span class="compare-label">TB 3d</span>)</th>
+                                        <th>CTR (Hiện tại vs <span class="compare-label">TB 3d</span>)</th>
+                                        <th>CPA (Hiện tại vs <span class="compare-label">TB 3d</span>)</th>
                                         <th>Đánh giá</th>
                                         <th>Dự báo & Đề xuất hành động</th>
                                         <th>Nội dung</th>
