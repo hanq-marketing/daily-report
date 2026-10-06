@@ -1519,7 +1519,7 @@
         container.innerHTML = '';
         
         // Update table headers based on current mode
-        const compText = currentDataMode === 'last7d' ? 'Kỳ trước' : 'TB 3d';
+        const compText = activeMode === 'last7d' ? 'Kỳ trước' : 'TB 3d';
         document.querySelectorAll('.compare-label').forEach(el => el.textContent = compText);
 
         currentReport.accounts.forEach(acc => {
