@@ -1559,9 +1559,9 @@
 
             let accTotalSpend = 0;
             let accTotalConvs = 0;
-            acc.campaigns.forEach(c => {
-                accTotalSpend += (c.spendCurrent || 0);
-                accTotalConvs += (c.conversionsCurrent || 0);
+            filteredCampaigns.forEach(c => {
+                accTotalSpend += parseFloat(c.spendCurrent) || 0;
+                accTotalConvs += parseInt(c.conversionsCurrent) || 0;
             });
 
             const headerHTML = `
