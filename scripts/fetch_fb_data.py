@@ -53,13 +53,14 @@ def fetch_data_for_preset(accounts_list, base_url, date_preset):
             convs = 0
             actions = ins.get('actions', [])
             for act in actions:
-                if act.get('action_type') in ['onsite_conversion.messaging_conversation_started_7d', 'lead', 'complete_registration', 'purchase', 'messaging_conversation_started_7d', 'onsite_conversion.messaging_conversation_started_28d']:
+                if act.get('action_type') in ['onsite_conversion.messaging_conversation_started_7d', 'messaging_conversation_started_7d']:
                     convs += int(act.get('value', 0))
             
             spend = float(ins.get('spend', 0))
             cpm = float(ins.get('cpm', 0))
-            cpc = float(ins.get('cpc', 0))
             ctr = float(ins.get('inline_link_click_ctr', 0))
+            link_clicks = int(ins.get('inline_link_clicks', 0))
+            cpc = (spend / link_clicks) if link_clicks > 0 else 0
             cpa = (spend / convs) if convs > 0 else 0
             
             acc_spend += spend
