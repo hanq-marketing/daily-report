@@ -1250,7 +1250,7 @@
     function formatPercent(val) {
         if (val === 0) return '0%';
         const prefix = val > 0 ? '+' : '';
-        return `${prefix}${val}%`;
+        return `${prefix}${Number(val.toFixed(2))}%`;
     }
 
     // Toggle Theme
