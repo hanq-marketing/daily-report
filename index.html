@@ -1625,20 +1625,41 @@
                     }
 
                     let adsCardsHTML = '';
-                    const actId = acc.id.replace('act_', '');
-                    const fbAdsLink = camp.id ? `https://business.facebook.com/adsmanager/manage/ads?act=${actId}&filter_set=${encodeURIComponent(JSON.stringify([{"filter_type":"campaign_id","value":[camp.id]}]))}` : '#';
-                    
-                    adsCardsHTML = `
-                        <div class="empty-campaigns" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 2rem;">
-                            <div style="font-size: 1rem; color: var(--text-title); font-weight: 500;">
-                                Dữ liệu chi tiết các bài quảng cáo không hiển thị ở chế độ Live API.
+                    if (camp.ads && camp.ads.length > 0) {
+                        adsCardsHTML += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-top: 1rem;">';
+                        camp.ads.forEach(ad => {
+                            const postLink = ad.postId ? `https://facebook.com/${ad.postId}` : '#';
+                            const linkTarget = ad.postId ? 'target="_blank"' : '';
+                            const thumbImg = ad.thumbnail ? `<img src="${ad.thumbnail}" alt="${ad.name}" style="width: 100%; height: 140px; object-fit: cover; border-radius: 6px; margin-bottom: 0.75rem;">` : '';
+                            
+                            adsCardsHTML += `
+                                <a href="${postLink}" ${linkTarget} class="ad-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; background: rgba(255,255,255,0.02); transition: all 0.2s;">
+                                    ${thumbImg}
+                                    <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem; line-height: 1.4;">${ad.name}</div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span class="status-badge stable">${ad.status}</span>
+                                        <span style="font-size: 0.8rem; color: var(--accent-blue);">Mở bài viết ↗</span>
+                                    </div>
+                                </a>
+                            `;
+                        });
+                        adsCardsHTML += '</div>';
+                    } else {
+                        const actId = acc.id.replace('act_', '');
+                        const fbAdsLink = camp.id ? `https://business.facebook.com/adsmanager/manage/ads?act=${actId}&filter_set=${encodeURIComponent(JSON.stringify([{"filter_type":"campaign_id","value":[camp.id]}]))}` : '#';
+                        
+                        adsCardsHTML = `
+                            <div class="empty-campaigns" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 2rem;">
+                                <div style="font-size: 1rem; color: var(--text-title); font-weight: 500;">
+                                    Không tìm thấy dữ liệu quảng cáo cho chiến dịch này.
+                                </div>
+                                <a href="${fbAdsLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #2563eb; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.2s;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    Mở chiến dịch này trên Trình quản lý QC Facebook
+                                </a>
                             </div>
-                            <a href="${fbAdsLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #2563eb; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.2s;">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                Mở chiến dịch này trên Trình quản lý QC Facebook
-                            </a>
-                        </div>
-                    `;
+                        `;
+                    }
 
                     // Generate Proposals HTML
                     let proposalsHTML = '';
