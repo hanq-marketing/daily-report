@@ -1590,7 +1590,7 @@
             } else {
                 filteredCampaigns.forEach((camp, campIdx) => {
                     const cpaText = camp.cpaCurrent === 0 ? 
-                        translateText(camp.cpaLabel || '0 đơn') : 
+                        translateText(camp.cpaLabel || '0 VND') : 
                         formatCurrency(camp.cpaCurrent);
 
                     const conversionsChangeClass = camp.conversionsChange > 0 ? 'ctr-up' : 'ctr-down';
@@ -1677,7 +1677,7 @@
                             <td class="campaign-name-cell">${camp.name}</td>
                             <td class="metric-cell">
                                 <span class="metric-main">${formatCurrency(camp.spendCurrent || 0)}</span>
-                                <span class="metric-sub">${formatCurrency(camp.spendPrior || 0)}</span>
+                                <span class="metric-sub">${camp.spendPrior > 0 ? formatCurrency(camp.spendPrior) : ''}</span>
                             </td>
                             <td class="metric-cell">
                                 <span class="metric-main">${camp.conversionsCurrent} tin</span>
@@ -1692,12 +1692,12 @@
                                 <span class="metric-sub">${cpcPriorText} ${cpcChangeIndicator}</span>
                             </td>
                             <td class="metric-cell">
-                                <span class="metric-main">${camp.ctrCurrent}%</span>
-                                <span class="metric-sub">${camp.ctrPrior}% <span class="change-indicator ${ctrChangeClass}">${formatPercent(camp.ctrChange)}</span></span>
+                                <span class="metric-main">${(camp.ctrCurrent || 0).toFixed(2)}%</span>
+                                <span class="metric-sub">${(camp.ctrPrior || 0).toFixed(2)}% <span class="change-indicator ${ctrChangeClass}">${formatPercent(camp.ctrChange)}</span></span>
                             </td>
                             <td class="metric-cell">
                                 <span class="metric-main">${cpaText}</span>
-                                <span class="metric-sub">Trước: ${camp.cpaPrior > 0 ? formatCurrency(camp.cpaPrior) : '0'} ${cpaChangeIndicator}</span>
+                                <span class="metric-sub">Trước: ${camp.cpaPrior > 0 ? formatCurrency(camp.cpaPrior) : '0 VND'} ${cpaChangeIndicator}</span>
                             </td>
                             <td class="metric-cell">
                                 <span class="status-badge ${camp.rating.toLowerCase()}">${camp.rating}</span>
