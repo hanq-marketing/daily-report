@@ -35,7 +35,7 @@ def fetch_data_for_preset(accounts_list, base_url, date_preset):
     total_convs = 0
     
     for acc in accounts_list:
-        camp_url = f"{base_url}/{acc['id']}/campaigns?fields=name,status,effective_status,daily_budget,insights.date_preset({date_preset}){{spend,impressions,inline_link_clicks,inline_link_click_ctr,cpc,cpm,actions}}&limit=100&access_token={FB_TOKEN}"
+        camp_url = f"{base_url}/{acc['id']}/campaigns?fields=id,name,status,effective_status,daily_budget,insights.date_preset({date_preset}){{spend,impressions,inline_link_clicks,inline_link_click_ctr,cpc,cpm,actions}}&limit=100&access_token={FB_TOKEN}"
         camp_data = fetch_json(camp_url)
         if not camp_data or 'data' not in camp_data:
             continue
@@ -75,6 +75,7 @@ def fetch_data_for_preset(accounts_list, base_url, date_preset):
                 rating = "GREEN"
                 
             mapped_campaigns.append({
+                "id": c.get('id', ''),
                 "name": c.get('name', ''),
                 "status": c.get('status', ''),
                 "effectiveStatus": c.get('effective_status', ''),
