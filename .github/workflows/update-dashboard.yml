@@ -1,0 +1,37 @@
+name: Update Facebook Ads Dashboard Data
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Chạy tự động vào nửa đêm mỗi ngày
+  repository_dispatch:
+    types: [update-data]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Fetch FB Data
+        env:
+          FB_TOKEN: ${{ secrets.FB_TOKEN }}
+        run: |
+          python scripts/fetch_fb_data.py
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/reportData.json
+          git commit -m "Auto-update Facebook Ads Data" || echo "No changes to commit"
+          git push
