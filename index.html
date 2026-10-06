@@ -1661,35 +1661,15 @@
                         `;
                     }
 
-                    // Generate Proposals HTML
                     let proposalsHTML = '';
-                    if (camp.proposals && camp.proposals.length > 0) {
-                        camp.proposals.forEach((prop, pIdx) => {
-                            proposalsHTML += `
-                                <div class="proposal-card">
-                                    <div class="proposal-angle">${prop.angle}</div>
-                                    <div class="proposal-visual">💡 Ý tưởng visual: ${prop.visual}</div>
-                                    
-                                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-top: 0.25rem;">Tiêu đề đề xuất:</div>
-                                    <div class="copyable-field" id="copy-headline-${acc.id}-${campIdx}-${pIdx}">
-                                        <span>${prop.headline}</span>
-                                        <button class="copy-btn" onclick="copyTextToClipboard(event, 'copy-headline-${acc.id}-${campIdx}-${pIdx}')" title="Sao chép tiêu đề">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        </button>
-                                    </div>
-                                    
-                                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-top: 0.25rem;">Nội dung bài viết:</div>
-                                    <div class="copyable-field" id="copy-body-${acc.id}-${campIdx}-${pIdx}">
-                                        <span>${prop.body}</span>
-                                        <button class="copy-btn" onclick="copyTextToClipboard(event, 'copy-body-${acc.id}-${campIdx}-${pIdx}')" title="Sao chép nội dung">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
-                        });
+                    if (camp.targetingSummary && camp.targetingSummary !== "Không rõ") {
+                        proposalsHTML = `
+                            <div class="proposal-card" style="padding: 1.5rem; font-size: 0.95rem; line-height: 1.8; color: var(--text-main);">
+                                ${camp.targetingSummary}
+                            </div>
+                        `;
                     } else {
-                        proposalsHTML = '<div class="empty-campaigns">Vui lòng chạy script Audit bằng AI trên máy tính để tạo tự động nội dung và visual mới.</div>';
+                        proposalsHTML = '<div class="empty-campaigns">Chưa có dữ liệu phân tích target (Vui lòng bấm cập nhật dữ liệu).</div>';
                     }
 
                     tableRowsHTML += `
@@ -1732,13 +1712,13 @@
                             <td colspan="9">
                                 <div class="ad-details-container">
                                     <div class="active-ads-panel">
-                                        <h4>📋 Đánh giá các quảng cáo đang chạy (Active Ads Audit)</h4>
+                                        <h4>🔗 Links bài viết quảng cáo</h4>
                                         <div class="ads-grid">
                                             ${adsCardsHTML}
                                         </div>
                                     </div>
                                     <div class="proposals-panel">
-                                        <h4>💡 Đề xuất 3 mẫu quảng cáo mới (Proposed Copywriting)</h4>
+                                        <h4>🎯 Target chung của chiến dịch</h4>
                                         <div class="proposals-container">
                                             ${proposalsHTML}
                                         </div>
