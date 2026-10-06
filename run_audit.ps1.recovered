@@ -1,0 +1,1602 @@
+﻿# PowerShell script to execute Facebook Ads Audit with 3-day trend comparison and forecasting
+# Supports both live API connection and simulation/mock mode for demo purposes
+# Full UTF-8 support with complete Vietnamese diacritics for all reports and alerts.
+
+$ErrorActionPreference = "Stop"
+$ReportPath = "d:\MCP\facebook_ads_audit_report.md"
+$HtmlPath = "d:\MCP\facebook_ads_dashboard.html"
+
+# Safe currency formatting helper
+function Format-Currency ($value) {
+    if ($value -eq $null -or $value -eq "") { return "0 VNĐ" }
+    $parsed = 0
+    if ([double]::TryParse($value, [ref]$parsed)) {
+        return $parsed.ToString("N0") + " VNĐ"
+    }
+    return "$value"
+}
+
+# UTF-8 REST API helper to preserve Vietnamese accents from Facebook API
+function Invoke-RestMethodUtf8 ($uri) {
+    try {
+        $webClient = New-Object System.Net.WebClient
+        $webClient.Encoding = [System.Text.Encoding]::UTF8
+        $json = $webClient.DownloadString($uri)
+        return ($json | ConvertFrom-Json)
+    } catch {
+        return (Invoke-RestMethod -Uri $uri -Method Get -TimeoutSec 20)
+    }
+}
+
+# Helper to generate critique for Ads based on creative metrics
+function Get-AdCritique ($mediaType, $ctr, $hook, $hold, $spend, $conversions, $cpa) {
+    if ($conversions -eq 0 -and $spend -gt 150000) {
+        return "🔴 CẢNH BÁO ĐỐT TIỀN: Quảng cáo đã chi tiêu $(Format-Currency $spend) nhưng chưa tạo ra tin nhắn nào. Tỷ lệ chuyển đổi bằng 0. Cần kiểm tra lại liên kết t
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+} else {
+    Write-Host "[*] Chạy ở CHẾ ĐỘ GIẢ LẬP (Simulation Mode) vì chưa có token hợp lệ." -ForegroundColor Cyan
+}
+
+# 3. Tạo danh sách tài khoản giả lập nếu không kết nối được API
+if ($isSimulation) {
+    Write-Host "[*] Đang chuẩn bị danh sách 10 tài khoản quảng cáo giả lập..." -ForegroundColor Gray
+    $adAccounts = @(
+        [PSCustomObject]@{ id = "act_872398471"; name = "Ngân sách Ads Thời trang - Store A"; account_status = 1; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_918237461"; name = "Mỹ phẩm thiên nhiên Organic"; account_status = 1; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_110293847"; name = "Khóa học Tiếng Anh Giao tiếp"; account_status = 1; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_473829102"; name = "Bất Động Sản Nghỉ dưỡng"; account_status = 1; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_229384756"; name = "Dịch vụ Đào tạo Inhouse"; account_status = 1; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_998877665"; name = "Đồ dùng Gia đình Thông minh"; account_status = 2; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_334455667"; name = "Phụ kiện Công nghệ Giá sỉ"; account_status = 1; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_445566778"; name = "Thực phẩm Chức năng Healthy"; account_status = 1; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_556677889"; name = "Dịch vụ Thiết kế Nội thất"; account_status = 1; currency = "VND"; is_mock = $true },
+        [PSCustomObject]@{ id = "act_667788990"; name = "Chuỗi quán Cafe Nhượng quyền"; account_status = 1; currency = "VND"; is_mock = $true }
+    )
+}
+
+# 4. Thu thập dữ liệu daily và Phân tích
+$criticalAlerts = @()
+$priorityActions = @()
+
+foreach ($acc in $adAccounts) {
+    Write-Host "[*] Đang xử lý tài khoản: $($acc.name) ($($acc.id))..." -ForegroundColor Gray
+    
+    $dailyInsightsList = @()
+    $campaignInfoMap = @{}
+
+    if ($isSimulation) {
+        if ($acc.account_status -ne 1) {
+            continue
+        }
+
+        $mockCampaigns = @()
+        if ($acc.id -eq "act_872398471") {
+            $mockCampaigns = @(
+                @{ id = "101"; name = "Chiến dịch Thu đông - Đầm & Áo khoác"; status = "ACTIVE"; effective_status = "ACTIVE"; daily_budget = 2000000 },
+                @{ id = "102"; name = "Chiến dịch Chuyển đổi - Phụ kiện Unisex"; status = "ACTIVE"; effective_status = "ACTIVE"; daily_budget = 500000 }
+            )
+        }
+        elseif ($acc.id -eq "act_918237461") {
+            $mockCampaigns = @(
+                @{ id = "201"; name = "Retargeting - Khách hàng cũ mua lại"; status = "ACTIVE"; effective_status = "ACTIVE"; daily_budget = 800000 },
+                @{ id = "202"; name = "Tìm khách mới - Kem chống nắng"; status = "ACTIVE"; effective_status = "ACTIVE"; daily_budget = 2500000 }
+            )
+        }
+        elseif ($acc.id -eq "act_110293847") {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    } else {
+        $adsInfoMap = @{}
+        $adDailyInsightsList = @()
+        try {
+            $campaignListUrl = "https://graph.facebook.com/v17.0/$($acc.id)/campaigns?fields=id,name,status,effective_status,daily_budget,lifetime_budget&limit=100&access_token=$fbToken"
+            $campListRes = Invoke-RestMethodUtf8 -uri $campaignListUrl
+            if ($campListRes -and $campListRes.data) {
+                foreach ($c in $campListRes.data) {
+                    $campaignInfoMap[$c.id] = $c
+                }
+            )
+        }
+
+        foreach ($mc in $mockCampaigns) {
+            $campaignInfoMap[$mc.id] = $mc
+            $dailyInsightsList += Get-MockDailyInsights $mc.name $mc.id $acc.id
+        }
+    } else {
+        $adsInfoMap = @{}
+        $adDailyInsightsList = @()
+        try {
+            $campaignListUrl = "https://graph.facebook.com/v17.0/$($acc.id)/campaigns?fields=id,name,status,effective_status,daily_budget,lifetime_budget&limit=100&access_token=$fbToken"
+            $campListRes = Invoke-RestMethodUtf8 -uri $campaignListUrl
+            if ($campListRes -and $campListRes.data) {
+                foreach ($c in $campListRes.data) {
+                    $campaignInfoMap[$c.id] = $c
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        impressions = $impressions
+                        clicks = $clicks
+                        frequency = $frequency
+                        conversions = $conversions
+                        video3s = $video3s
+                        thruplays = $thruplays
+                    }
+                }
+            }
+
+            # Fetch Ad-level Insights
+            $adInsightsUrl = "https://graph.facebook.com/v17.0/$($acc.id)/insights?level=ad&time_range=%7B%22since%22%3A%22$sinceDateStr%22%2C%22until%22%3A%22$todayDateStr%22%7D&time_increment=1&fields=ad_id,ad_name,campaign_id,spend,impressions,inline_link_clicks,actions,video_30_sec_watched_actions,video_thruplay_watched_actions&limit=1000&access_token=$fbToken"
+            $adInsRes = Invoke-RestMethodUtf8 -uri $adInsightsUrl
+            if ($adInsRes -and $adInsRes.data) {
+                foreach ($item in $adInsRes.data) {
+                    $adDailyInsightsList += $item
+                }
+            }
+        } catch {
+            Write-Host "[-] Lỗi truy xuất dữ liệu từ tài khoản $($acc.name): $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+    
+    $acc | Add-Member -MemberType NoteProperty -Name "RawInsights" -Value $dailyInsightsList -Force -ErrorAction SilentlyContinue
+    $acc | Add-Member -MemberType NoteProperty -Name "CampaignInfoMap" -Value $campaignInfoMap -Force -ErrorAction SilentlyContinue
+    $acc | Add-Member -MemberType NoteProperty -Name "AdsInfoMap" -Value $adsInfoMap -Force -ErrorAction SilentlyContinue
+    $acc | Add-Member -MemberType NoteProperty -Name "AdDailyInsights" -Value $adDailyInsightsList -Force -ErrorAction SilentlyContinue
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            $total_conv_7d += $d.conversions
+                            $total_imp_7d += $d.impressions
+                            $total_clicks_7d += $d.clicks
+                        }
+                    }
+                    $cpa_7d = if ($total_conv_7d -gt 0) { $total_spend_7d / $total_conv_7d } else { 0 }
+                    $cpm_7d = if ($total_imp_7d -gt 0) { ($total_spend_7d / $total_imp_7d) * 1000 } else { 0 }
+                    $cpc_7d = if ($total_clicks_7d -gt 0) { $total_spend_7d / $total_clicks_7d } else { 0 }
+                    $ctr_7d = if ($total_imp_7d -gt 0) { ($total_clicks_7d / $total_imp_7d) * 100 } else { 0 }
+                    $targetCpa = if ($cpa_7d -gt 0) { $cpa_7d * 1.5 } else { 100000 }
+                    
+                    $cpmChange7d = if ($cpm_7d -gt 0) { (($cpm_curr - $cpm_7d) / $cpm_7d) * 100 } else { 0 }
+                    $cpcChange7d = if ($cpc_7d -gt 0) { (($cpc_curr - $cpc_7d) / $cpc_7d) * 100 } else { 0 }
+                    $ctrChange7d = if ($ctr_7d -gt 0) { (($ctr_curr - $ctr_7d) / $ctr_7d) * 100 } else { 0 }
+                    $cpaChange7d = if ($cpa_7d -gt 0 -and $cpa_curr -gt 0) { (($cpa_curr - $cpa_7d) / $cpa_7d) * 100 } else { 0 }
+                    
+                    $trendStatus = "Stable"
+                    $trendText = "Ổn định"
+                    $forecastText = "Dự báo: Ổn định. Đề xuất: Tiếp tục theo dõi."
+                    
+                    # 1. Trụ cột 3: RED (Đốt tiền)
+                    if ($spend_curr -gt ($targetCpa * 1.5) -and $conversions_curr -eq 0) {
+                        $trendStatus = "RED"
+                            $total_clicks_7d += $d.clicks
+                        }
+                    }
+                    $cpa_7d = if ($total_conv_7d -gt 0) { $total_spend_7d / $total_conv_7d } else { 0 }
+                    $cpm_7d = if ($total_imp_7d -gt 0) { ($total_spend_7d / $total_imp_7d) * 1000 } else { 0 }
+                    $cpc_7d = if ($total_clicks_7d -gt 0) { $total_spend_7d / $total_clicks_7d } else { 0 }
+                    $ctr_7d = if ($total_imp_7d -gt 0) { ($total_clicks_7d / $total_imp_7d) * 100 } else { 0 }
+                    $targetCpa = if ($cpa_7d -gt 0) { $cpa_7d * 1.5 } else { 100000 }
+                    
+                    $cpmChange7d = if ($cpm_7d -gt 0) { (($cpm_curr - $cpm_7d) / $cpm_7d) * 100 } else { 0 }
+                    $cpcChange7d = if ($cpc_7d -gt 0) { (($cpc_curr - $cpc_7d) / $cpc_7d) * 100 } else { 0 }
+                    $ctrChange7d = if ($ctr_7d -gt 0) { (($ctr_curr - $ctr_7d) / $ctr_7d) * 100 } else { 0 }
+                    $cpaChange7d = if ($cpa_7d -gt 0 -and $cpa_curr -gt 0) { (($cpa_curr - $cpa_7d) / $cpa_7d) * 100 } else { 0 }
+                    
+                    $trendStatus = "Stable"
+                    $trendText = "Ổn định"
+                    $forecastText = "Dự báo: Ổn định. Đề xuất: Tiếp tục theo dõi."
+                    
+                    # 1. Trụ cột 3: RED (Đốt tiền)
+                    if ($spend_curr -gt ($targetCpa * 1.5) -and $conversions_curr -eq 0) {
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                ad_headline = $adHeadline
+                                ad_body = $adBody
+                                critique = $adCritique
+                            }
+                        }
+                    }
+                    
+                    if ($campAds.Count -eq 0) {
+                        $campAds = Get-MockAds -campaignId $campId -campaignName $campName -spend $spend_curr -conversions $conversions_curr
+                    }
+                }
+                
+                $campProposals = Get-CreativeProposals -campaignName $campName
+                
+                $analyzedCampaigns += [PSCustomObject]@{
+                    Name = $campName
+                    Status = if ($campDetails) { $campDetails.status } else { "ACTIVE" }
+                    EffectiveStatus = if ($campDetails) { $campDetails.effective_status } else { "ACTIVE" }
+                    Budget = if ($campDetails) { $campDetails.daily_budget } else { 0 }
+                    
+                    Spend_curr = $spend_curr
+                    Spend_prev_avg = $spend_prev_avg
+                    Spend_change_pct = $spendChangePct
+                    
+                    CPM_curr = $cpm_curr
+                    CPM_prev = $cpm_prev
+                    CPM_change_pct = $cpmChangePct
+                    
+                    CPC_curr = $cpc_curr
+                    CPC_prev = $cpc_prev
+                    CPC_change_pct = $cpcChangePct
+                    
+                    Spend_7d = $spend_7d
+                    Conversions_7d = $conversions_7d
+                    
+                    CTR_curr = $ctr_curr
+                    CTR_prev = $ctr_prev
+                    CTR_change_pct = $ctrChangePct
+                    
+                    Hook_curr = [Math]::Round($hookRate_curr, 1)
+                    Hold_curr = [Math]::Round($holdRate_curr, 1)
+                    
+                    CPA_curr = $cpa_curr
+                    CPA_prev = $cpa_prev
+                    CPA_change_pct = $cpaChangePct
+                    
+                    Conversions_curr = $conversions_curr
+                    Conversions_prev_sum = $conversions_prev_sum
+                    Conversions_prev_avg = $conversions_prev_avg
+                    Conversions_change_pct = $convChangePct
+                    
+                    TrendStatus = $trendStatus
+                    TrendText = $trendText
+                    Forecast = $forecastText
+                    
+                    ads = $campAds
+                    proposals = $campProposals
+                }
+            }
+        }
+        
+        # Build accCampaigns by mapping from analyzedCampaigns
+        $accCampaigns = @()
+        if ($analyzedCampaigns.Count -gt 0) {
+            foreach ($c in $analyzedCampaigns) {
+                $cpaLabel = $null
+                if ($c.CPA_curr -eq 0 -and $c.Spend_curr -gt 0) {
+                    $cpaLabel = "0 tin (tiêu " + (Format-Currency $c.Spend_curr) + ")"
+           
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 8. Cập nhật Báo cáo HTML facebook_ads_dashboard.html
+if (Test-Path $HtmlPath) {
+    Write-Host "[*] Đang cập nhật báo cáo HTML..." -ForegroundColor Gray
+    
+    $jsonToday = $todayReport | ConvertTo-Json -Depth 8
+    $jsonYesterday = $yesterdayReport | ConvertTo-Json -Depth 8
+    $jsonLast7d = $last7dReport | ConvertTo-Json -Depth 8
+    
+    $htmlContent = [System.IO.File]::ReadAllText($HtmlPath, [System.Text.Encoding]::UTF8)
+    $pattern = "(?s)const reportData = \{.*?\};\s*(?=\s*// State Variables)"
+    
+    $replacement = "const reportData = {`n        today: $jsonToday,`n        yesterday: $jsonYesterday,`n        last7d: $jsonLast7d`n    };`n`n    "
+    $newHtmlContent = [regex]::Replace($htmlContent, $pattern, $replacement)
+    
+    $nowStr = (Get-Date).ToString("dd/MM/yyyy HH:mm")
+    $newHtmlContent = $newHtmlContent -replace '(?<=id="audit-meta">Quét 7 ngày qua \| Cập nhật: ).*?(?= \|)', $nowStr
+    
+    [System.IO.File]::WriteAllText($HtmlPath, $newHtmlContent, $utf8NoBom)
+    Write-Host "[+] Đã cập nhật facebook_ads_dashboard.html với dữ liệu 3 chế độ!" -ForegroundColor Green
+}
+
+Write-Host "[+] Đã tạo báo cáo thành công!" -ForegroundColor Green
+Write-Host "==========================================================" -ForegroundColor Cyan
+Write-Host "Vui lòng kiểm tra báo cáo tại:" -ForegroundColor Green
+Write-Host "  - Markdown: d:\MCP\facebook_ads_audit_report.md" -ForegroundColor Green
+Write-Host "  - HTML Dashboard: d:\MCP\facebook_ads_dashboard.html" -ForegroundColor Green
+Write-Host "==========================================================" -ForegroundColor Cyan
+

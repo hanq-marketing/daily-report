@@ -1,0 +1,25 @@
+# File cấu hình môi trường chứa keys (KHÔNG BAO GIỜ UPLOAD)
+.env
+.env.*
+
+# File Service Account Key của Google
+google_service_account.json
+mcp_config.json
+
+# Bỏ qua các file backup và các file rác
+*.bak
+*.recovered
+*.md
+
+# Bỏ qua thư mục làm việc không cần thiết lên Github
+claude-ads-main/
+
+# Chỉ giữ lại các file thiết yếu cho GitHub Pages
+!index.html
+!data/
+!data/reportData.json
+!scripts/
+!scripts/fetch_fb_data.py
+!.github/
+!.github/workflows/
+!.github/workflows/update-dashboard.yml

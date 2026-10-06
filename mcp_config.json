@@ -1,0 +1,11 @@
+// ~/.gemini/config/mcp_config.json
+{
+    "mcpServers": {
+        "megacrm": {
+            "serverUrl": "https://crm.rikkei.edu.vn/api/mcp",
+            "headers": {
+                "Authorization": "Bearer <mcp_WPPlEVspJyr75P6GUDpSzRb2hOzBJZAhGCppxzwvukg>"
+            }
+        }
+    }
+}
