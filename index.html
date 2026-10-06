@@ -1624,54 +1624,21 @@
                         conversionsChangeIndicator = `<span class="change-indicator ${conversionsChangeClass}">${formatPercent(camp.conversionsChange)}</span>`;
                     }
 
-                    // Generate Active Ads Cards HTML
                     let adsCardsHTML = '';
-                    if (camp.ads && camp.ads.length > 0) {
-                        camp.ads.forEach(ad => {
-                            let critiqueClass = '';
-                            if (ad.critique.includes('🔴')) { critiqueClass = 'red-border'; }
-                            else if (ad.critique.includes('🟠')) { critiqueClass = 'orange-border'; }
-                            else if (ad.critique.includes('🟡')) { critiqueClass = 'yellow-border'; }
-                            else if (ad.critique.includes('🟢')) { critiqueClass = 'green-border'; }
-                            
-                            let hookText = ad.media_type === 'Video' ? `<span class="ad-stat-val">${ad.hookRate}%</span><span class="ad-stat-lbl">Hook Rate</span>` : `<span class="ad-stat-val">-</span><span class="ad-stat-lbl">Hook Rate</span>`;
-                            let holdText = ad.media_type === 'Video' ? `<span class="ad-stat-val">${ad.holdRate}%</span><span class="ad-stat-lbl">Hold Rate</span>` : `<span class="ad-stat-val">-</span><span class="ad-stat-lbl">Hold Rate</span>`;
-                            
-                            adsCardsHTML += `
-                                <div class="ad-card">
-                                    <div class="ad-card-header">
-                                        <span class="ad-name">${ad.ad_name}</span>
-                                        <span class="ad-type-badge">${ad.media_type}</span>
-                                    </div>
-                                    <div class="ad-stats-grid">
-                                        <div class="ad-stat-item">
-                                            <span class="ad-stat-val">${ad.ctrCurrent}%</span>
-                                            <span class="ad-stat-lbl">CTR Link</span>
-                                        </div>
-                                        <div class="ad-stat-item">
-                                            ${hookText}
-                                        </div>
-                                        <div class="ad-stat-item">
-                                            ${holdText}
-                                        </div>
-                                        <div class="ad-stat-item">
-                                            <span class="ad-stat-val">${ad.conversions}</span>
-                                            <span class="ad-stat-lbl">Tin nhắn</span>
-                                        </div>
-                                    </div>
-                                    <div class="ad-copy-box">
-                                        <div class="ad-copy-title">${ad.ad_headline}</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted); white-space: pre-line;">${ad.ad_body}</div>
-                                    </div>
-                                    <div class="ad-critique-box ${critiqueClass}">
-                                        ${ad.critique}
-                                    </div>
-                                </div>
-                            `;
-                        });
-                    } else {
-                        adsCardsHTML = '<div class="empty-campaigns">Lưu ý: Tính năng phân tích nội dung AI chỉ hoạt động khi dùng script Local (chạy bằng Claude API). Ở chế độ lấy trực tiếp từ Facebook API, phần nội dung này sẽ bị trống.</div>';
-                    }
+                    const actId = acc.id.replace('act_', '');
+                    const fbAdsLink = camp.id ? `https://business.facebook.com/adsmanager/manage/ads?act=${actId}&filter_set=${encodeURIComponent(JSON.stringify([{"filter_type":"campaign_id","value":[camp.id]}]))}` : '#';
+                    
+                    adsCardsHTML = `
+                        <div class="empty-campaigns" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 2rem;">
+                            <div style="font-size: 1rem; color: var(--text-title); font-weight: 500;">
+                                Dữ liệu chi tiết các bài quảng cáo không hiển thị ở chế độ Live API.
+                            </div>
+                            <a href="${fbAdsLink}" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #2563eb; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.2s;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                Mở chiến dịch này trên Trình quản lý QC Facebook
+                            </a>
+                        </div>
+                    `;
 
                     // Generate Proposals HTML
                     let proposalsHTML = '';
