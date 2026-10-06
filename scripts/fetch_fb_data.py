@@ -35,7 +35,7 @@ def fetch_data_for_preset(accounts_list, base_url, date_preset):
     total_convs = 0
     
     for acc in accounts_list:
-        camp_url = f"{base_url}/{acc['id']}/campaigns?fields=id,name,status,effective_status,daily_budget,insights.date_preset({date_preset}){{spend,impressions,inline_link_clicks,inline_link_click_ctr,cpc,cpm,actions}}&limit=100&access_token={FB_TOKEN}"
+        camp_url = f"{base_url}/{acc['id']}/campaigns?fields=id,name,status,effective_status,daily_budget,ads.limit(10){{id,name,status,creative{{effective_object_story_id,thumbnail_url}}}},adsets.limit(1){{targeting}},insights.date_preset({date_preset}){{spend,impressions,inline_link_clicks,inline_link_click_ctr,cpc,cpm,actions}}&limit=100&access_token={FB_TOKEN}"
         camp_data = fetch_json(camp_url)
         if not camp_data or 'data' not in camp_data:
             continue
@@ -73,6 +73,46 @@ def fetch_data_for_preset(accounts_list, base_url, date_preset):
                 rating = "ORANGE"
             elif cpa > 0 and cpa <= 100000:
                 rating = "GREEN"
+
+            mapped_ads = []
+            ads_data = c.get('ads', {}).get('data', [])
+            for ad in ads_data:
+                creative = ad.get('creative', {})
+                post_id = creative.get('effective_object_story_id', '')
+                thumb_url = creative.get('thumbnail_url', '')
+                mapped_ads.append({
+                    "id": ad.get('id', ''),
+                    "name": ad.get('name', ''),
+                    "status": ad.get('status', ''),
+                    "postId": post_id,
+                    "thumbnail": thumb_url
+                })
+                
+            targeting_summary = "Không rõ"
+            adsets_data = c.get('adsets', {}).get('data', [])
+            if adsets_data and len(adsets_data) > 0:
+                t_obj = adsets_data[0].get('targeting', {})
+                age = f"{t_obj.get('age_min', '18')}-{t_obj.get('age_max', '65+')}"
+                geo = "Việt Nam"
+                geo_obj = t_obj.get('geo_locations', {})
+                if 'countries' in geo_obj:
+                    geo = ", ".join(geo_obj['countries'])
+                elif 'custom_locations' in geo_obj:
+                    geo = "Nhiều khu vực (VN)"
+                    
+                platforms = ", ".join(t_obj.get('publisher_platforms', ['Tự động']))
+                
+                interests = []
+                flex = t_obj.get('flexible_spec', [])
+                for f in flex:
+                    if 'interests' in f:
+                        for idx, interest in enumerate(f['interests']):
+                            if idx < 3:
+                                interests.append(interest.get('name', ''))
+                
+                targeting_summary = f"Độ tuổi: {age}<br>Vị trí: {geo}<br>Nền tảng: {platforms}"
+                if interests:
+                    targeting_summary += f"<br>Sở thích: {', '.join(interests)}..."
                 
             mapped_campaigns.append({
                 "id": c.get('id', ''),
@@ -99,8 +139,8 @@ def fetch_data_for_preset(accounts_list, base_url, date_preset):
                 "conversionsPrior": 0,
                 "conversionsChange": 0,
                 "rating": rating,
-                "ads": [],
-                "proposals": [],
+                "ads": mapped_ads,
+                "targetingSummary": targeting_summary,
                 "hookRate": 0,
                 "holdRate": 0
             })
