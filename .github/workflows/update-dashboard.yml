@@ -1,8 +1,8 @@
-name: Update Facebook Ads Dashboard Data
+name: Update Facebook Ads Dashboard Data from Google Sheet
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Chạy tự động vào nửa đêm mỗi ngày
+    - cron: '0 1 * * *' # Chạy tự động hàng ngày lúc 01:00 UTC (08:00 AM VN)
   repository_dispatch:
     types: [update-data]
   workflow_dispatch:
@@ -22,16 +22,14 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Fetch FB Data
-        env:
-          FB_TOKEN: ${{ secrets.FB_TOKEN }}
+      - name: Fetch Data from Google Sheets & Build Dashboard
         run: |
-          python scripts/fetch_fb_data.py
+          python scripts/fetch_sheet_data.py
 
       - name: Commit and push changes
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/reportData.json
-          git commit -m "Auto-update Facebook Ads Data" || echo "No changes to commit"
+          git add data/ index.html
+          git commit -m "Auto-update Dashboard from Google Sheets" || echo "No changes to commit"
           git push
