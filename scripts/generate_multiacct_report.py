@@ -227,7 +227,7 @@ for acc in accs:
             camps_map[c['id']] = c
 
     # Lấy ads
-    url_ads = f"https://graph.facebook.com/v19.0/{aid}/ads?fields=id,name,status,effective_status,updated_time,campaign_id&limit=300&access_token={FB_TOKEN}"
+    url_ads = f"https://graph.facebook.com/v19.0/{aid}/ads?fields=id,name,status,effective_status,updated_time,campaign_id,creative{{id,name,effective_object_story_id,thumbnail_url}}&limit=300&access_token={FB_TOKEN}"
     ads_data = http_get_json(url_ads)
     ads_map = {}
     if ads_data and 'data' in ads_data:
@@ -297,6 +297,14 @@ for acc in accs:
         if adid in ad_tags_by_date and date_str in ad_tags_by_date[adid]:
             tags_str = ", ".join(sorted(ad_tags_by_date[adid][date_str]))
 
+        # Link bài viết quảng cáo Facebook
+        c_creative = ad_obj.get('creative', {})
+        story_id = c_creative.get('effective_object_story_id')
+        if story_id:
+            ad_link = f"https://www.facebook.com/{story_id}"
+        else:
+            ad_link = f"https://adsmanager.facebook.com/adsmanager/manage/ads?act={aid.replace('act_', '')}&selected_ad_ids={adid}"
+
         all_rows.append({
             "Tài khoản": aname,
             "ID tài khoản": aid,
@@ -320,6 +328,7 @@ for acc in accs:
             "Tên quảng cáo": adname,
             "Sđt theo campain": sdt_count,
             "Tags Pancake": tags_str,
+            "Link bài quảng cáo": ad_link,
         })
 
 print(f"\n-> Tổng số dòng dữ liệu tổng hợp: {len(all_rows)}")
@@ -330,7 +339,7 @@ fieldnames = [
     "Tài khoản", "ID tài khoản", "Ngày", "Campaign ID", "Tên chiến dịch", "Trạng thái",
     "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", "CTR (%)", "CPC", "CPM",
     "Tin nhắn", "Lead", "Đăng ký", "CPA", "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo",
-    "Sđt theo campain", "Tags Pancake"
+    "Sđt theo campain", "Tags Pancake", "Link bài quảng cáo"
 ]
 
 with open(csv_file, 'w', encoding='utf-8-sig', newline='') as f:
