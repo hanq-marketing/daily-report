@@ -128,7 +128,7 @@ for pid, pat in page_tokens.items():
     offset = 0
     page_conv_count = 0
     page_lead_count = 0
-    seen_conv_ids = set()
+    page_conv_items = {}
 
     while True:
         exp_url = (
@@ -146,51 +146,55 @@ for pid, pat in page_tokens.items():
 
         for item in items:
             conv_id = str(item.get("id", ""))
-            if not conv_id or conv_id in seen_conv_ids:
-                continue
-            seen_conv_ids.add(conv_id)
-            page_conv_count += 1
-
-            ad_clicks = item.get("ad_clicks", [])
-            if not ad_clicks:
-                continue
-            ad_id = str(ad_clicks[0]).strip()
-            if not ad_id:
-                continue
-
-            # Bóc tách SĐT (1 conv có SĐT = 1 lead)
-            phone = None
-            recent_phones = item.get("recent_phone_numbers", [])
-            if recent_phones:
-                first_p = recent_phones[0]
-                phone = first_p.get("phone_number") if isinstance(first_p, dict) else str(first_p)
-            
-            # Thời điểm phát sinh SĐT (quy đổi theo GMT+7)
-            ins_time = item.get("inserted_at", "")
-            if ins_time:
-                date_str = ins_time[:10]
-            else:
-                date_str = UNTIL_DATE
-
-            # Tags của hội thoại
-            conv_tag_names = set()
-            for tid in item.get("tags", []):
-                t_str = str(tid)
-                if t_str in page_tag_map:
-                    conv_tag_names.add(page_tag_map[t_str])
-
-            if phone:
-                ad_phones_by_date.setdefault(ad_id, {}).setdefault(date_str, set()).add(phone)
-                if conv_tag_names:
-                    ad_tags_by_date.setdefault(ad_id, {}).setdefault(date_str, set()).update(conv_tag_names)
-                page_lead_count += 1
-                total_leads += 1
+            if conv_id:
+                page_conv_items.setdefault(conv_id, []).append(item)
 
         total_convs += len(items)
         if len(items) < 60:
             break
         offset += 60
         time.sleep(0.2)
+
+    # Xử lý từng cuộc trò chuyện sau khi đã có toàn bộ các lượt tương tác
+    for conv_id, it_list in page_conv_items.items():
+        page_conv_count += 1
+        items_with_phone = [x for x in it_list if x.get("recent_phone_numbers") and x.get("ad_clicks")]
+        if not items_with_phone:
+            continue
+
+        # Lấy lượt tương tác mới nhất (gần nhất với thời điểm phát sinh/chốt SĐT)
+        items_with_phone.sort(key=lambda x: x.get("inserted_at", ""))
+        best_item = items_with_phone[-1]
+
+        ad_clicks = best_item.get("ad_clicks", [])
+        if not ad_clicks:
+            continue
+        ad_id = str(ad_clicks[0]).strip()
+        if not ad_id:
+            continue
+
+        first_p = best_item["recent_phone_numbers"][0]
+        phone = first_p.get("phone_number") if isinstance(first_p, dict) else str(first_p)
+        if not phone:
+            continue
+
+        # Thời điểm phát sinh tương tác SĐT (Pancake export_data đã ở GMT+7)
+        ins_time = best_item.get("inserted_at", "")
+        date_str = ins_time[:10] if ins_time else UNTIL_DATE
+
+        # Tổng hợp tags của cuộc trò chuyện
+        conv_tag_names = set()
+        for x in it_list:
+            for tid in x.get("tags", []):
+                t_str = str(tid)
+                if t_str in page_tag_map:
+                    conv_tag_names.add(page_tag_map[t_str])
+
+        ad_phones_by_date.setdefault(ad_id, {}).setdefault(date_str, set()).add(phone)
+        if conv_tag_names:
+            ad_tags_by_date.setdefault(ad_id, {}).setdefault(date_str, set()).update(conv_tag_names)
+        page_lead_count += 1
+        total_leads += 1
 
     if page_lead_count > 0:
         print(f"  ✓ {page_name[:35]}: {page_conv_count} hội thoại ads, bóc tách {page_lead_count} SĐT.")
