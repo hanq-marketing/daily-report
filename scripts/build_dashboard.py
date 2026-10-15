@@ -702,6 +702,67 @@ html_content = """<!DOCTYPE html>
             color: #ffffff;
         }
 
+        /* ─── View Mode Switcher ─── */
+        .view-mode-group {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 3px;
+            gap: 3px;
+        }
+
+        [data-theme="light"] .view-mode-group {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .view-mode-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.32rem 0.75rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .view-mode-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .view-mode-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+        }
+
+        .badge-ad-count {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.15rem 0.45rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            white-space: nowrap;
+        }
+
+        .ad-links-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            align-items: center;
+            max-width: 280px;
+        }
+
         /* ─── Pagination ─── */
         .pagination-bar {
             display: flex;
@@ -983,8 +1044,16 @@ html_content = """<!DOCTYPE html>
         <div class="table-card">
             <div class="table-header">
                 <div class="table-title-area">
-                    <span class="table-title">📑 Bảng Dữ Liệu Chi Tiết</span>
-                    <span class="table-count-badge" id="tableRowCount">0 dòng</span>
+                    <span class="table-title">📑 Bảng Dữ Liệu</span>
+                    <div class="view-mode-group">
+                        <button class="view-mode-btn active" id="btnViewCampaign" title="Gộp theo Chiến dịch (Mỗi chiến dịch 1 dòng duy nhất, không trùng lặp)">
+                            📊 Theo Chiến Dịch
+                        </button>
+                        <button class="view-mode-btn" id="btnViewAd" title="Chi tiết từng ID quảng cáo (Mẫu QC)">
+                            📑 Chi tiết theo Ad
+                        </button>
+                    </div>
+                    <span class="table-count-badge" id="tableRowCount">0 chiến dịch</span>
                 </div>
                 <div class="table-controls">
                     <input type="text" id="tableSearchInput" class="search-input" placeholder="🔍 Tìm chiến dịch, ID ad, tag..." style="width: 250px;">
@@ -1016,7 +1085,7 @@ html_content = """<!DOCTYPE html>
                             <th data-sort="CPM">CPM ⬍</th>
                             <th data-sort="CPA">CPA ⬍</th>
                             <th>Tags Pancake</th>
-                            <th data-sort="ID quảng cáo">ID quảng cáo ⬍</th>
+                            <th id="thIdCol" data-sort="ID">Campaign ID ⬍</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -1050,6 +1119,9 @@ html_content = """<!DOCTYPE html>
             status: "ALL",
             search: ""
         };
+
+        // State chế độ hiển thị bảng: 'campaign' (mỗi chiến dịch 1 dòng) | 'ad' (chi tiết từng ID quảng cáo)
+        let currentViewMode = "campaign";
 
         // State phân trang & sort
         let currentPage = 1;
@@ -1173,7 +1245,8 @@ html_content = """<!DOCTYPE html>
                                 "ID quảng cáo": String(r["ID quảng cáo"] || ""),
                                 "Tên quảng cáo": r["Tên quảng cáo"] || "",
                                 "Sđt theo campain": parseInt(r["Sđt theo campain"] || 0),
-                                "Tags Pancake": r["Tags Pancake"] || ""
+                                "Tags Pancake": r["Tags Pancake"] || "",
+                                "Link bài quảng cáo": r["Link bài quảng cáo"] || ""
                             }));
 
                             badge.className = 'badge-status';
@@ -1592,15 +1665,110 @@ html_content = """<!DOCTYPE html>
             });
         }
 
-        // ─── Bảng Dữ Liệu Chi Tiết ───
+        // ─── Chuẩn hóa dữ liệu theo chế độ xem (Chiến dịch vs Quảng cáo) ───
+        function getProcessedTableData() {
+            if (currentViewMode === "ad") {
+                return FILTERED_DATA.map(r => {
+                    const adId = r["ID quảng cáo"] || "";
+                    const adInfo = AD_LINKS_MAP[adId] || {};
+                    const postUrl = r["Link bài quảng cáo"] || adInfo.url || (adId ? `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${(r["ID tài khoản"]||"").replace("act_","")}&selected_ad_ids=${adId}` : "");
+                    return {
+                        ...r,
+                        "_id_display": adId,
+                        "_ads": [{
+                            id: adId,
+                            name: r["Tên quảng cáo"] || adInfo.name || "Quảng cáo",
+                            url: postUrl,
+                            thumb: adInfo.thumb || ""
+                        }]
+                    };
+                });
+            }
+
+            // Chế độ 'campaign': Gộp theo Ngày + Tài khoản + (Campaign ID hoặc Tên chiến dịch)
+            const grouped = {};
+            FILTERED_DATA.forEach(r => {
+                const campKey = `${r["Ngày"]}__${r["Tài khoản"]}__${r["Campaign ID"] || r["Tên chiến dịch"]}`;
+                if (!grouped[campKey]) {
+                    grouped[campKey] = {
+                        "Tài khoản": r["Tài khoản"],
+                        "ID tài khoản": r["ID tài khoản"],
+                        "Ngày": r["Ngày"],
+                        "Campaign ID": r["Campaign ID"] || "",
+                        "Tên chiến dịch": r["Tên chiến dịch"] || "",
+                        "Trạng thái": r["Trạng thái"] || "UNKNOWN",
+                        "Ngân sách/ngày": r["Ngân sách/ngày"] || "",
+                        "Chi tiêu": 0,
+                        "Hiển thị": 0,
+                        "Click link": 0,
+                        "Tin nhắn": 0,
+                        "Lead": 0,
+                        "Đăng ký": 0,
+                        "Sđt theo campain": 0,
+                        "CTR (%)": 0,
+                        "CPC": 0,
+                        "CPM": 0,
+                        "CPA": 0,
+                        "Tags Pancake": "",
+                        "_tagsSet": new Set(),
+                        "_ads": [],
+                        "_id_display": r["Campaign ID"] || ""
+                    };
+                }
+
+                const g = grouped[campKey];
+                if (r["Trạng thái"] === "ACTIVE") g["Trạng thái"] = "ACTIVE";
+
+                g["Chi tiêu"] += (r["Chi tiêu"] || 0);
+                g["Hiển thị"] += (r["Hiển thị"] || 0);
+                g["Click link"] += (r["Click link"] || 0);
+                g["Tin nhắn"] += (r["Tin nhắn"] || 0);
+                g["Lead"] += (r["Lead"] || 0);
+                g["Đăng ký"] += (r["Đăng ký"] || 0);
+                g["Sđt theo campain"] += (r["Sđt theo campain"] || 0);
+
+                if (r["Tags Pancake"]) {
+                    r["Tags Pancake"].split(',').forEach(t => {
+                        const tr = t.trim();
+                        if (tr) g._tagsSet.add(tr);
+                    });
+                }
+
+                const adId = r["ID quảng cáo"] || "";
+                const adInfo = AD_LINKS_MAP[adId] || {};
+                const postUrl = r["Link bài quảng cáo"] || adInfo.url || (adId ? `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${(r["ID tài khoản"]||"").replace("act_","")}&selected_ad_ids=${adId}` : "");
+                g._ads.push({
+                    id: adId,
+                    name: r["Tên quảng cáo"] || adInfo.name || "Quảng cáo",
+                    url: postUrl,
+                    thumb: adInfo.thumb || ""
+                });
+            });
+
+            return Object.values(grouped).map(g => {
+                g["CTR (%)"] = g["Hiển thị"] > 0 ? (g["Click link"] / g["Hiển thị"]) * 100 : 0;
+                g["CPC"] = g["Click link"] > 0 ? g["Chi tiêu"] / g["Click link"] : 0;
+                g["CPM"] = g["Hiển thị"] > 0 ? (g["Chi tiêu"] / g["Hiển thị"]) * 1000 : 0;
+                const totalConv = g["Sđt theo campain"] || (g["Tin nhắn"] + g["Lead"] + g["Đăng ký"]);
+                g["CPA"] = totalConv > 0 ? g["Chi tiêu"] / totalConv : 0;
+                g["Tags Pancake"] = Array.from(g._tagsSet).join(', ');
+                return g;
+            });
+        }
+
+        // ─── Bảng Dữ Liệu ───
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
+            const tableData = getProcessedTableData();
+
             // Sắp xếp dữ liệu
-            const sorted = [...FILTERED_DATA].sort((a, b) => {
-                let vA = a[currentSort.field];
-                let vB = b[currentSort.field];
+            const sortField = (currentSort.field === 'ID' || currentSort.field === 'ID quảng cáo') ? '_id_display' : currentSort.field;
+
+            const sorted = [...tableData].sort((a, b) => {
+                let vA = a[sortField];
+                let vB = b[sortField];
                 if (typeof vA === 'string') {
                     return currentSort.asc ? vA.localeCompare(vB) : vB.localeCompare(vA);
                 }
@@ -1611,7 +1779,8 @@ html_content = """<!DOCTYPE html>
 
             // Phân trang
             const total = sorted.length;
-            document.getElementById('tableRowCount').textContent = `${formatNumber(total)} dòng`;
+            const unitLabel = currentViewMode === 'campaign' ? 'chiến dịch' : 'quảng cáo';
+            document.getElementById('tableRowCount').textContent = `${formatNumber(total)} ${unitLabel}`;
             const startIdx = (currentPage - 1) * pageSize;
             const endIdx = Math.min(startIdx + pageSize, total);
             const pageData = sorted.slice(startIdx, endIdx);
@@ -1643,28 +1812,48 @@ html_content = """<!DOCTYPE html>
                     ? `<span class="phone-badge">📱 ${sdtVal}</span>` 
                     : `<span class="phone-badge zero">0</span>`;
 
-                // Link bài quảng cáo
-                const adId = r["ID quảng cáo"] || "";
-                const adInfo = AD_LINKS_MAP[adId] || {};
-                const postUrl = r["Link bài quảng cáo"] || adInfo.url || (adId ? `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${(r["ID tài khoản"]||"").replace("act_","")}&selected_ad_ids=${adId}` : "");
-                const adThumb = adInfo.thumb || "";
-                const adName = r["Tên quảng cáo"] || adInfo.name || "Quảng cáo";
-
+                // Bài quảng cáo cell
                 let adLinkHtml = `<span style="color: var(--text-muted); font-size: 0.75rem;">--</span>`;
-                if (postUrl) {
-                    adLinkHtml = `
-                        <div class="ad-link-cell">
-                            ${adThumb ? `<img src="${adThumb}" class="ad-thumb" alt="thumb" onerror="this.style.display='none'">` : ''}
-                            <div class="ad-info">
-                                <span class="ad-name-text" title="${adName}">${adName}</span>
-                                <a href="${postUrl}" target="_blank" rel="noopener noreferrer" class="btn-ad-link" title="Xem bài quảng cáo trên Facebook">
-                                    <span>Xem bài</span>
-                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                </a>
+                const ads = r._ads || [];
+                if (ads.length === 1) {
+                    const ad = ads[0];
+                    if (ad.url) {
+                        adLinkHtml = `
+                            <div class="ad-link-cell">
+                                ${ad.thumb ? `<img src="${ad.thumb}" class="ad-thumb" alt="thumb" onerror="this.style.display='none'">` : ''}
+                                <div class="ad-info">
+                                    <span class="ad-name-text" title="${ad.name}">${ad.name}</span>
+                                    <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="btn-ad-link" title="Xem bài quảng cáo trên Facebook">
+                                        <span>Xem bài</span>
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    </a>
+                                </div>
                             </div>
+                        `;
+                    }
+                } else if (ads.length > 1) {
+                    const buttons = ads.map((ad, idx) => {
+                        if (!ad.url) return '';
+                        return `
+                            <a href="${ad.url}" target="_blank" rel="noopener noreferrer" class="btn-ad-link" title="${ad.name} (Ad ID: ${ad.id})">
+                                <span>Bài ${idx + 1}</span>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
+                        `;
+                    }).filter(Boolean).join('');
+
+                    adLinkHtml = `
+                        <div class="ad-links-container">
+                            <span class="badge-ad-count">${ads.length} ads</span>
+                            ${buttons || '<span style="color: var(--text-muted); font-size: 0.75rem;">Chưa có link</span>'}
                         </div>
                     `;
                 }
+
+                // ID cell
+                const idCellHtml = currentViewMode === 'campaign'
+                    ? `<code style="font-size: 0.75rem;" title="Campaign ID: ${r["Campaign ID"]}">${r["Campaign ID"] || "--"}</code> <span class="badge-ad-count" style="font-size: 0.68rem; margin-left: 3px;">${ads.length} ads</span>`
+                    : `<code style="font-size: 0.75rem;" title="Ad ID: ${r["ID quảng cáo"]}">${r["ID quảng cáo"] || "--"}</code>`;
 
                 tr.innerHTML = `
                     <td><b>${r["Tài khoản"]}</b></td>
@@ -1681,12 +1870,13 @@ html_content = """<!DOCTYPE html>
                     <td>${formatMoney(r["CPM"])}</td>
                     <td>${formatMoney(r["CPA"])}</td>
                     <td>${tagsHtml}</td>
-                    <td><code style="font-size: 0.75rem;">${r["ID quảng cáo"]}</code></td>
+                    <td>${idCellHtml}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('paginationInfo').textContent = `Hiển thị ${startIdx + 1} - ${endIdx} trong tổng số ${formatNumber(total)} dòng`;
+            const modeDesc = currentViewMode === 'campaign' ? 'chiến dịch (đã gộp các mẫu QC)' : 'quảng cáo chi tiết';
+            document.getElementById('paginationInfo').textContent = `Hiển thị ${startIdx + 1} - ${endIdx} trong tổng số ${formatNumber(total)} ${modeDesc}`;
             renderPaginationControls(total);
         }
 
@@ -1748,6 +1938,27 @@ html_content = """<!DOCTYPE html>
             
             document.getElementById('pageSizeSelect').addEventListener('change', (e) => {
                 pageSize = parseInt(e.target.value);
+                currentPage = 1;
+                renderTable();
+            });
+
+            // Toggle Chế độ hiển thị: Theo Chiến Dịch vs Theo Ad
+            document.getElementById('btnViewCampaign').addEventListener('click', () => {
+                if (currentViewMode === 'campaign') return;
+                currentViewMode = 'campaign';
+                document.getElementById('btnViewCampaign').classList.add('active');
+                document.getElementById('btnViewAd').classList.remove('active');
+                document.getElementById('thIdCol').innerHTML = 'Campaign ID ⬍';
+                currentPage = 1;
+                renderTable();
+            });
+
+            document.getElementById('btnViewAd').addEventListener('click', () => {
+                if (currentViewMode === 'ad') return;
+                currentViewMode = 'ad';
+                document.getElementById('btnViewAd').classList.add('active');
+                document.getElementById('btnViewCampaign').classList.remove('active');
+                document.getElementById('thIdCol').innerHTML = 'ID quảng cáo ⬍';
                 currentPage = 1;
                 renderTable();
             });
@@ -1818,13 +2029,21 @@ html_content = """<!DOCTYPE html>
 
             // Xuất CSV
             document.getElementById('btnExportCSV').addEventListener('click', () => {
-                if (!FILTERED_DATA.length) return alert('Không có dữ liệu để xuất!');
-                const csv = Papa.unparse(FILTERED_DATA);
+                const dataToExport = getProcessedTableData();
+                if (!dataToExport.length) return alert('Không có dữ liệu để xuất!');
+                const cleanData = dataToExport.map(item => {
+                    const copy = { ...item };
+                    delete copy._tagsSet;
+                    delete copy._ads;
+                    delete copy._id_display;
+                    return copy;
+                });
+                const csv = Papa.unparse(cleanData);
                 const blob = new Blob(["\\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `bao_cao_ads_${currentFilter.account}_${currentFilter.dateStart}_${currentFilter.dateEnd}.csv`;
+                a.download = `bao_cao_${currentViewMode}_${currentFilter.account}_${currentFilter.dateStart}_${currentFilter.dateEnd}.csv`;
                 a.click();
             });
         }
