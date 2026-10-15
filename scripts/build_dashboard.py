@@ -27,6 +27,18 @@ with open(csv_path, mode="r", encoding="utf-8-sig") as f:
 print(f"-> Đã đọc {len(rows)} dòng dữ liệu.")
 json_data_str = json.dumps(rows, ensure_ascii=False)
 
+cache_path = os.path.join(base_dir, "data", "ad_links_cache.json")
+ad_links = {}
+if os.path.exists(cache_path):
+    try:
+        with open(cache_path, "r", encoding="utf-8") as f:
+            ad_links = json.load(f)
+    except Exception as e:
+        print(f"Lỗi đọc ad_links_cache.json: {e}")
+
+ad_links_str = json.dumps(ad_links, ensure_ascii=False)
+print(f"-> Đã tải {len(ad_links)} liên kết bài quảng cáo từ cache.")
+
 html_content = """<!DOCTYPE html>
 <html lang="vi" data-theme="dark">
 <head>
@@ -613,6 +625,83 @@ html_content = """<!DOCTYPE html>
             font-weight: normal;
         }
 
+        /* ─── Ad Links & Buttons Styling ─── */
+        .ad-link-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            min-width: 175px;
+        }
+
+        .ad-thumb {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .ad-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            overflow: hidden;
+        }
+
+        .ad-name-text {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .btn-ad-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.22rem 0.6rem;
+            border-radius: var(--radius-sm);
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 700;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: fit-content;
+        }
+
+        .btn-ad-link:hover {
+            background: #6366f1;
+            color: #ffffff;
+            border-color: #6366f1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-ad-link.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            border-color: transparent;
+        }
+
+        [data-theme="light"] .btn-ad-link {
+            background: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+            border-color: rgba(79, 70, 229, 0.3);
+        }
+
+        [data-theme="light"] .btn-ad-link:hover {
+            background: #4f46e5;
+            color: #ffffff;
+        }
+
         /* ─── Pagination ─── */
         .pagination-bar {
             display: flex;
@@ -916,6 +1005,7 @@ html_content = """<!DOCTYPE html>
                             <th data-sort="Tài khoản">Tài khoản ⬍</th>
                             <th data-sort="Ngày">Ngày ⬍</th>
                             <th data-sort="Tên chiến dịch">Tên chiến dịch ⬍</th>
+                            <th>Bài quảng cáo</th>
                             <th data-sort="Trạng thái">Trạng thái ⬍</th>
                             <th data-sort="Chi tiêu">Chi tiêu (VNĐ) ⬍</th>
                             <th data-sort="Sđt theo campain">SĐT (Pancake) ⬍</th>
@@ -949,6 +1039,7 @@ html_content = """<!DOCTYPE html>
         
         // Dữ liệu ban đầu (Local Fallback)
         let RAW_DATA = """ + json_data_str + """;
+        const AD_LINKS_MAP = """ + ad_links_str + """;
         let FILTERED_DATA = [];
 
         // State quản lý bộ lọc
@@ -1475,8 +1566,23 @@ html_content = """<!DOCTYPE html>
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: (evt, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const campName = topCamps[index][0];
+                            document.getElementById('tableSearchInput').value = campName;
+                            currentFilter.search = campName.toLowerCase();
+                            applyFilters();
+                            document.querySelector('.table-card').scrollIntoView({ behavior: 'smooth' });
+                        }
+                    },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: () => '👉 Bấm vào để lọc bảng & xem link bài viết'
+                            }
+                        }
                     },
                     scales: {
                         x: { grid: { color: colors.grid }, ticks: { color: colors.text, precision: 0 } },
@@ -1511,7 +1617,7 @@ html_content = """<!DOCTYPE html>
             const pageData = sorted.slice(startIdx, endIdx);
 
             if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="14" style="text-align: center; padding: 2rem; color: var(--text-muted);">Không tìm thấy dữ liệu phù hợp với bộ lọc hiện tại.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="15" style="text-align: center; padding: 2rem; color: var(--text-muted);">Không tìm thấy dữ liệu phù hợp với bộ lọc hiện tại.</td></tr>`;
                 document.getElementById('paginationInfo').textContent = 'Hiển thị 0 dòng';
                 document.getElementById('paginationControls').innerHTML = '';
                 return;
@@ -1537,10 +1643,34 @@ html_content = """<!DOCTYPE html>
                     ? `<span class="phone-badge">📱 ${sdtVal}</span>` 
                     : `<span class="phone-badge zero">0</span>`;
 
+                // Link bài quảng cáo
+                const adId = r["ID quảng cáo"] || "";
+                const adInfo = AD_LINKS_MAP[adId] || {};
+                const postUrl = r["Link bài quảng cáo"] || adInfo.url || (adId ? `https://adsmanager.facebook.com/adsmanager/manage/ads?act=${(r["ID tài khoản"]||"").replace("act_","")}&selected_ad_ids=${adId}` : "");
+                const adThumb = adInfo.thumb || "";
+                const adName = r["Tên quảng cáo"] || adInfo.name || "Quảng cáo";
+
+                let adLinkHtml = `<span style="color: var(--text-muted); font-size: 0.75rem;">--</span>`;
+                if (postUrl) {
+                    adLinkHtml = `
+                        <div class="ad-link-cell">
+                            ${adThumb ? `<img src="${adThumb}" class="ad-thumb" alt="thumb" onerror="this.style.display='none'">` : ''}
+                            <div class="ad-info">
+                                <span class="ad-name-text" title="${adName}">${adName}</span>
+                                <a href="${postUrl}" target="_blank" rel="noopener noreferrer" class="btn-ad-link" title="Xem bài quảng cáo trên Facebook">
+                                    <span>Xem bài</span>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 tr.innerHTML = `
                     <td><b>${r["Tài khoản"]}</b></td>
                     <td>${r["Ngày"]}</td>
                     <td title="${r["Tên chiến dịch"]}">${(r["Tên chiến dịch"] || "").slice(0, 32)}${(r["Tên chiến dịch"] || "").length > 32 ? '…' : ''}</td>
+                    <td>${adLinkHtml}</td>
                     <td>${statusHtml}</td>
                     <td><b>${formatMoney(r["Chi tiêu"])}</b></td>
                     <td>${sdtHtml}</td>
