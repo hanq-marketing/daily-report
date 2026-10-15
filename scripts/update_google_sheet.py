@@ -45,14 +45,14 @@ def run_sync():
         "Account Name", "Account ID", "Ngày", "Campaign ID", "Tên chiến dịch", 
         "Trạng thái", "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", 
         "CTR (%)", "CPC", "CPM", "Tin nhắn", "Lead", "Đăng ký", "CPA", 
-        "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo", "Sđt theo campain", "Tags Pancake"
+        "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo", "Sđt theo campain", "Tags Pancake", "Link bài quảng cáo"
     ]
 
     account_headers = [
         "Ngày", "Campaign ID", "Tên chiến dịch", 
         "Trạng thái", "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", 
         "CTR (%)", "CPC", "CPM", "Tin nhắn", "Lead", "Đăng ký", "CPA", 
-        "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo", "Sđt theo campain", "Tags Pancake"
+        "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo", "Sđt theo campain", "Tags Pancake", "Link bài quảng cáo"
     ]
 
     csv_to_master_map = {
@@ -77,7 +77,8 @@ def run_sync():
         "ID quảng cáo": "ID quảng cáo",
         "Tên quảng cáo": "Tên quảng cáo",
         "Sđt theo campain": "Sđt theo campain",
-        "Tags Pancake": "Tags Pancake"
+        "Tags Pancake": "Tags Pancake",
+        "Link bài quảng cáo": "Link bài quảng cáo"
     }
 
     # 1. CẬP NHẬT TAB MASTER DATA (UPSERT: CẬP NHẬT SỐ LIỆU MỚI & THÊM DÒNG MỚI, BẢO TOÀN LỊCH SỬ)
@@ -87,7 +88,7 @@ def run_sync():
     except gspread.exceptions.WorksheetNotFound:
         ws_master = spreadsheet.add_worksheet(title="Master Data", rows="2000", cols="25")
         ws_master.update([master_headers], "A1", value_input_option="USER_ENTERED")
-        ws_master.format("A1:V1", {"textFormat": {"bold": True}})
+        ws_master.format("A1:W1", {"textFormat": {"bold": True}})
 
     existing_master = ws_master.get_all_values()
     if not existing_master:
