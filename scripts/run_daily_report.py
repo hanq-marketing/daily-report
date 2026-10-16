@@ -11,6 +11,7 @@ def main():
 
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     script_gen = os.path.join(base_dir, "scripts", "generate_multiacct_report.py")
+    script_cache = os.path.join(base_dir, "scripts", "build_ad_links_cache.py")
     script_sync = os.path.join(base_dir, "scripts", "update_google_sheet.py")
 
     # Bước 1: Kéo dữ liệu từ Facebook Graph API và tạo CSV + Markdown
@@ -19,6 +20,12 @@ def main():
     if res1.returncode != 0:
         print("\n❌ LỖI: Bước 1 thất bại! Dừng quy trình.")
         sys.exit(res1.returncode)
+
+    print("\n-----------------------------------------------------------------")
+    # Bước 1.5: Cập nhật cache liên kết bài quảng cáo & thumbnails
+    if os.path.exists(script_cache):
+        print("👉 BƯỚC 1.5: Quét và cập nhật cache link bài quảng cáo & thumbnail...")
+        subprocess.run([sys.executable, script_cache], capture_output=False)
 
     print("\n-----------------------------------------------------------------")
     # Bước 2: Đối soát và đồng bộ lũy kế lên Google Sheets
