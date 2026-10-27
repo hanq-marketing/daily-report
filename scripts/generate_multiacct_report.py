@@ -333,6 +333,10 @@ for acc in accs:
 
 print(f"\n-> Tổng số dòng dữ liệu tổng hợp: {len(all_rows)}")
 
+if len(all_rows) == 0:
+    print("❌ LỖI: Không thu thập được bản ghi nào từ Facebook API! Hủy ghi đè để bảo vệ dữ liệu cũ.")
+    sys.exit(1)
+
 # ─── BƯỚC 5: XUẤT CSV ────────────────────────────────────────────────────────
 csv_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "bao_cao_cac_tai_khoan_10_2026.csv")
 fieldnames = [
