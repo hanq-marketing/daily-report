@@ -13,6 +13,7 @@ def main():
     script_gen = os.path.join(base_dir, "scripts", "generate_multiacct_report.py")
     script_cache = os.path.join(base_dir, "scripts", "build_ad_links_cache.py")
     script_sync = os.path.join(base_dir, "scripts", "update_google_sheet.py")
+    script_lark = os.path.join(base_dir, "scripts", "update_lark_base.py")
 
     # Bước 1: Kéo dữ liệu từ Facebook Graph API và tạo CSV + Markdown
     print("👉 BƯỚC 1: Thu thập dữ liệu từ Facebook API & đối soát SĐT theo ID quảng cáo...")
@@ -33,6 +34,14 @@ def main():
     res2 = subprocess.run([sys.executable, script_sync], capture_output=False)
     if res2.returncode != 0:
         print("\n❌ LỖI: Bước 2 thất bại!")
+
+    print("\n-----------------------------------------------------------------")
+    # Bước 2.5: Đồng bộ lũy kế lên Lark Base
+    if os.path.exists(script_lark):
+        print("👉 BƯỚC 2.5: Đối soát và đồng bộ lũy kế lên Lark Base...")
+        res_lark = subprocess.run([sys.executable, script_lark], capture_output=False)
+        if res_lark.returncode != 0:
+            print("\n⚠️ CẢNH BÁO: Bước 2.5 đồng bộ Lark Base gặp lỗi!")
     print("\n-----------------------------------------------------------------")
     # Bước 3: Cập nhật Dashboard trực quan hóa index.html
     print("👉 BƯỚC 3: Cập nhật Dashboard trực quan hóa (index.html)...")
