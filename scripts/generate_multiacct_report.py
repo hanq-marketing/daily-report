@@ -74,6 +74,9 @@ if not pancake_pages:
     if fb_pages_data and fb_pages_data.get("data"):
         pancake_pages = [{"id": p["id"], "name": p["name"]} for p in fb_pages_data["data"]]
 
+if not pancake_pages:
+    sys.exit("❌ Lỗi kết nối mạng hoặc Token: Không lấy được danh sách Fanpage từ Pancake và Facebook API.")
+
 print(f"-> Tìm thấy {len(pancake_pages)} trang Fanpage đang kích hoạt.")
 
 # ─── BƯỚC 2: TẠO PAGE ACCESS TOKEN & LẤY TAGS CHO TỪNG PAGE ─────────────────
