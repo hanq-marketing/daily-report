@@ -857,21 +857,29 @@ html_content = """<!DOCTYPE html>
         <div class="filters-card">
             <div class="filters-row">
                 <!-- Chọn Tài khoản -->
-                <div class="filter-group" style="flex: 1.5;">
+                <div class="filter-group" style="flex: 1.5; min-width: 220px;">
                     <label class="filter-label">🏢 Chọn Tài Khoản Ads</label>
                     <select id="accountFilter" class="select-input">
                         <option value="ALL">👉 Tất cả các tài khoản (Tổng hợp)</option>
                     </select>
                 </div>
 
+                <!-- Lọc theo Tháng -->
+                <div class="filter-group" style="flex: 1; min-width: 170px;">
+                    <label class="filter-label">🗓️ Lọc Theo Tháng</label>
+                    <select id="monthFilter" class="select-input">
+                        <option value="ALL">👉 Tất cả các tháng</option>
+                    </select>
+                </div>
+
                 <!-- Từ ngày -->
-                <div class="filter-group">
+                <div class="filter-group" style="flex: 1; min-width: 140px;">
                     <label class="filter-label">📅 Từ ngày</label>
                     <input type="date" id="dateStart" class="date-input">
                 </div>
 
                 <!-- Đến ngày -->
-                <div class="filter-group">
+                <div class="filter-group" style="flex: 1; min-width: 140px;">
                     <label class="filter-label">📅 Đến ngày</label>
                     <input type="date" id="dateEnd" class="date-input">
                 </div>
@@ -899,7 +907,8 @@ html_content = """<!DOCTYPE html>
                 <div class="preset-buttons">
                     <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-right: 0.25rem;">Mốc nhanh:</span>
                     <button class="preset-chip active" data-range="all">Toàn bộ kỳ</button>
-                    <button class="preset-chip" data-range="this_month">Tháng 10/2026</button>
+                    <button class="preset-chip" data-range="this_month">Tháng này</button>
+                    <button class="preset-chip" data-range="last_month">Tháng trước</button>
                     <button class="preset-chip" data-range="last_7">7 ngày qua</button>
                     <button class="preset-chip" data-range="yesterday">Hôm qua</button>
                     <button class="preset-chip" data-range="today">Hôm nay</button>
@@ -1114,6 +1123,7 @@ html_content = """<!DOCTYPE html>
         // State quản lý bộ lọc
         let currentFilter = {
             account: "ALL",
+            month: "ALL",
             dateStart: "",
             dateEnd: "",
             status: "ALL",
@@ -1143,6 +1153,7 @@ html_content = """<!DOCTYPE html>
             initTheme();
             setupEventListeners();
             initDateRange();
+            populateMonthDropdown();
             populateAccountDropdown();
             applyFilters();
             
@@ -1183,6 +1194,72 @@ html_content = """<!DOCTYPE html>
 
             currentFilter.dateStart = minDate;
             currentFilter.dateEnd = maxDate;
+        }
+
+        // ─── Điền danh sách tháng vào Dropdown ───
+        function populateMonthDropdown() {
+            const select = document.getElementById('monthFilter');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="ALL">👉 Tất cả các tháng</option>';
+            
+            const months = [...new Set(RAW_DATA.map(r => {
+                if (!r["Ngày"]) return null;
+                const p = String(r["Ngày"]).trim().split('-');
+                if (p.length >= 2) return `${p[0]}-${p[1]}`;
+                return null;
+            }).filter(Boolean))].sort().reverse();
+            
+            months.forEach(m => {
+                const [year, month] = m.split('-');
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = `🗓️ Tháng ${month}/${year}`;
+                select.appendChild(opt);
+            });
+            
+            if (months.includes(currentVal)) {
+                select.value = currentVal;
+            } else {
+                select.value = "ALL";
+            }
+
+            // Cập nhật nhãn nút mốc nhanh theo tháng thực tế
+            if (months.length > 0) {
+                const btnThisMonth = document.querySelector('.preset-chip[data-range="this_month"]');
+                if (btnThisMonth) {
+                    const [y, m] = months[0].split('-');
+                    btnThisMonth.textContent = `Tháng ${m}/${y}`;
+                }
+            }
+            if (months.length > 1) {
+                const btnLastMonth = document.querySelector('.preset-chip[data-range="last_month"]');
+                if (btnLastMonth) {
+                    const [y, m] = months[1].split('-');
+                    btnLastMonth.textContent = `Tháng ${m}/${y}`;
+                }
+            }
+        }
+
+        // ─── Đồng bộ Dropdown Tháng khi người dùng thay đổi ngày ───
+        function syncMonthFromDates() {
+            const startVal = document.getElementById('dateStart').value;
+            const endVal = document.getElementById('dateEnd').value;
+            const monthSelect = document.getElementById('monthFilter');
+            if (!monthSelect) return;
+            
+            if (startVal && endVal) {
+                const startMonth = startVal.slice(0, 7);
+                const endMonth = endVal.slice(0, 7);
+                if (startMonth === endMonth) {
+                    const opt = Array.from(monthSelect.options).find(o => o.value === startMonth);
+                    if (opt) {
+                        monthSelect.value = startMonth;
+                        return;
+                    }
+                }
+            }
+            monthSelect.value = 'ALL';
         }
 
         // ─── Điền danh sách tài khoản vào Dropdown ───
@@ -1253,6 +1330,7 @@ html_content = """<!DOCTYPE html>
                             badge.innerHTML = '🟢 Google Sheets (Trực tiếp)';
                             document.getElementById('lastUpdatedText').textContent = `Lần đồng bộ cuối: ${new Date().toLocaleTimeString('vi-VN')}`;
                             populateAccountDropdown();
+                            populateMonthDropdown();
                             initDateRange();
                             applyFilters();
                         }
@@ -1274,6 +1352,7 @@ html_content = """<!DOCTYPE html>
         // ─── Xử lý Lọc & Tìm kiếm ───
         function applyFilters() {
             currentFilter.account = document.getElementById('accountFilter').value;
+            currentFilter.month = document.getElementById('monthFilter').value;
             currentFilter.dateStart = document.getElementById('dateStart').value;
             currentFilter.dateEnd = document.getElementById('dateEnd').value;
             currentFilter.status = document.getElementById('statusFilter').value;
@@ -1284,8 +1363,12 @@ html_content = """<!DOCTYPE html>
                 if (currentFilter.account !== "ALL" && row["Tài khoản"] !== currentFilter.account) {
                     return false;
                 }
-                // Lọc ngày
+                // Lọc tháng
                 const rowDate = row["Ngày"];
+                if (currentFilter.month !== "ALL" && (!rowDate || !rowDate.startsWith(currentFilter.month))) {
+                    return false;
+                }
+                // Lọc ngày
                 if (currentFilter.dateStart && rowDate < currentFilter.dateStart) return false;
                 if (currentFilter.dateEnd && rowDate > currentFilter.dateEnd) return false;
                 
@@ -1318,8 +1401,13 @@ html_content = """<!DOCTYPE html>
 
         function updateFilterSummaryText() {
             const accText = currentFilter.account === "ALL" ? "Tất cả tài khoản" : currentFilter.account;
+            let monthText = "";
+            if (currentFilter.month !== "ALL") {
+                const parts = currentFilter.month.split('-');
+                if (parts.length >= 2) monthText = ` | Tháng ${parts[1]}/${parts[0]}`;
+            }
             const dateText = `${currentFilter.dateStart} → ${currentFilter.dateEnd}`;
-            document.getElementById('filterSummaryText').innerHTML = `Đang lọc: <b>${accText}</b> | <b>${dateText}</b> (Khớp <b>${FILTERED_DATA.length}</b> / ${RAW_DATA.length} dòng)`;
+            document.getElementById('filterSummaryText').innerHTML = `Đang lọc: <b>${accText}</b>${monthText} | <b>${dateText}</b> (Khớp <b>${FILTERED_DATA.length}</b> / ${RAW_DATA.length} dòng)`;
         }
 
         // ─── Cập nhật KPI Metrics ───
@@ -1931,8 +2019,35 @@ html_content = """<!DOCTYPE html>
         function setupEventListeners() {
             // Bộ lọc thay đổi
             document.getElementById('accountFilter').addEventListener('change', applyFilters);
-            document.getElementById('dateStart').addEventListener('change', applyFilters);
-            document.getElementById('dateEnd').addEventListener('change', applyFilters);
+            document.getElementById('monthFilter').addEventListener('change', (e) => {
+                const selectedMonth = e.target.value;
+                document.querySelectorAll('.preset-chip').forEach(b => b.classList.remove('active'));
+                
+                if (selectedMonth === 'ALL') {
+                    const dates = RAW_DATA.map(r => r["Ngày"]).filter(Boolean).sort();
+                    if (dates.length > 0) {
+                        document.getElementById('dateStart').value = dates[0];
+                        document.getElementById('dateEnd').value = dates[dates.length - 1];
+                    }
+                    document.querySelector('.preset-chip[data-range="all"]')?.classList.add('active');
+                } else {
+                    const monthDates = RAW_DATA.map(r => r["Ngày"]).filter(d => d && d.startsWith(selectedMonth)).sort();
+                    if (monthDates.length > 0) {
+                        document.getElementById('dateStart').value = monthDates[0];
+                        document.getElementById('dateEnd').value = monthDates[monthDates.length - 1];
+                    }
+                }
+                applyFilters();
+            });
+
+            document.getElementById('dateStart').addEventListener('change', () => {
+                syncMonthFromDates();
+                applyFilters();
+            });
+            document.getElementById('dateEnd').addEventListener('change', () => {
+                syncMonthFromDates();
+                applyFilters();
+            });
             document.getElementById('statusFilter').addEventListener('change', applyFilters);
             document.getElementById('tableSearchInput').addEventListener('input', applyFilters);
             
@@ -1976,27 +2091,48 @@ html_content = """<!DOCTYPE html>
 
                     const startInput = document.getElementById('dateStart');
                     const endInput = document.getElementById('dateEnd');
+                    const monthSelect = document.getElementById('monthFilter');
 
                     if (range === 'all') {
                         startInput.value = minDate;
                         endInput.value = maxDate;
+                        if (monthSelect) monthSelect.value = 'ALL';
                     } else if (range === 'this_month') {
-                        startInput.value = '2026-10-01';
-                        endInput.value = maxDate;
+                        const curMonth = maxDate.slice(0, 7);
+                        if (monthSelect) monthSelect.value = curMonth;
+                        const mDates = dates.filter(d => d.startsWith(curMonth));
+                        if (mDates.length > 0) {
+                            startInput.value = mDates[0];
+                            endInput.value = mDates[mDates.length - 1];
+                        }
+                    } else if (range === 'last_month') {
+                        const months = [...new Set(dates.map(d => d.slice(0, 7)))].sort();
+                        if (months.length > 1) {
+                            const prevMonth = months[months.length - 2];
+                            if (monthSelect) monthSelect.value = prevMonth;
+                            const mDates = dates.filter(d => d.startsWith(prevMonth));
+                            if (mDates.length > 0) {
+                                startInput.value = mDates[0];
+                                endInput.value = mDates[mDates.length - 1];
+                            }
+                        }
                     } else if (range === 'last_7') {
                         const d = new Date(maxDate);
                         d.setDate(d.getDate() - 6);
                         startInput.value = d.toISOString().slice(0, 10);
                         endInput.value = maxDate;
+                        syncMonthFromDates();
                     } else if (range === 'today') {
                         startInput.value = maxDate;
                         endInput.value = maxDate;
+                        syncMonthFromDates();
                     } else if (range === 'yesterday') {
                         const d = new Date(maxDate);
                         d.setDate(d.getDate() - 1);
                         const str = d.toISOString().slice(0, 10);
                         startInput.value = str;
                         endInput.value = str;
+                        syncMonthFromDates();
                     }
                     applyFilters();
                 });
@@ -2005,6 +2141,7 @@ html_content = """<!DOCTYPE html>
             // Reset Filter
             document.getElementById('btnResetFilter').addEventListener('click', () => {
                 document.getElementById('accountFilter').value = 'ALL';
+                document.getElementById('monthFilter').value = 'ALL';
                 document.getElementById('statusFilter').value = 'ALL';
                 document.getElementById('tableSearchInput').value = '';
                 document.querySelector('.preset-chip[data-range="all"]').click();
