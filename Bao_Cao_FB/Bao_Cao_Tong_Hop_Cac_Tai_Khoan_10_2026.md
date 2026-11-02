@@ -1,26 +1,26 @@
 # 📊 BÁO CÁO HIỆU QUẢ QUẢNG CÁO THEO TÀI KHOẢN (01/10/2026 - HIỆN TẠI)
 
-> **Thời gian ghi nhận:** 2026-10-01 – 2026-10-30
+> **Thời gian ghi nhận:** 2026-10-01 – 2026-11-02
 > **Nguồn dữ liệu:** Facebook Graph API v19.0 (Insights) + **Pancake API** (SĐT bóc tách từ hội thoại quảng cáo, Tags).
-> **Tổng SĐT bóc tách từ Pancake:** 651 leads từ 93 Ad IDs
+> **Tổng SĐT bóc tách từ Pancake:** 701 leads từ 100 Ad IDs
 > **File CSV chi tiết:** [`data/bao_cao_cac_tai_khoan_10_2026.csv`](file:///d:/MCP/data/bao_cao_cac_tai_khoan_10_2026.csv)
 
 ## 🏆 1. BẢNG TỔNG HỢP HIỆU SUẤT THEO TÀI KHOẢN
 
 | Tài khoản | Chi tiêu (VNĐ) | Hiển thị | Clicks | CTR TB | CPC TB | Tin nhắn | SĐT (Pancake) | CPA TB (VNĐ) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **RA10 - DABK** | 57,670,198 | 1,283,197 | 3,544 | 0.28% | 16,273 | 451 | **185** | 55,990 |
-| **Ra1 - EMBEDDED** | 45,118,563 | 1,084,973 | 3,633 | 0.33% | 12,419 | 325 | **134** | 65,295 |
-| **Ra2 - AI ENGINEER** | 31,210,901 | 745,647 | 2,506 | 0.34% | 12,454 | 374 | **151** | 47,943 |
-| **RA4 - BA** | 22,362,250 | 377,087 | 1,223 | 0.32% | 18,285 | 143 | **41** | 100,279 |
-| **RA3 - DE** | 20,642,901 | 347,664 | 1,746 | 0.50% | 11,823 | 166 | **36** | 86,012 |
-| **RA5 - LINE NHẬT** | 14,010,966 | 191,496 | 660 | 0.34% | 21,229 | 2 | **0** | 1,401,097 |
-| **RA6 - PTIT CNTT** | 3,638,544 | 52,202 | 199 | 0.38% | 18,284 | 32 | **17** | 63,834 |
+| **RA10 - DABK** | 62,834,357 | 1,434,591 | 3,895 | 0.27% | 16,132 | 489 | **199** | 56,864 |
+| **Ra1 - EMBEDDED** | 47,815,804 | 1,158,872 | 3,915 | 0.34% | 12,213 | 354 | **144** | 64,529 |
+| **Ra2 - AI ENGINEER** | 33,730,637 | 804,168 | 2,937 | 0.37% | 11,485 | 415 | **164** | 47,176 |
+| **RA4 - BA** | 23,421,350 | 409,284 | 1,397 | 0.34% | 16,765 | 158 | **44** | 96,782 |
+| **RA3 - DE** | 22,384,317 | 381,870 | 1,980 | 0.52% | 11,305 | 181 | **36** | 87,782 |
+| **RA5 - LINE NHẬT** | 14,787,962 | 199,004 | 700 | 0.35% | 21,126 | 2 | **0** | 1,478,796 |
+| **RA6 - PTIT CNTT** | 6,134,805 | 73,159 | 345 | 0.47% | 17,782 | 56 | **23** | 63,904 |
 
 ---
 ## 📑 2. CHI TIẾT DỮ LIỆU CÁC CHIẾN DỊCH THEO TỪNG TÀI KHOẢN
 
-### 🏢 RA10 - DABK (445 dòng)
+### 🏢 RA10 - DABK (484 dòng)
 
 | Ngày | Chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags | ID quảng cáo |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
@@ -45,10 +45,10 @@
 | 2026-10-02 | HA - DA -imnew -content 10 | ACTIVE | 72,408 | 0 | 0 | **0** |  | `120228558067470495` |
 | 2026-10-02 | HA - DA -imnew - video lo trinh | ACTIVE | 106,775 | 1 | 2 | **1** | T1  -  SĐT | `120230390064730495` |
 
-*(Còn 425 dòng khác, xem trong file CSV)*
+*(Còn 464 dòng khác, xem trong file CSV)*
 
 
-### 🏢 RA6 - PTIT CNTT (45 dòng)
+### 🏢 RA6 - PTIT CNTT (65 dòng)
 
 | Ngày | Chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags | ID quảng cáo |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
@@ -70,13 +70,13 @@
 | 2026-10-20 | NHÚNG_Mess_ID 2026 | CAMPAIGN_PAUSED | 0 | 0 | 0 | **0** |  | `120251837188480693` |
 | 2026-10-20 | NHÚNG - ID T9 | CAMPAIGN_PAUSED | 84,586 | 0 | 1 | **0** |  | `120251837216760693` |
 | 2026-10-26 | XueBa Test 26/10 | PAUSED | 8,008 | 0 | 0 | **0** |  | `120252338339410693` |
-| 2026-10-27 | XueBa Test 26/10 | ACTIVE | 135,831 | 2 | 0 | **2** | T1 - SĐT | `120252356908340693` |
+| 2026-10-27 | XueBa Test 26/10 | CAMPAIGN_PAUSED | 135,831 | 2 | 0 | **2** | T1 - SĐT | `120252356908340693` |
 | 2026-10-27 | XueBa Test 27/10 | PAUSED | 74,872 | 0 | 0 | **0** |  | `120252356941580693` |
 
-*(Còn 25 dòng khác, xem trong file CSV)*
+*(Còn 45 dòng khác, xem trong file CSV)*
 
 
-### 🏢 RA3 - DE (161 dòng)
+### 🏢 RA3 - DE (173 dòng)
 
 | Ngày | Chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags | ID quảng cáo |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
@@ -101,10 +101,10 @@
 | 2026-10-04 | Hanq - DE - content 10 AI | ACTIVE | 239,026 | 0 | 0 | **0** |  | `120249123276590499` |
 | 2026-10-04 | Hanq - DE - video TB AI | CAMPAIGN_PAUSED | 208,623 | 0 | 0 | **0** |  | `120249794547770499` |
 
-*(Còn 141 dòng khác, xem trong file CSV)*
+*(Còn 153 dòng khác, xem trong file CSV)*
 
 
-### 🏢 RA4 - BA (195 dòng)
+### 🏢 RA4 - BA (207 dòng)
 
 | Ngày | Chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags | ID quảng cáo |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
@@ -129,10 +129,10 @@
 | 2026-10-03 | ANHTH - BA - ADS BA7 - BÁN THẲNG CH | CAMPAIGN_PAUSED | 120,841 | 1 | 0 | **0** |  | `120249706577230298` |
 | 2026-10-03 | ANHTH - BA - ADS BA7 - BÁN THẲNG CH | CAMPAIGN_PAUSED | 135,207 | 0 | 2 | **0** |  | `120249706640920298` |
 
-*(Còn 175 dòng khác, xem trong file CSV)*
+*(Còn 187 dòng khác, xem trong file CSV)*
 
 
-### 🏢 RA5 - LINE NHẬT (72 dòng)
+### 🏢 RA5 - LINE NHẬT (76 dòng)
 
 | Ngày | Chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags | ID quảng cáo |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
@@ -157,38 +157,38 @@
 | 2026-10-10 | Hanq - Tsu - video new hook1 | CAMPAIGN_PAUSED | 308,135 | 0 | 1 | **0** |  | `120235533427280515` |
 | 2026-10-10 | Hanq - BrSE - NB - video new | ACTIVE | 202,974 | 0 | 0 | **0** |  | `120244977821040515` |
 
-*(Còn 52 dòng khác, xem trong file CSV)*
+*(Còn 56 dòng khác, xem trong file CSV)*
 
 
-### 🏢 Ra1 - EMBEDDED (404 dòng)
+### 🏢 Ra1 - EMBEDDED (439 dòng)
 
 | Ngày | Chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags | ID quảng cáo |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
 | 2026-10-01 | Hanq - EB - content 2 | ACTIVE | 210,080 | 1 | 0 | **0** |  | `120241258476140209` |
 | 2026-10-01 | Hangnt - EB -CVR CĐ - text - Bản sa | PAUSED | 282,861 | 0 | 0 | **0** |  | `120245908300660209` |
-| 2026-10-01 | NAMVT_Embeded_Fix content 7 | CAMPAIGN_PAUSED | 111,169 | 2 | 0 | **1** | T1 - SĐT | `120248101194600209` |
+| 2026-10-01 | NAMVT_Embeded_Fix content 7 | ACTIVE | 111,169 | 2 | 0 | **1** | T1 - SĐT | `120248101194600209` |
 | 2026-10-01 | NamVT_Nhúng_ motion ko voice | ACTIVE | 178,825 | 2 | 0 | **1** | T1 - SĐT | `120248251440720209` |
 | 2026-10-01 | NamVT_Nhúng_IDx | CAMPAIGN_PAUSED | 139,663 | 2 | 0 | **1** | T1 - SĐT | `120249379752540209` |
-| 2026-10-01 | NamVT_MESS - EB Nhúng_ wd1 | CAMPAIGN_PAUSED | 183,043 | 0 | 0 | **0** |  | `120250744724970209` |
-| 2026-10-01 | NAMVT_Nhúng_ motion Voice nữ | CAMPAIGN_PAUSED | 80,532 | 4 | 1 | **2** | T1 - SĐT | `120250770355930209` |
+| 2026-10-01 | NamVT_MESS - EB Nhúng_ wd1 | ACTIVE | 183,043 | 0 | 0 | **0** |  | `120250744724970209` |
+| 2026-10-01 | NAMVT_Nhúng_ motion Voice nữ | ACTIVE | 80,532 | 4 | 1 | **2** | T1 - SĐT | `120250770355930209` |
 | 2026-10-01 | NAMVT_Nhúng_ motion Voice nữ | PAUSED | 122,206 | 1 | 1 | **0** |  | `120251376939540209` |
 | 2026-10-01 | NamVT - EB -CVR CĐ_Video lồng tiếng | CAMPAIGN_PAUSED | 267,876 | 0 | 0 | **0** |  | `120251864632320209` |
 | 2026-10-01 | Namvt - Nhúng -CVR- THÁNG 9 | CAMPAIGN_PAUSED | 118,640 | 0 | 0 | **0** |  | `120252401087070209` |
 | 2026-10-01 | Hanq - EB - content 2 | PAUSED | 62,747 | 0 | 0 | **0** |  | `120253148159450209` |
-| 2026-10-01 | NAMVT_embedded-system_ Motion ID9 | CAMPAIGN_PAUSED | 245,459 | 2 | 0 | **0** |  | `120253249043920209` |
+| 2026-10-01 | NAMVT_embedded-system_ Motion ID9 | ACTIVE | 245,459 | 2 | 0 | **0** |  | `120253249043920209` |
 | 2026-10-01 | NAMVT_embedded-system_ Motion ID9 | PAUSED | 208,796 | 2 | 0 | **0** |  | `120253249178950209` |
 | 2026-10-01 | NamVT_MESS - EB Nhúng_ wd1 | ADSET_PAUSED | 99,008 | 0 | 0 | **0** |  | `120253500550690209` |
 | 2026-10-02 | Hanq - EB - content 2 | ACTIVE | 140,275 | 1 | 0 | **0** |  | `120241258476140209` |
 | 2026-10-02 | Hangnt - EB -CVR CĐ - text - Bản sa | PAUSED | 307,597 | 1 | 1 | **0** |  | `120245908300660209` |
-| 2026-10-02 | NAMVT_Embeded_Fix content 7 | CAMPAIGN_PAUSED | 95,365 | 2 | 1 | **0** |  | `120248101194600209` |
+| 2026-10-02 | NAMVT_Embeded_Fix content 7 | ACTIVE | 95,365 | 2 | 1 | **0** |  | `120248101194600209` |
 | 2026-10-02 | NamVT_Nhúng_ motion ko voice | ACTIVE | 251,836 | 6 | 5 | **3** | T1 - SĐT | `120248251440720209` |
 | 2026-10-02 | NamVT_Nhúng_IDx | CAMPAIGN_PAUSED | 136,586 | 0 | 0 | **0** |  | `120249379752540209` |
-| 2026-10-02 | NamVT_MESS - EB Nhúng_ wd1 | CAMPAIGN_PAUSED | 181,489 | 0 | 0 | **0** |  | `120250744724970209` |
+| 2026-10-02 | NamVT_MESS - EB Nhúng_ wd1 | ACTIVE | 181,489 | 0 | 0 | **0** |  | `120250744724970209` |
 
-*(Còn 384 dòng khác, xem trong file CSV)*
+*(Còn 419 dòng khác, xem trong file CSV)*
 
 
-### 🏢 Ra2 - AI ENGINEER (140 dòng)
+### 🏢 Ra2 - AI ENGINEER (151 dòng)
 
 | Ngày | Chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags | ID quảng cáo |
 |:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
@@ -213,6 +213,6 @@
 | 2026-10-06 | Hanq - AE - BT1 | ACTIVE | 326,576 | 7 | 6 | **2** | AI Engineer, T1 - SĐT | `120251659749910654` |
 | 2026-10-06 | Hanq - AE - BT2 | ACTIVE | 319,186 | 4 | 4 | **2** | AI Engineer, T1 - SĐT | `120251671362170654` |
 
-*(Còn 120 dòng khác, xem trong file CSV)*
+*(Còn 131 dòng khác, xem trong file CSV)*
 
 
