@@ -114,6 +114,28 @@ def get_campaign_tags(cid, cname, adname, aname, adid=None, ad_title=None, ad_bo
     chosen.sort(key=lambda t: scores[t], reverse=True)
     return ", ".join(chosen[:2])
 
+# ─── PHÂN LOẠI SẢN PHẨM DỰA VÀO TÊN CHIẾN DỊCH & TÀI KHOẢN ──────────────────
+def get_campaign_product(cname, aname=""):
+    t = (cname or "").lower()
+    a = (aname or "").lower()
+    if re.search(r'\bda\b|data\s*analy', t): return 'DA'
+    if re.search(r'\bde\b|data\s*engin', t): return 'DE'
+    if re.search(r'\bba\b|itba|business\s*analy', t): return 'BA'
+    if re.search(r'\b(ai|ae|aieg|ai4life)\b', t): return 'AI'
+    if re.search(r'nhúng|nhung|embed|\beb\b', t): return 'Nhúng'
+    if re.search(r'xueba|tiếng\s*trung|thầy\s*tư', t): return 'XueBa'
+    if re.search(r'tsu|tsubasa|brse', t): return 'Tsubasa'
+    if re.search(r'cyber|cbs', t): return 'Cyber'
+    if re.search(r'ptit|cntt|qtkd', t): return 'PTIT'
+    if 'dabk' in a: return 'DA'
+    if ' de' in a or '- de' in a: return 'DE'
+    if ' ba' in a or '- ba' in a: return 'BA'
+    if 'ai engineer' in a or 'ai new' in a: return 'AI'
+    if 'embedded' in a: return 'Nhúng'
+    if 'line nhật' in a: return 'Tsubasa'
+    if 'ptit' in a: return 'PTIT'
+    return 'Khác'
+
 # ─── Helper: HTTP GET & POST ──────────────────────────────────────────────────
 def http_get_json(url, retries=2, timeout=30):
     req = urllib.request.Request(url)
@@ -397,6 +419,7 @@ for acc in accs:
         c_body = c_creative.get('body') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('message', '')
         c_title = c_creative.get('title') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('name', '')
         camp_tags = get_campaign_tags(cid, cname, adname, aname, adid=adid, ad_title=c_title, ad_body=c_body)
+        camp_prod = get_campaign_product(cname, aname)
 
         all_rows.append({
             "Tài khoản": aname,
@@ -404,6 +427,7 @@ for acc in accs:
             "Ngày": date_str,
             "Campaign ID": cid,
             "Tên chiến dịch": cname,
+            "Sản phẩm": camp_prod,
             "Trạng thái": status,
             "Ngân sách/ngày": daily_budget_str,
             "Chi tiêu": round(spend, 0),
@@ -434,7 +458,7 @@ if len(all_rows) == 0:
 # ─── BƯỚC 5: XUẤT CSV ────────────────────────────────────────────────────────
 csv_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "bao_cao_cac_tai_khoan_10_2026.csv")
 fieldnames = [
-    "Tài khoản", "ID tài khoản", "Ngày", "Campaign ID", "Tên chiến dịch", "Trạng thái",
+    "Tài khoản", "ID tài khoản", "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm", "Trạng thái",
     "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", "CTR (%)", "CPC", "CPM",
     "Tin nhắn", "Lead", "Đăng ký", "CPA", "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo",
     "Sđt theo campain", "Tags Pancake", "Nhãn chiến dịch", "Link bài quảng cáo"
@@ -479,9 +503,29 @@ with open(md_file, 'w', encoding='utf-8') as f:
         cpa_v = (s["spend"] / conv_v) if conv_v > 0 else 0
         f.write(f"| **{aname}** | {s['spend']:,.0f} | {s['imp']:,.0f} | {s['clicks']:,.0f} | {ctr_v:.2f}% | {cpc_v:,.0f} | {s['msg']:,} | **{s['sdt']:,}** | {cpa_v:,.0f} |\n")
 
+    # Bảng tổng hợp theo Sản phẩm
+    f.write("\n---\n")
+    f.write("## 📦 2. BẢNG TỔNG HỢP HIỆU SUẤT THEO SẢN PHẨM\n\n")
+    f.write("| Sản phẩm | Chi tiêu (VNĐ) | Hiển thị | Clicks | CTR TB | Tin nhắn | SĐT (Pancake) | Chi phí / SĐT (VNĐ) |\n")
+    f.write("|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|\n")
+    prod_summary = {}
+    for r in all_rows:
+        pname = r.get("Sản phẩm") or "Khác"
+        s = prod_summary.setdefault(pname, {"spend": 0, "imp": 0, "clicks": 0, "msg": 0, "sdt": 0})
+        s["spend"] += r["Chi tiêu"]
+        s["imp"] += r["Hiển thị"]
+        s["clicks"] += r["Click link"]
+        s["msg"] += r["Tin nhắn"]
+        s["sdt"] += int(r["Sđt theo campain"])
+
+    for pname, s in sorted(prod_summary.items(), key=lambda x: x[1]["sdt"], reverse=True):
+        ctr_v = (s["clicks"] / s["imp"] * 100) if s["imp"] > 0 else 0
+        cost_per_sdt = (s["spend"] / s["sdt"]) if s["sdt"] > 0 else 0
+        f.write(f"| **{pname}** | {s['spend']:,.0f} | {s['imp']:,.0f} | {s['clicks']:,.0f} | {ctr_v:.2f}% | {s['msg']:,} | **{s['sdt']:,}** | {cost_per_sdt:,.0f} |\n")
+
     # Bảng tổng hợp theo Nhãn chiến dịch / Nhóm nội dung
     f.write("\n---\n")
-    f.write("## 🏷️ 2. BẢNG TỔNG HỢP HIỆU SUẤT THEO NHÓM NỘI DUNG (NHÃN CHIẾN DỊCH)\n\n")
+    f.write("## 🏷️ 3. BẢNG TỔNG HỢP HIỆU SUẤT THEO NHÓM NỘI DUNG (NHÃN CHIẾN DỊCH)\n\n")
     f.write("| Nhóm nội dung / Tag | Chi tiêu (VNĐ) | Tin nhắn | SĐT (Pancake) | Chi phí / SĐT (VNĐ) |\n")
     f.write("|---|:---:|:---:|:---:|:---:|\n")
     tag_summary = {}
@@ -501,17 +545,17 @@ with open(md_file, 'w', encoding='utf-8') as f:
         f.write(f"| **{tname}** | {s['spend']:,.0f} | {s['msg']:,} | **{s['sdt']:,}** | {cost_per_sdt:,.0f} |\n")
 
     f.write("\n---\n")
-    f.write("## 📑 3. CHI TIẾT DỮ LIỆU CÁC CHIẾN DỊCH THEO TỪNG TÀI KHOẢN\n\n")
+    f.write("## 📑 4. CHI TIẾT DỮ LIỆU CÁC CHIẾN DỊCH THEO TỪNG TÀI KHOẢN\n\n")
 
     for aname in acc_summary.keys():
         rows_acc = [r for r in all_rows if r["Tài khoản"] == aname]
         f.write(f"### 🏢 {aname} ({len(rows_acc)} dòng)\n\n")
-        f.write("| Ngày | Chiến dịch | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |\n")
-        f.write("|:---:|---|---|:---:|:---:|:---:|:---:|:---:|---|:---:|\n")
+        f.write("| Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |\n")
+        f.write("|:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|\n")
         for r in rows_acc[:20]:
             tags_display = r.get('Tags Pancake', '')[:30] + '…' if len(r.get('Tags Pancake', '')) > 30 else r.get('Tags Pancake', '')
             camp_tag_display = r.get('Nhãn chiến dịch', '')
-            f.write(f"| {r['Ngày']} | {r['Tên chiến dịch'][:32]} | {camp_tag_display} | {r['Trạng thái']} | {r['Chi tiêu']:,.0f} | {r['Tin nhắn']} | {r['Lead']} | **{r['Sđt theo campain']}** | {tags_display} | `{r['ID quảng cáo']}` |\n")
+            f.write(f"| {r['Ngày']} | {r['Tên chiến dịch'][:32]} | **{r.get('Sản phẩm', '')}** | {camp_tag_display} | {r['Trạng thái']} | {r['Chi tiêu']:,.0f} | {r['Tin nhắn']} | {r['Lead']} | **{r['Sđt theo campain']}** | {tags_display} | `{r['ID quảng cáo']}` |\n")
         if len(rows_acc) > 20:
             f.write(f"\n*(Còn {len(rows_acc) - 20} dòng khác, xem trong file CSV)*\n\n")
         f.write("\n")
