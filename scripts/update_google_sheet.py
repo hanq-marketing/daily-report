@@ -42,14 +42,14 @@ def run_sync():
     print(f"-> Đã kết nối thành công: '{spreadsheet.title}'")
 
     master_headers = [
-        "Account Name", "Account ID", "Ngày", "Campaign ID", "Tên chiến dịch", 
+        "Account Name", "Account ID", "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm",
         "Trạng thái", "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", 
         "CTR (%)", "CPC", "CPM", "Tin nhắn", "Lead", "Đăng ký", "CPA", 
         "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo", "Sđt theo campain", "Tags Pancake", "Nhãn chiến dịch", "Link bài quảng cáo"
     ]
 
     account_headers = [
-        "Ngày", "Campaign ID", "Tên chiến dịch", 
+        "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm",
         "Trạng thái", "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", 
         "CTR (%)", "CPC", "CPM", "Tin nhắn", "Lead", "Đăng ký", "CPA", 
         "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo", "Sđt theo campain", "Tags Pancake", "Nhãn chiến dịch", "Link bài quảng cáo"
@@ -61,6 +61,7 @@ def run_sync():
         "Ngày": "Ngày",
         "Campaign ID": "Campaign ID",
         "Tên chiến dịch": "Tên chiến dịch",
+        "Sản phẩm": "Sản phẩm",
         "Trạng thái": "Trạng thái",
         "Ngân sách/ngày": "Ngân sách/ngày",
         "Chi tiêu": "Chi tiêu",
@@ -136,7 +137,7 @@ def run_sync():
             m_added += 1
 
     ws_master.update(updated_master, "A1", value_input_option="USER_ENTERED")
-    ws_master.format("A1:X1", {"textFormat": {"bold": True}})
+    ws_master.format("A1:Y1", {"textFormat": {"bold": True}})
     print(f"-> Tab 'Master Data': Đã cập nhật {m_updated} dòng và thêm mới {m_added} dòng (Tổng: {len(updated_master)-1} dòng).")
 
     # 2. CẬP NHẬT CÁC TAB TÀI KHOẢN RIÊNG
@@ -201,7 +202,7 @@ def run_sync():
                     a_added += 1
 
         ws.update(updated_acc, "A1", value_input_option="USER_ENTERED")
-        ws.format("A1:V1", {"textFormat": {"bold": True}})
+        ws.format("A1:W1", {"textFormat": {"bold": True}})
         print(f"  -> Tab '{title}': Đã cập nhật {a_updated} dòng và thêm mới {a_added} dòng (Tổng: {len(updated_acc)-1} dòng).")
         time.sleep(1)
 
