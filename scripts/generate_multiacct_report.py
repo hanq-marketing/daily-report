@@ -33,7 +33,7 @@ UNTIL_DATE = datetime.now(VN_TZ).strftime("%Y-%m-%d")
 since_ts = int(datetime.strptime(SINCE_DATE, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
 until_ts = int(datetime.strptime(UNTIL_DATE, "%Y-%m-%d").replace(hour=23, minute=59, second=59, tzinfo=timezone.utc).timestamp())
 
-# ─── Load Cấu hình Nhãn chiến dịch (Campaign Tags) ───────────────────────────
+# ─── Load Cấu hình Nhãn chiến dịch & Ad Creatives ──────────────────────────────
 TAGS_CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "campaign_tags.json")
 TAGS_CONFIG = {}
 if os.path.exists(TAGS_CONFIG_FILE):
@@ -43,34 +43,76 @@ if os.path.exists(TAGS_CONFIG_FILE):
     except Exception as e:
         print(f"⚠️ Cảnh báo đọc campaign_tags.json: {e}")
 
-def get_campaign_tags(cid, cname, adname, aname):
+AD_CREATIVES_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "ad_creatives_cache.json")
+AD_CREATIVES = {}
+if os.path.exists(AD_CREATIVES_FILE):
+    try:
+        with open(AD_CREATIVES_FILE, "r", encoding="utf-8") as f:
+            AD_CREATIVES = json.load(f)
+    except Exception as e:
+        print(f"⚠️ Cảnh báo đọc ad_creatives_cache.json: {e}")
+
+def get_campaign_tags(cid, cname, adname, aname, adid=None, ad_title=None, ad_body=None):
     if not TAGS_CONFIG:
-        return ""
+        return "Chia sẻ"
     overrides = TAGS_CONFIG.get("overrides", {})
     if cid in overrides:
         return ", ".join(overrides[cid])
     
-    text = f"{cname} {adname} {aname}".lower()
-    tags = []
+    # Lấy thông điệp và nội dung hook
+    hook_parts = [cname, adname]
     
-    # 1. Nhóm nội dung / Góc tiếp cận (Content Angles)
-    for angle, kws in TAGS_CONFIG.get("rules", {}).items():
-        if any(kw.lower() in text for kw in kws):
-            tags.append(angle)
-            
-    # Mặc định nếu chưa khớp góc nội dung nào
-    content_angles = set(TAGS_CONFIG.get("rules", {}).keys())
-    if not any(t in content_angles for t in tags):
-        default_angle = TAGS_CONFIG.get("default_angle", "Giới thiệu sản phẩm")
-        if default_angle:
-            tags.insert(0, default_angle)
-            
-    # 2. Keywords / Khóa học
-    for kw_label, patterns in TAGS_CONFIG.get("keyword_rules", {}).items():
-        if any(re.search(pat, text, re.IGNORECASE) for pat in patterns):
-            tags.append(kw_label)
-            
-    return ", ".join(tags)
+    title = ad_title
+    body = ad_body
+    if adid and adid in AD_CREATIVES:
+        cr = AD_CREATIVES[adid]
+        title = title or cr.get("title", "")
+        body = body or cr.get("body", "")
+        
+    if title:
+        hook_parts.append(title)
+    if body:
+        lines = [l.strip() for l in body.split("\n") if l.strip()]
+        hook_parts.append(" ".join(lines[:3])[:250])
+        
+    combined_hook = " | ".join(hook_parts).lower()
+    cname_lower = cname.lower()
+    
+    scores = {
+        "storytelling": 0,
+        "PAS - problem - Agitation - solution": 0,
+        "Tính năng - lợi ích ( đầu ra)": 0,
+        "Lộ trình khóa học": 0,
+        "Ưu đãi khuyến mãi": 0,
+        "USP khóa học": 0,
+        "Chia sẻ": 0
+    }
+    
+    rules = TAGS_CONFIG.get("rules", {})
+    
+    # 1. Trọng số cao từ tên chiến dịch (weight: 10)
+    for tag, conf in rules.items():
+        c_pats = conf.get("campaign_patterns", [])
+        for pat in c_pats:
+            if re.search(pat, cname_lower, re.IGNORECASE):
+                scores[tag] += 10
+                break
+                
+    # 2. Trọng số từ nội dung hook quảng cáo (weight: 5)
+    for tag, conf in rules.items():
+        h_pats = conf.get("hook_patterns", [])
+        for pat in h_pats:
+            if re.search(pat, combined_hook, re.IGNORECASE):
+                scores[tag] += 5
+                break
+                
+    max_score = max(scores.values())
+    if max_score == 0:
+        return TAGS_CONFIG.get("default_tag", "Chia sẻ")
+        
+    chosen = [t for t, sc in scores.items() if sc >= max(4, max_score * 0.6)]
+    chosen.sort(key=lambda t: scores[t], reverse=True)
+    return ", ".join(chosen[:2])
 
 # ─── Helper: HTTP GET & POST ──────────────────────────────────────────────────
 def http_get_json(url, retries=2, timeout=30):
@@ -269,12 +311,17 @@ for acc in accs:
             camps_map[c['id']] = c
 
     # Lấy ads
-    url_ads = f"https://graph.facebook.com/v19.0/{aid}/ads?fields=id,name,status,effective_status,updated_time,campaign_id,creative{{id,name,effective_object_story_id,thumbnail_url}}&limit=300&access_token={FB_TOKEN}"
+    url_ads = f"https://graph.facebook.com/v19.0/{aid}/ads?fields=id,name,status,effective_status,updated_time,campaign_id,creative{{id,name,effective_object_story_id,thumbnail_url,body,title,object_story_spec}}&limit=300&access_token={FB_TOKEN}"
     ads_data = http_get_json(url_ads)
     ads_map = {}
     if ads_data and 'data' in ads_data:
         for a in ads_data['data']:
             ads_map[a['id']] = a
+            cr = a.get('creative', {})
+            b_text = cr.get('body') or cr.get('object_story_spec', {}).get('link_data', {}).get('message', '') or ''
+            t_text = cr.get('title') or cr.get('object_story_spec', {}).get('link_data', {}).get('name', '') or ''
+            if b_text or t_text:
+                AD_CREATIVES[a['id']] = {'title': t_text, 'body': b_text}
 
     # Lấy insights cấp Ad theo ngày
     fields = "date_start,campaign_id,campaign_name,ad_id,ad_name,spend,impressions,inline_link_clicks,ctr,cpc,cpm,actions"
@@ -347,7 +394,9 @@ for acc in accs:
         else:
             ad_link = f"https://adsmanager.facebook.com/adsmanager/manage/ads?act={aid.replace('act_', '')}&selected_ad_ids={adid}"
 
-        camp_tags = get_campaign_tags(cid, cname, adname, aname)
+        c_body = c_creative.get('body') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('message', '')
+        c_title = c_creative.get('title') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('name', '')
+        camp_tags = get_campaign_tags(cid, cname, adname, aname, adid=adid, ad_title=c_title, ad_body=c_body)
 
         all_rows.append({
             "Tài khoản": aname,
@@ -457,11 +506,12 @@ with open(md_file, 'w', encoding='utf-8') as f:
     for aname in acc_summary.keys():
         rows_acc = [r for r in all_rows if r["Tài khoản"] == aname]
         f.write(f"### 🏢 {aname} ({len(rows_acc)} dòng)\n\n")
-        f.write("| Ngày | Chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags | ID quảng cáo |\n")
-        f.write("|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|\n")
+        f.write("| Ngày | Chiến dịch | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |\n")
+        f.write("|:---:|---|---|:---:|:---:|:---:|:---:|:---:|---|:---:|\n")
         for r in rows_acc[:20]:
             tags_display = r.get('Tags Pancake', '')[:30] + '…' if len(r.get('Tags Pancake', '')) > 30 else r.get('Tags Pancake', '')
-            f.write(f"| {r['Ngày']} | {r['Tên chiến dịch'][:35]} | {r['Trạng thái']} | {r['Chi tiêu']:,.0f} | {r['Tin nhắn']} | {r['Lead']} | **{r['Sđt theo campain']}** | {tags_display} | `{r['ID quảng cáo']}` |\n")
+            camp_tag_display = r.get('Nhãn chiến dịch', '')
+            f.write(f"| {r['Ngày']} | {r['Tên chiến dịch'][:32]} | {camp_tag_display} | {r['Trạng thái']} | {r['Chi tiêu']:,.0f} | {r['Tin nhắn']} | {r['Lead']} | **{r['Sđt theo campain']}** | {tags_display} | `{r['ID quảng cáo']}` |\n")
         if len(rows_acc) > 20:
             f.write(f"\n*(Còn {len(rows_acc) - 20} dòng khác, xem trong file CSV)*\n\n")
         f.write("\n")
