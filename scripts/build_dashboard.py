@@ -1584,7 +1584,7 @@ html_content = """<!DOCTYPE html>
                     return false;
                 }
                 // Lọc sản phẩm
-                if (currentFilter.product !== "ALL" && row["Sản phẩm"] !== currentFilter.product) {
+                if (currentFilter.product !== "ALL" && String(row["Sản phẩm"] || "").trim() !== currentFilter.product) {
                     return false;
                 }
                 // Lọc nhãn chiến dịch
@@ -1641,7 +1641,8 @@ html_content = """<!DOCTYPE html>
                 tagText = ` | Nhãn: <b>${currentFilter.tag}</b>`;
             }
             const dateText = `${currentFilter.dateStart} → ${currentFilter.dateEnd}`;
-            document.getElementById('filterSummaryText').innerHTML = `Đang lọc: <b>${accText}</b>${monthText}${prodText}${tagText} | <b>${dateText}</b> (Khớp <b>${FILTERED_DATA.length}</b> / ${RAW_DATA.length} dòng)`;
+            const uniqueCamps = new Set(FILTERED_DATA.map(r => r["Tên chiến dịch"] || r["Campaign ID"])).size;
+            document.getElementById('filterSummaryText').innerHTML = `Đang lọc: <b>${accText}</b>${monthText}${prodText}${tagText} | <b>${dateText}</b> (Khớp <b>${uniqueCamps}</b> chiến dịch, <b>${FILTERED_DATA.length}</b> / ${RAW_DATA.length} bản ghi)`;
         }
 
         // ─── Cập nhật KPI Metrics ───
@@ -2271,8 +2272,12 @@ html_content = """<!DOCTYPE html>
 
             // Phân trang
             const total = sorted.length;
-            const unitLabel = currentViewMode === 'campaign' ? 'chiến dịch' : 'quảng cáo';
-            document.getElementById('tableRowCount').textContent = `${formatNumber(total)} ${unitLabel}`;
+            if (currentViewMode === 'campaign') {
+                const uniqueCamps = new Set(tableData.map(r => r["Tên chiến dịch"] || r["Campaign ID"])).size;
+                document.getElementById('tableRowCount').textContent = `${uniqueCamps} chiến dịch (${formatNumber(total)} bản ghi)`;
+            } else {
+                document.getElementById('tableRowCount').textContent = `${formatNumber(total)} mẫu quảng cáo`;
+            }
             const startIdx = (currentPage - 1) * pageSize;
             const endIdx = Math.min(startIdx + pageSize, total);
             const pageData = sorted.slice(startIdx, endIdx);
