@@ -600,6 +600,100 @@ html_content = """<!DOCTYPE html>
             white-space: nowrap;
         }
 
+        /* ─── Effective Content Tags Section ─── */
+        .effective-tags-layout {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .tags-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .tag-kpi-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tag-kpi-card:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .tag-kpi-card.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.15);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .tag-kpi-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .tag-kpi-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tag-kpi-rank {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 0.1rem 0.4rem;
+            border-radius: var(--radius-full);
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .tag-kpi-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .tag-kpi-phones {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #34d399;
+        }
+
+        .tag-kpi-cpa {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .tag-kpi-spend {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.25rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
         .status-badge {
             display: inline-block;
             padding: 0.2rem 0.55rem;
@@ -1067,6 +1161,34 @@ html_content = """<!DOCTYPE html>
                 <div class="chart-container">
                     <canvas id="topCampaignsChart"></canvas>
                 </div>
+                <div id="topCampTagsPills" style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; padding-top: 0.6rem; border-top: 1px solid var(--border-color); font-size: 0.78rem;">
+                    <!-- Render qua JS: Tag của các camp top đầu -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── HIỆU QUẢ THEO TAG NỘI DUNG CHIẾN DỊCH ─── -->
+        <div class="chart-card" id="effectiveTagsCard" style="margin-bottom: 1.5rem;">
+            <div class="chart-header">
+                <div>
+                    <div class="chart-title">🏷️ Xếp Hạng Hiệu Quả Các Tag Nội Dung Chiến Dịch</div>
+                    <div class="chart-subtitle">So sánh số lượng SĐT, chi tiêu và chi phí mỗi lead (CPA) theo 7 nhóm thông điệp/nội dung quảng cáo</div>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                    👉 Bấm vào bất kỳ thẻ Tag để lọc chi tiết
+                </div>
+            </div>
+            
+            <div class="effective-tags-layout">
+                <!-- Cột trái: Biểu đồ thanh so sánh SĐT theo Tag -->
+                <div class="chart-container" style="flex: 1.1; min-width: 320px; height: 310px;">
+                    <canvas id="contentTagsChart"></canvas>
+                </div>
+                
+                <!-- Cột phải: Grid thẻ tag tương tác -->
+                <div class="tags-kpi-grid" id="tagsKpiGrid" style="flex: 1.6; min-width: 340px;">
+                    <!-- Render tự động qua JS -->
+                </div>
             </div>
         </div>
 
@@ -1166,6 +1288,7 @@ html_content = """<!DOCTYPE html>
         let tagsChartInstance = null;
         let accountChartInstance = null;
         let topCampaignsChartInstance = null;
+        let contentTagsChartInstance = null;
 
         // ─── Formatters ───
         const formatMoney = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0);
@@ -1533,6 +1656,7 @@ html_content = """<!DOCTYPE html>
             renderTagsChart();
             renderAccountChart();
             renderTopCampaignsChart();
+            renderContentTagsSection();
         }
 
         // 1. Trend Chart (Ngày x Chi tiêu & SĐT)
@@ -1765,9 +1889,10 @@ html_content = """<!DOCTYPE html>
             FILTERED_DATA.forEach(r => {
                 const c = r["Tên chiến dịch"];
                 if (!c) return;
-                if (!campMap[c]) campMap[c] = { phones: 0, spend: 0 };
+                if (!campMap[c]) campMap[c] = { phones: 0, spend: 0, tags: r["Nhãn chiến dịch"] || "" };
                 campMap[c].phones += (r["Sđt theo campain"] || 0);
                 campMap[c].spend += (r["Chi tiêu"] || 0);
+                if (r["Nhãn chiến dịch"] && !campMap[c].tags) campMap[c].tags = r["Nhãn chiến dịch"];
             });
 
             const topCamps = Object.entries(campMap)
@@ -1808,6 +1933,11 @@ html_content = """<!DOCTYPE html>
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
+                                afterLabel: (ctx) => {
+                                    const cItem = topCamps[ctx.dataIndex];
+                                    const t = cItem ? cItem[1].tags : "";
+                                    return t ? `🏷️ Tag: ${t}` : "";
+                                },
                                 afterBody: () => '👉 Bấm vào để lọc bảng & xem link bài viết'
                             }
                         }
@@ -1818,6 +1948,165 @@ html_content = """<!DOCTYPE html>
                     }
                 }
             });
+
+            // Cập nhật tag pills bên dưới Top Chiến Dịch
+            const pillsContainer = document.getElementById('topCampTagsPills');
+            if (pillsContainer) {
+                const topTagsCount = {};
+                topCamps.forEach(([, data]) => {
+                    const tStr = data.tags || "";
+                    tStr.split(',').map(s => s.trim()).filter(Boolean).forEach(t => {
+                        topTagsCount[t] = (topTagsCount[t] || 0) + 1;
+                    });
+                });
+                const pillsHtml = Object.entries(topTagsCount)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([t, count]) => `<span class="campaign-tag-chip" style="cursor: pointer;" title="Lọc theo tag ${t}" onclick="document.getElementById('tagFilter').value='${t}'; applyFilters();">🏷️ ${t}: <b>${count}</b></span>`)
+                    .join('');
+                pillsContainer.innerHTML = `<span style="font-weight: 700; color: var(--text-muted); margin-right: 0.2rem;">Tag trong Top:</span> ${pillsHtml || '<span style="color: var(--text-muted);">--</span>'}`;
+            }
+        }
+
+        // 5. Content Tags Performance Section & Chart
+        function renderContentTagsSection() {
+            const ctx = document.getElementById('contentTagsChart')?.getContext('2d');
+            const grid = document.getElementById('tagsKpiGrid');
+            if (!grid) return;
+
+            const tagMeta = {
+                "Lộ trình khóa học": { icon: "🗺️", color: "#6366f1" },
+                "USP khóa học": { icon: "🌟", color: "#10b981" },
+                "Ưu đãi khuyến mãi": { icon: "🎁", color: "#f59e0b" },
+                "Chia sẻ": { icon: "💡", color: "#06b6d4" },
+                "Tính năng - lợi ích ( đầu ra)": { icon: "🎯", color: "#ec4899" },
+                "PAS - problem - Agitation - solution": { icon: "⚡", color: "#a855f7" },
+                "storytelling": { icon: "📖", color: "#3b82f6" }
+            };
+
+            const tagSummary = {};
+            FILTERED_DATA.forEach(r => {
+                const rawTags = r["Nhãn chiến dịch"] || "";
+                let tList = rawTags.split(',').map(s => s.trim()).filter(Boolean);
+                if (!tList.length) tList = ["Chia sẻ"];
+                
+                tList.forEach(t => {
+                    if (!tagSummary[t]) {
+                        tagSummary[t] = {
+                            spend: 0,
+                            phones: 0,
+                            messages: 0,
+                            camps: new Set()
+                        };
+                    }
+                    tagSummary[t].spend += (r["Chi tiêu"] || 0);
+                    tagSummary[t].phones += (r["Sđt theo campain"] || 0);
+                    tagSummary[t].messages += (r["Tin nhắn"] || 0);
+                    if (r["Tên chiến dịch"]) tagSummary[t].camps.add(r["Tên chiến dịch"]);
+                });
+            });
+
+            // Sort tags by phones desc
+            const sortedTags = Object.entries(tagSummary)
+                .sort((a, b) => b[1].phones - a[1].phones || b[1].spend - a[1].spend);
+
+            const totalPhonesAll = Object.values(tagSummary).reduce((sum, x) => sum + x.phones, 0) || 1;
+
+            // 1. Render Cards Grid
+            grid.innerHTML = '';
+            sortedTags.forEach(([tagName, s], idx) => {
+                const meta = tagMeta[tagName] || { icon: "🏷️", color: "#818cf8" };
+                const cpa = s.phones > 0 ? (s.spend / s.phones) : 0;
+                const cpaText = s.phones > 0 ? formatMoney(cpa) + '/SĐT' : 'Chưa có SĐT';
+                const pct = ((s.phones / totalPhonesAll) * 100).toFixed(1);
+                const isActive = currentFilter.tag === tagName;
+
+                const card = document.createElement('div');
+                card.className = `tag-kpi-card ${isActive ? 'active' : ''}`;
+                card.title = `Bấm để lọc các chiến dịch thuộc tag: ${tagName}`;
+                card.onclick = () => {
+                    const tagSelect = document.getElementById('tagFilter');
+                    if (tagSelect) {
+                        tagSelect.value = (currentFilter.tag === tagName) ? 'ALL' : tagName;
+                        applyFilters();
+                        document.querySelector('.table-card')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                };
+
+                card.innerHTML = `
+                    <div class="tag-kpi-card-header">
+                        <span class="tag-kpi-name" title="${tagName}">${meta.icon} ${tagName}</span>
+                        <span class="tag-kpi-rank">#${idx + 1}</span>
+                    </div>
+                    <div class="tag-kpi-stats">
+                        <span class="tag-kpi-phones">${formatNumber(s.phones)} <small style="font-size: 0.72rem; font-weight: normal; color: var(--text-muted);">SĐT</small></span>
+                        <span class="tag-kpi-cpa">${cpaText}</span>
+                    </div>
+                    <div class="tag-kpi-spend">
+                        <span>Chi: <b>${formatMoney(s.spend)}</b></span>
+                        <span><b>${s.camps.size}</b> camps (${pct}%)</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // 2. Render Chart
+            if (ctx) {
+                const colors = getChartColors();
+                const chartLabels = sortedTags.map(([t]) => t);
+                const chartPhones = sortedTags.map(([, s]) => s.phones);
+                const chartColors = sortedTags.map(([t]) => (tagMeta[t] || {}).color || '#6366f1');
+
+                if (contentTagsChartInstance) contentTagsChartInstance.destroy();
+
+                contentTagsChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    indexAxis: 'y',
+                    data: {
+                        labels: chartLabels.map(l => l.length > 20 ? l.slice(0, 18) + '…' : l),
+                        datasets: [{
+                            label: 'Số SĐT đạt được',
+                            data: chartPhones,
+                            backgroundColor: chartColors,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        onClick: (evt, elements) => {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                const selectedTag = sortedTags[index][0];
+                                const tagSelect = document.getElementById('tagFilter');
+                                if (tagSelect) {
+                                    tagSelect.value = selectedTag;
+                                    applyFilters();
+                                    document.querySelector('.table-card')?.scrollIntoView({ behavior: 'smooth' });
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    title: (items) => sortedTags[items[0].dataIndex][0],
+                                    label: (item) => {
+                                        const t = sortedTags[item.dataIndex];
+                                        const s = t[1];
+                                        const cpa = s.phones > 0 ? formatMoney(s.spend / s.phones) : '--';
+                                        return `SĐT: ${formatNumber(s.phones)} | CPA: ${cpa} | Chi: ${formatMoney(s.spend)}`;
+                                    },
+                                    afterBody: () => '👉 Bấm vào để lọc chiến dịch theo nhãn này'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { color: colors.grid }, ticks: { color: colors.text, precision: 0 } },
+                            y: { grid: { color: colors.grid }, ticks: { color: colors.text, font: { weight: 600 } } }
+                        }
+                    }
+                });
+            }
         }
 
         // ─── Chuẩn hóa dữ liệu theo chế độ xem (Chiến dịch vs Quảng cáo) ───
