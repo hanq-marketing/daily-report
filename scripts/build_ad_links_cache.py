@@ -27,7 +27,7 @@ print(f"Đang quét {len(acc_ads)} tài khoản Facebook Ads...")
 ad_links = {}
 
 for aid, adids in acc_ads.items():
-    url = f"https://graph.facebook.com/v19.0/{aid}/ads?fields=id,name,creative{{id,name,effective_object_story_id,thumbnail_url}}&limit=300&access_token={token}"
+    url = f"https://graph.facebook.com/v19.0/{aid}/ads?fields=id,name,creative{{id,name,effective_object_story_id,thumbnail_url,body,title,object_story_spec}}&limit=300&access_token={token}"
     req = urllib.request.Request(url)
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
@@ -41,11 +41,17 @@ for aid, adids in acc_ads.items():
                     post_url = f"https://www.facebook.com/{story_id}"
                 else:
                     post_url = f"https://adsmanager.facebook.com/adsmanager/manage/ads?act={aid.replace('act_', '')}&selected_ad_ids={adid}"
+                
+                body = c.get('body') or c.get('object_story_spec', {}).get('link_data', {}).get('message', '') or ''
+                title = c.get('title') or c.get('object_story_spec', {}).get('link_data', {}).get('name', '') or ''
+
                 ad_links[adid] = {
                     "url": post_url,
                     "story_id": story_id or "",
                     "thumb": c.get('thumbnail_url', ''),
-                    "name": a.get('name', '')
+                    "name": a.get('name', ''),
+                    "title": title,
+                    "body": body
                 }
     except Exception as e:
         print(f"Lỗi tài khoản {aid}: {e}")
@@ -54,4 +60,9 @@ cache_file = os.path.join(base_dir, 'data', 'ad_links_cache.json')
 with open(cache_file, 'w', encoding='utf-8') as f:
     json.dump(ad_links, f, ensure_ascii=False, indent=2)
 
+creatives_file = os.path.join(base_dir, 'data', 'ad_creatives_cache.json')
+with open(creatives_file, 'w', encoding='utf-8') as f:
+    json.dump(ad_links, f, ensure_ascii=False, indent=2)
+
 print(f"✓ Đã lưu cache link bài quảng cáo vào: {cache_file} ({len(ad_links)} ads)")
+print(f"✓ Đã cập nhật cache nội dung bài quảng cáo vào: {creatives_file}")
