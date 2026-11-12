@@ -27,9 +27,75 @@ PANCAKE_PAGE_BASE = "https://pages.fm/api/public_api/v1"
 PHONE_REGEX = re.compile(r'(?:0|\+84)[3|5|7|8|9][0-9]{8}\b')
 VN_TZ = timezone(timedelta(hours=7))
 
-# Khoảng thời gian báo cáo
-SINCE_DATE = "2026-10-01"
-UNTIL_DATE = datetime.now(VN_TZ).strftime("%Y-%m-%d")
+# ─── XÁC ĐỊNH KHOẢNG THỜI GIAN CẬP NHẬT (INCREMENTAL HOẶC FULL) ───────────────
+import argparse
+
+parser = argparse.ArgumentParser(description="Facebook Ads & Pancake Multi-Account Daily Report")
+parser.add_argument("--full", action="store_true", help="Buộc lấy toàn bộ dữ liệu lịch sử từ 2026-10-01")
+parser.add_argument("--since", type=str, default="", help="Ngày bắt đầu (YYYY-MM-DD)")
+parser.add_argument("--until", type=str, default="", help="Ngày kết thúc (YYYY-MM-DD)")
+args, unknown = parser.parse_known_args()
+
+CSV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "bao_cao_cac_tai_khoan_10_2026.csv")
+DEFAULT_HISTORICAL_START = "2026-10-01"
+today_str = datetime.now(VN_TZ).strftime("%Y-%m-%d")
+
+# 1. Đọc dữ liệu cũ hiện có từ file CSV để xác định mốc ngày
+existing_rows = []
+existing_dates = set()
+if os.path.exists(CSV_FILE):
+    try:
+        with open(CSV_FILE, "r", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            for r in reader:
+                d = r.get("Ngày", "").strip()
+                if d and re.match(r'^\d{4}-\d{2}-\d{2}$', d):
+                    existing_dates.add(d)
+                existing_rows.append(r)
+    except Exception as e:
+        print(f"⚠️ Cảnh báo đọc file CSV hiện tại: {e}")
+
+max_existing_date = max(existing_dates) if existing_dates else ""
+min_existing_date = min(existing_dates) if existing_dates else ""
+
+if args.since:
+    SINCE_DATE = args.since
+    UNTIL_DATE = args.until if args.until else today_str
+    MODE_TEXT = f"TÙY CHỌN CLI: {SINCE_DATE} -> {UNTIL_DATE}"
+elif args.full or not existing_rows or not max_existing_date:
+    SINCE_DATE = DEFAULT_HISTORICAL_START
+    UNTIL_DATE = today_str
+    MODE_TEXT = f"FULL (TOÀN BỘ): {SINCE_DATE} -> {UNTIL_DATE} (Kéo lại toàn bộ lịch sử)"
+else:
+    # Tự động tính chênh lệch ngày giữa dữ liệu cũ và hôm nay
+    today_dt = datetime.strptime(today_str, "%Y-%m-%d")
+    max_dt = datetime.strptime(max_existing_date, "%Y-%m-%d")
+    diff_days = (today_dt - max_dt).days
+
+    if diff_days <= 0:
+        # Dữ liệu đã có đến hôm nay: quét lại 2 ngày gần nhất (hôm qua & hôm nay) để cập nhật số liệu mới nhất trong ngày
+        fetch_start_dt = max_dt - timedelta(days=1)
+        SINCE_DATE = fetch_start_dt.strftime("%Y-%m-%d")
+        UNTIL_DATE = today_str
+        MODE_TEXT = f"INCREMENTAL: Quét làm mới hôm nay & hôm qua ({SINCE_DATE} -> {UNTIL_DATE}), bảo toàn dữ liệu cũ trước {SINCE_DATE}."
+    else:
+        # Dữ liệu thiếu diff_days ngày: quét từ (max_existing_date - 1 ngày) để bao quát ngày giáp ranh
+        fetch_start_dt = max_dt - timedelta(days=1)
+        SINCE_DATE = fetch_start_dt.strftime("%Y-%m-%d")
+        UNTIL_DATE = today_str
+        MODE_TEXT = f"INCREMENTAL: Bổ sung {diff_days} ngày còn thiếu ({SINCE_DATE} -> {UNTIL_DATE}), bảo toàn dữ liệu cũ trước {SINCE_DATE}."
+
+print("\n" + "=" * 70)
+print(f"📅 PHÂN TÍCH MỐC DỮ LIỆU CẬP NHẬT HÀNG NGÀY:")
+if existing_rows:
+    print(f"  - Dữ liệu hiện có: {len(existing_rows)} bản ghi ({min_existing_date} -> {max_existing_date})")
+    print(f"  - Ngày mới nhất trong dữ liệu cũ: {max_existing_date}")
+    print(f"  - Hôm nay: {today_str} (Chênh lệch: {(datetime.strptime(today_str, '%Y-%m-%d') - datetime.strptime(max_existing_date, '%Y-%m-%d')).days} ngày)")
+else:
+    print("  - Chưa có file dữ liệu cũ hoặc file rỗng.")
+print(f"  -> {MODE_TEXT}")
+print("=" * 70 + "\n")
+
 since_ts = int(datetime.strptime(SINCE_DATE, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
 until_ts = int(datetime.strptime(UNTIL_DATE, "%Y-%m-%d").replace(hour=23, minute=59, second=59, tzinfo=timezone.utc).timestamp())
 
@@ -172,6 +238,17 @@ def get_campaign_product(cname, aname=""):
     if 'ptit' in a: return 'PTIT'
     
     return 'Khác'
+
+def make_date_chunks(s_date, u_date, chunk_days=15):
+    s_dt = datetime.strptime(s_date, "%Y-%m-%d")
+    u_dt = datetime.strptime(u_date, "%Y-%m-%d")
+    chunks = []
+    curr = s_dt
+    while curr <= u_dt:
+        nxt = min(curr + timedelta(days=chunk_days - 1), u_dt)
+        chunks.append((curr.strftime("%Y-%m-%d"), nxt.strftime("%Y-%m-%d")))
+        curr = nxt + timedelta(days=1)
+    return chunks
 
 # ─── Helper: HTTP GET & POST ──────────────────────────────────────────────────
 def http_get_json(url, retries=2, timeout=30):
@@ -405,7 +482,7 @@ for acc in accs:
     # 2. Nếu thất bại hoặc không lấy được bản ghi (do Facebook timeout/500/400 như ở RA8)
     if len(records) == 0:
         print("  -> Đang query chia chặng 15 ngày để vượt giới hạn Facebook API...")
-        chunks = [('2026-10-01', '2026-10-15'), ('2026-10-16', '2026-10-31'), ('2026-11-01', UNTIL_DATE)]
+        chunks = make_date_chunks(SINCE_DATE, UNTIL_DATE, chunk_days=15)
         for since_d, until_d in chunks:
             tr = json.dumps({'since': since_d, 'until': until_d})
             etr = urllib.parse.quote(tr)
@@ -524,8 +601,43 @@ if len(all_rows) == 0:
     print("❌ LỖI: Không thu thập được bản ghi nào từ Facebook API! Hủy ghi đè để bảo vệ dữ liệu cũ.")
     sys.exit(1)
 
-# ─── BƯỚC 5: XUẤT CSV ────────────────────────────────────────────────────────
-csv_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "bao_cao_cac_tai_khoan_10_2026.csv")
+# ─── BƯỚC 5: GỘP DỮ LIỆU CŨ & MỚI (BẢO TOÀN LỊCH SỬ) VÀ XUẤT CSV ──────────────
+print("\n=== 5. GỘP DỮ LIỆU CŨ & MỚI (BẢO TOÀN LỊCH SỬ) ===")
+csv_file = CSV_FILE
+
+merged_map = {}
+old_kept_count = 0
+
+# 1. Nạp các bản ghi cũ trước ngày SINCE_DATE
+for r in existing_rows:
+    d = r.get("Ngày", "").strip()
+    if d and d < SINCE_DATE:
+        k = (r.get("ID tài khoản", "").strip(), d, r.get("Campaign ID", "").strip(), r.get("ID quảng cáo", "").strip())
+        merged_map[k] = r
+        old_kept_count += 1
+
+# 2. Nạp các bản ghi mới vừa thu thập (ghi đè hoặc thêm mới cho các ngày >= SINCE_DATE)
+new_added_count = 0
+for r in all_rows:
+    d = r.get("Ngày", "").strip()
+    k = (r.get("ID tài khoản", "").strip(), d, r.get("Campaign ID", "").strip(), r.get("ID quảng cáo", "").strip())
+    merged_map[k] = r
+    new_added_count += 1
+
+final_rows = list(merged_map.values())
+
+# Sắp xếp theo thứ tự: Ngày giảm dần, Tài khoản, Tên chiến dịch, ID quảng cáo
+final_rows.sort(key=lambda r: (
+    r.get("Ngày", ""),
+    r.get("Tài khoản", ""),
+    r.get("Tên chiến dịch", ""),
+    r.get("ID quảng cáo", "")
+), reverse=True)
+
+print(f"  - Số bản ghi lịch sử cũ được bảo toàn (< {SINCE_DATE}): {old_kept_count}")
+print(f"  - Số bản ghi mới / làm mới vừa thu thập (>= {SINCE_DATE}): {new_added_count}")
+print(f"  -> Tổng số dòng dữ liệu hoàn chỉnh sau khi gộp: {len(final_rows)}")
+
 fieldnames = [
     "Tài khoản", "ID tài khoản", "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm", "Trạng thái",
     "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", "CTR (%)", "CPC", "CPM",
@@ -536,18 +648,25 @@ fieldnames = [
 with open(csv_file, 'w', encoding='utf-8-sig', newline='') as f:
     writer = csv.DictWriter(f, fieldnames=fieldnames)
     writer.writeheader()
-    for row in all_rows:
+    for row in final_rows:
         writer.writerow(row)
 
-print(f"Đã xuất file CSV thành công: {csv_file}")
+print(f"✓ Đã xuất file CSV thành công: {csv_file}")
 
-# ─── BƯỚC 6: XUẤT MARKDOWN ───────────────────────────────────────────────────
+# ─── BƯỚC 6: XUẤT BÁO CÁO MARKDOWN TỔNG HỢP ──────────────────────────────────
 md_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Bao_Cao_FB", "Bao_Cao_Tong_Hop_Cac_Tai_Khoan_10_2026.md")
+
+min_date_all = min((r.get("Ngày") for r in final_rows if r.get("Ngày")), default=SINCE_DATE)
+max_date_all = max((r.get("Ngày") for r in final_rows if r.get("Ngày")), default=UNTIL_DATE)
+total_sdt_all = sum(int(float(r.get("Sđt theo campain", 0) or 0)) for r in final_rows)
+unique_ads_all = len(set(r.get("ID quảng cáo") for r in final_rows if r.get("ID quảng cáo")))
+
 with open(md_file, 'w', encoding='utf-8') as f:
-    f.write(f"# 📊 BÁO CÁO HIỆU QUẢ QUẢNG CÁO THEO TÀI KHOẢN (01/10/2026 - HIỆN TẠI)\n\n")
-    f.write(f"> **Thời gian ghi nhận:** {SINCE_DATE} – {UNTIL_DATE}\n")
+    f.write(f"# 📊 BÁO CÁO HIỆU QUẢ QUẢNG CÁO THEO TÀI KHOẢN ({min_date_all} - HIỆN TẠI)\n\n")
+    f.write(f"> **Thời gian ghi nhận:** {min_date_all} – {max_date_all}\n")
     f.write(f"> **Nguồn dữ liệu:** Facebook Graph API v19.0 (Insights) + **Pancake API** (SĐT bóc tách từ hội thoại quảng cáo, Tags).\n")
-    f.write(f"> **Tổng SĐT bóc tách từ Pancake:** {total_leads} leads từ {len(ad_phones_by_date)} Ad IDs\n")
+    f.write(f"> **Tổng SĐT bóc tách từ Pancake gắn Ads:** {total_sdt_all} leads từ {unique_ads_all} Ad IDs\n")
+    f.write(f"> **Đợt cập nhật gần nhất:** {datetime.now(VN_TZ).strftime('%d/%m/%Y %H:%M:%S')} (Chế độ: {SINCE_DATE} -> {UNTIL_DATE})\n")
     f.write(f"> **File CSV chi tiết:** [`data/bao_cao_cac_tai_khoan_10_2026.csv`](file:///d:/MCP/data/bao_cao_cac_tai_khoan_10_2026.csv)\n\n")
 
     f.write("## 🏆 1. BẢNG TỔNG HỢP HIỆU SUẤT THEO TÀI KHOẢN\n\n")
@@ -555,15 +674,15 @@ with open(md_file, 'w', encoding='utf-8') as f:
     f.write("|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|\n")
 
     acc_summary = {}
-    for r in all_rows:
+    for r in final_rows:
         acc_name = r["Tài khoản"]
-        s = acc_summary.setdefault(acc_name, {"spend": 0, "imp": 0, "clicks": 0, "msg": 0, "sdt": 0, "reg": 0})
-        s["spend"] += r["Chi tiêu"]
-        s["imp"] += r["Hiển thị"]
-        s["clicks"] += r["Click link"]
-        s["msg"] += r["Tin nhắn"]
-        s["sdt"] += int(r["Sđt theo campain"])
-        s["reg"] += r["Đăng ký"]
+        s = acc_summary.setdefault(acc_name, {"spend": 0.0, "imp": 0, "clicks": 0, "msg": 0, "sdt": 0, "reg": 0})
+        s["spend"] += float(r.get("Chi tiêu", 0) or 0)
+        s["imp"] += int(float(r.get("Hiển thị", 0) or 0))
+        s["clicks"] += int(float(r.get("Click link", 0) or 0))
+        s["msg"] += int(float(r.get("Tin nhắn", 0) or 0))
+        s["sdt"] += int(float(r.get("Sđt theo campain", 0) or 0))
+        s["reg"] += int(float(r.get("Đăng ký", 0) or 0))
 
     for aname, s in sorted(acc_summary.items(), key=lambda x: x[1]["spend"], reverse=True):
         ctr_v = (s["clicks"] / s["imp"] * 100) if s["imp"] > 0 else 0
@@ -578,14 +697,14 @@ with open(md_file, 'w', encoding='utf-8') as f:
     f.write("| Sản phẩm | Chi tiêu (VNĐ) | Hiển thị | Clicks | CTR TB | Tin nhắn | SĐT (Pancake) | Chi phí / SĐT (VNĐ) |\n")
     f.write("|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|\n")
     prod_summary = {}
-    for r in all_rows:
+    for r in final_rows:
         pname = r.get("Sản phẩm") or "Khác"
-        s = prod_summary.setdefault(pname, {"spend": 0, "imp": 0, "clicks": 0, "msg": 0, "sdt": 0})
-        s["spend"] += r["Chi tiêu"]
-        s["imp"] += r["Hiển thị"]
-        s["clicks"] += r["Click link"]
-        s["msg"] += r["Tin nhắn"]
-        s["sdt"] += int(r["Sđt theo campain"])
+        s = prod_summary.setdefault(pname, {"spend": 0.0, "imp": 0, "clicks": 0, "msg": 0, "sdt": 0})
+        s["spend"] += float(r.get("Chi tiêu", 0) or 0)
+        s["imp"] += int(float(r.get("Hiển thị", 0) or 0))
+        s["clicks"] += int(float(r.get("Click link", 0) or 0))
+        s["msg"] += int(float(r.get("Tin nhắn", 0) or 0))
+        s["sdt"] += int(float(r.get("Sđt theo campain", 0) or 0))
 
     for pname, s in sorted(prod_summary.items(), key=lambda x: x[1]["sdt"], reverse=True):
         ctr_v = (s["clicks"] / s["imp"] * 100) if s["imp"] > 0 else 0
@@ -598,16 +717,16 @@ with open(md_file, 'w', encoding='utf-8') as f:
     f.write("| Nhóm nội dung / Tag | Chi tiêu (VNĐ) | Tin nhắn | SĐT (Pancake) | Chi phí / SĐT (VNĐ) |\n")
     f.write("|---|:---:|:---:|:---:|:---:|\n")
     tag_summary = {}
-    for r in all_rows:
+    for r in final_rows:
         raw_tags = r.get("Nhãn chiến dịch", "")
         t_list = [t.strip() for t in raw_tags.split(",") if t.strip()]
         if not t_list:
             t_list = ["Chưa phân loại"]
         for t in t_list:
-            s = tag_summary.setdefault(t, {"spend": 0, "msg": 0, "sdt": 0})
-            s["spend"] += r["Chi tiêu"]
-            s["msg"] += r["Tin nhắn"]
-            s["sdt"] += int(r["Sđt theo campain"])
+            s = tag_summary.setdefault(t, {"spend": 0.0, "msg": 0, "sdt": 0})
+            s["spend"] += float(r.get("Chi tiêu", 0) or 0)
+            s["msg"] += int(float(r.get("Tin nhắn", 0) or 0))
+            s["sdt"] += int(float(r.get("Sđt theo campain", 0) or 0))
 
     for tname, s in sorted(tag_summary.items(), key=lambda x: x[1]["sdt"], reverse=True):
         cost_per_sdt = (s["spend"] / s["sdt"]) if s["sdt"] > 0 else 0
@@ -617,14 +736,15 @@ with open(md_file, 'w', encoding='utf-8') as f:
     f.write("## 📑 4. CHI TIẾT DỮ LIỆU CÁC CHIẾN DỊCH THEO TỪNG TÀI KHOẢN\n\n")
 
     for aname in acc_summary.keys():
-        rows_acc = [r for r in all_rows if r["Tài khoản"] == aname]
+        rows_acc = [r for r in final_rows if r["Tài khoản"] == aname]
         f.write(f"### 🏢 {aname} ({len(rows_acc)} dòng)\n\n")
         f.write("| Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |\n")
         f.write("|:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|\n")
         for r in rows_acc[:20]:
             tags_display = r.get('Tags Pancake', '')[:30] + '…' if len(r.get('Tags Pancake', '')) > 30 else r.get('Tags Pancake', '')
             camp_tag_display = r.get('Nhãn chiến dịch', '')
-            f.write(f"| {r['Ngày']} | {r['Tên chiến dịch'][:32]} | **{r.get('Sản phẩm', '')}** | {camp_tag_display} | {r['Trạng thái']} | {r['Chi tiêu']:,.0f} | {r['Tin nhắn']} | {r['Lead']} | **{r['Sđt theo campain']}** | {tags_display} | `{r['ID quảng cáo']}` |\n")
+            spend_val = float(r.get("Chi tiêu", 0) or 0)
+            f.write(f"| {r['Ngày']} | {r['Tên chiến dịch'][:32]} | **{r.get('Sản phẩm', '')}** | {camp_tag_display} | {r['Trạng thái']} | {spend_val:,.0f} | {r['Tin nhắn']} | {r['Lead']} | **{r['Sđt theo campain']}** | {tags_display} | `{r['ID quảng cáo']}` |\n")
         if len(rows_acc) > 20:
             f.write(f"\n*(Còn {len(rows_acc) - 20} dòng khác, xem trong file CSV)*\n\n")
         f.write("\n")
