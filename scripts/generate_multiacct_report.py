@@ -116,24 +116,56 @@ def get_campaign_tags(cid, cname, adname, aname, adid=None, ad_title=None, ad_bo
 
 # ─── PHÂN LOẠI SẢN PHẨM DỰA VÀO TÊN CHIẾN DỊCH & TÀI KHOẢN ──────────────────
 def get_campaign_product(cname, aname=""):
-    t = (cname or "").lower()
-    a = (aname or "").lower()
-    if re.search(r'\bda\b|data\s*analy', t): return 'Data Analyst'
-    if re.search(r'\bde\b|data\s*engin', t): return 'Data Engineer'
-    if re.search(r'\bba\b|itba|business\s*analy', t): return 'BA'
-    if re.search(r'\b(ai|ae|aieg|ai4life)\b', t): return 'AI Enginner'
-    if re.search(r'nhúng|nhung|embed|\beb\b', t): return 'Embeded'
-    if re.search(r'xueba|tiếng\s*trung|thầy\s*tư', t): return 'XueBa'
-    if re.search(r'tsu|tsubasa|brse', t): return 'BrSE'
-    if re.search(r'cyber|cbs', t): return 'Network Security'
-    if re.search(r'ptit|cntt|qtkd', t): return 'PTIT'
+    t = (cname or '').strip()
+    a = (aname or '').strip().lower()
+    tl = t.lower()
+    
+    # 1. Check strong prefixes/patterns in campaign name
+    # XueBa (Tiếng Trung)
+    if re.search(r'xueba|tiếng\s*trung|thầy\s*tư', tl):
+        return 'XueBa'
+    
+    # Cyber Security
+    if re.search(r'\b(cyber|cbs)\b', tl):
+        return 'Network Security'
+    
+    # BrSE / Japanese
+    if re.search(r'\b(brse|tsu|tsubasa)\b', tl):
+        return 'BrSE'
+        
+    # Embedded / Nhúng
+    if re.search(r'nhúng|nhung|\b(embed|eb)\b', tl):
+        return 'Embeded'
+        
+    # Data Engineer: check for - DE - or DE at start/key position
+    if re.search(r'[-\s]de[-\s]|^\s*de[-\s]|\bdata\s*engin', tl):
+        return 'Data Engineer'
+        
+    # Data Analyst: check for - DA - or DA at start/key position
+    if re.search(r'[-\s]da[-\s]|^\s*da[-\s]|\bdata\s*analy', tl):
+        return 'Data Analyst'
+        
+    # Business Analysis: check for - BA - or BA at start
+    if re.search(r'[-\s]ba[-\s]|^\s*ba[-\s]|\bitba\b|business\s*analy', tl):
+        return 'BA'
+        
+    # AI Engineer: check for - AE - or AI
+    if re.search(r'[-\s]ae[-\s]|\baieg\b|\bai4life\b|\bai\b', tl):
+        return 'AI Enginner'
+        
+    # PTIT / Đại học
+    if re.search(r'ptit|cntt|qtkd', tl):
+        return 'PTIT'
+        
+    # 2. Account fallback
     if 'dabk' in a: return 'Data Analyst'
-    if ' de' in a or '- de' in a: return 'Data Engineer'
-    if ' ba' in a or '- ba' in a: return 'BA'
-    if 'ai engineer' in a or 'ai new' in a: return 'AI Enginner'
-    if 'embedded' in a: return 'Embeded'
-    if 'line nhật' in a: return 'BrSE'
+    if ' - de' in a or 'ra3' in a: return 'Data Engineer'
+    if ' - ba' in a or 'ra4' in a: return 'BA'
+    if 'ai engineer' in a or 'ai new' in a or 'ra2' in a or 'ra8' in a: return 'AI Enginner'
+    if 'embedded' in a or 'ra1' in a: return 'Embeded'
+    if 'line nhật' in a or 'ra5' in a: return 'BrSE'
     if 'ptit' in a: return 'PTIT'
+    
     return 'Khác'
 
 # ─── Helper: HTTP GET & POST ──────────────────────────────────────────────────
@@ -345,12 +377,44 @@ for acc in accs:
             if b_text or t_text:
                 AD_CREATIVES[a['id']] = {'title': t_text, 'body': b_text}
 
-    # Lấy insights cấp Ad theo ngày
+    # Lấy insights cấp Ad theo ngày (có phân trang và tự động chia chặng nếu Facebook timeout)
     fields = "date_start,campaign_id,campaign_name,ad_id,ad_name,spend,impressions,inline_link_clicks,ctr,cpc,cpm,actions"
-    url_ins = f"https://graph.facebook.com/v19.0/{aid}/insights?level=ad&time_range={encoded_tr}&time_increment=1&fields={fields}&limit=500&access_token={FB_TOKEN}"
-    ins_data = http_get_json(url_ins)
+    records = []
+    
+    # 1. Thử lấy toàn kỳ với pagination
+    url_ins = f"https://graph.facebook.com/v19.0/{aid}/insights?level=ad&time_range={encoded_tr}&time_increment=1&fields={fields}&limit=250&access_token={FB_TOKEN}"
+    curr_url = url_ins
+    p = 0
+    try:
+        while curr_url and p < 30:
+            ins_data = http_get_json(curr_url, retries=1, timeout=35)
+            if not ins_data or 'data' not in ins_data:
+                break
+            batch = ins_data.get('data', [])
+            records.extend(batch)
+            curr_url = ins_data.get('paging', {}).get('next')
+            p += 1
+    except Exception as e:
+        print(f"  ⚠️ Lỗi query toàn kỳ ({e}), chuyển sang query theo từng chặng 15 ngày...")
 
-    records = ins_data.get('data', []) if ins_data else []
+    # 2. Nếu thất bại hoặc không lấy được bản ghi (do Facebook timeout/500/400 như ở RA8)
+    if len(records) == 0:
+        print("  -> Đang query chia chặng 15 ngày để vượt giới hạn Facebook API...")
+        chunks = [('2026-10-01', '2026-10-15'), ('2026-10-16', '2026-10-31'), ('2026-11-01', UNTIL_DATE)]
+        for since_d, until_d in chunks:
+            tr = json.dumps({'since': since_d, 'until': until_d})
+            etr = urllib.parse.quote(tr)
+            chunk_url = f"https://graph.facebook.com/v19.0/{aid}/insights?level=ad&time_range={etr}&time_increment=1&fields={fields}&limit=200&access_token={FB_TOKEN}"
+            curr_url = chunk_url
+            cp = 0
+            while curr_url and cp < 20:
+                cdata = http_get_json(curr_url, retries=1, timeout=35)
+                if not cdata or 'data' not in cdata:
+                    break
+                records.extend(cdata.get('data', []))
+                curr_url = cdata.get('paging', {}).get('next')
+                cp += 1
+
     print(f"  Số bản ghi chi tiết (ngày x ad): {len(records)}")
 
     for r in records:
