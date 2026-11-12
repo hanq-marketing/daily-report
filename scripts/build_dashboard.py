@@ -979,6 +979,14 @@ html_content = """<!DOCTYPE html>
                     </select>
                 </div>
 
+                <!-- Lọc theo Sản Phẩm -->
+                <div class="filter-group" style="flex: 1.1; min-width: 170px;">
+                    <label class="filter-label">📦 Chọn Sản Phẩm</label>
+                    <select id="productFilter" class="select-input">
+                        <option value="ALL">👉 Tất cả sản phẩm</option>
+                    </select>
+                </div>
+
                 <!-- Lọc theo Nhãn Chiến Dịch -->
                 <div class="filter-group" style="flex: 1.2; min-width: 180px;">
                     <label class="filter-label">🏷️ Nhóm Nội Dung / Nhãn</label>
@@ -1226,6 +1234,7 @@ html_content = """<!DOCTYPE html>
                             <th data-sort="Tài khoản">Tài khoản ⬍</th>
                             <th data-sort="Ngày">Ngày ⬍</th>
                             <th data-sort="Tên chiến dịch">Tên chiến dịch ⬍</th>
+                            <th data-sort="Sản phẩm">Sản phẩm ⬍</th>
                             <th data-sort="Nhãn chiến dịch">Nhãn chiến dịch ⬍</th>
                             <th>Bài quảng cáo</th>
                             <th data-sort="Trạng thái">Trạng thái ⬍</th>
@@ -1268,6 +1277,7 @@ html_content = """<!DOCTYPE html>
         let currentFilter = {
             account: "ALL",
             month: "ALL",
+            product: "ALL",
             tag: "ALL",
             dateStart: "",
             dateEnd: "",
@@ -1300,6 +1310,7 @@ html_content = """<!DOCTYPE html>
             setupEventListeners();
             initDateRange();
             populateMonthDropdown();
+            populateProductDropdown();
             populateTagDropdown();
             populateAccountDropdown();
             applyFilters();
@@ -1427,6 +1438,27 @@ html_content = """<!DOCTYPE html>
             }
         }
 
+        // ─── Điền danh sách Sản phẩm vào Dropdown ───
+        function populateProductDropdown() {
+            const select = document.getElementById('productFilter');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="ALL">👉 Tất cả sản phẩm</option>';
+            
+            const prods = [...new Set(RAW_DATA.map(r => r["Sản phẩm"]).filter(Boolean))].sort();
+            prods.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = `📦 ${p}`;
+                select.appendChild(opt);
+            });
+            if (prods.includes(currentVal)) {
+                select.value = currentVal;
+            } else {
+                select.value = 'ALL';
+            }
+        }
+
         // ─── Điền danh sách Nhãn vào Dropdown ───
         function populateTagDropdown() {
             const select = document.getElementById('tagFilter');
@@ -1483,6 +1515,7 @@ html_content = """<!DOCTYPE html>
                                 "Ngày": String(r["Ngày"] || "").trim(),
                                 "Campaign ID": String(r["Campaign ID"] || ""),
                                 "Tên chiến dịch": r["Tên chiến dịch"] || "",
+                                "Sản phẩm": r["Sản phẩm"] || "",
                                 "Nhãn chiến dịch": r["Nhãn chiến dịch"] || "",
                                 "Trạng thái": r["Trạng thái"] || "UNKNOWN",
                                 "Ngân sách/ngày": r["Ngân sách/ngày"] || "",
@@ -1509,6 +1542,7 @@ html_content = """<!DOCTYPE html>
                             document.getElementById('lastUpdatedText').textContent = `Lần đồng bộ cuối: ${new Date().toLocaleTimeString('vi-VN')}`;
                             populateAccountDropdown();
                             populateMonthDropdown();
+                            populateProductDropdown();
                             populateTagDropdown();
                             initDateRange();
                             applyFilters();
@@ -1532,6 +1566,7 @@ html_content = """<!DOCTYPE html>
         function applyFilters() {
             currentFilter.account = document.getElementById('accountFilter').value;
             currentFilter.month = document.getElementById('monthFilter').value;
+            currentFilter.product = document.getElementById('productFilter') ? document.getElementById('productFilter').value : 'ALL';
             currentFilter.tag = document.getElementById('tagFilter').value;
             currentFilter.dateStart = document.getElementById('dateStart').value;
             currentFilter.dateEnd = document.getElementById('dateEnd').value;
@@ -1546,6 +1581,10 @@ html_content = """<!DOCTYPE html>
                 // Lọc tháng
                 const rowDate = row["Ngày"];
                 if (currentFilter.month !== "ALL" && (!rowDate || !rowDate.startsWith(currentFilter.month))) {
+                    return false;
+                }
+                // Lọc sản phẩm
+                if (currentFilter.product !== "ALL" && row["Sản phẩm"] !== currentFilter.product) {
                     return false;
                 }
                 // Lọc nhãn chiến dịch
@@ -1567,6 +1606,7 @@ html_content = """<!DOCTYPE html>
                     const q = currentFilter.search;
                     const match = (
                         (row["Tên chiến dịch"] && row["Tên chiến dịch"].toLowerCase().includes(q)) ||
+                        (row["Sản phẩm"] && row["Sản phẩm"].toLowerCase().includes(q)) ||
                         (row["Nhãn chiến dịch"] && row["Nhãn chiến dịch"].toLowerCase().includes(q)) ||
                         (row["Tên quảng cáo"] && row["Tên quảng cáo"].toLowerCase().includes(q)) ||
                         (row["ID quảng cáo"] && row["ID quảng cáo"].includes(q)) ||
@@ -1592,12 +1632,16 @@ html_content = """<!DOCTYPE html>
                 const parts = currentFilter.month.split('-');
                 if (parts.length >= 2) monthText = ` | Tháng ${parts[1]}/${parts[0]}`;
             }
+            let prodText = "";
+            if (currentFilter.product !== "ALL") {
+                prodText = ` | Sản phẩm: <b>${currentFilter.product}</b>`;
+            }
             let tagText = "";
             if (currentFilter.tag !== "ALL") {
                 tagText = ` | Nhãn: <b>${currentFilter.tag}</b>`;
             }
             const dateText = `${currentFilter.dateStart} → ${currentFilter.dateEnd}`;
-            document.getElementById('filterSummaryText').innerHTML = `Đang lọc: <b>${accText}</b>${monthText}${tagText} | <b>${dateText}</b> (Khớp <b>${FILTERED_DATA.length}</b> / ${RAW_DATA.length} dòng)`;
+            document.getElementById('filterSummaryText').innerHTML = `Đang lọc: <b>${accText}</b>${monthText}${prodText}${tagText} | <b>${dateText}</b> (Khớp <b>${FILTERED_DATA.length}</b> / ${RAW_DATA.length} dòng)`;
         }
 
         // ─── Cập nhật KPI Metrics ───
@@ -2140,6 +2184,7 @@ html_content = """<!DOCTYPE html>
                         "Ngày": r["Ngày"],
                         "Campaign ID": r["Campaign ID"] || "",
                         "Tên chiến dịch": r["Tên chiến dịch"] || "",
+                        "Sản phẩm": r["Sản phẩm"] || "",
                         "Nhãn chiến dịch": r["Nhãn chiến dịch"] || "",
                         "Trạng thái": r["Trạng thái"] || "UNKNOWN",
                         "Ngân sách/ngày": r["Ngân sách/ngày"] || "",
@@ -2163,6 +2208,7 @@ html_content = """<!DOCTYPE html>
 
                 const g = grouped[campKey];
                 if (r["Trạng thái"] === "ACTIVE") g["Trạng thái"] = "ACTIVE";
+                if (r["Sản phẩm"] && !g["Sản phẩm"]) g["Sản phẩm"] = r["Sản phẩm"];
                 if (r["Nhãn chiến dịch"] && !g["Nhãn chiến dịch"]) g["Nhãn chiến dịch"] = r["Nhãn chiến dịch"];
 
                 g["Chi tiêu"] += (r["Chi tiêu"] || 0);
@@ -2232,7 +2278,7 @@ html_content = """<!DOCTYPE html>
             const pageData = sorted.slice(startIdx, endIdx);
 
             if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="16" style="text-align: center; padding: 2rem; color: var(--text-muted);">Không tìm thấy dữ liệu phù hợp với bộ lọc hiện tại.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="17" style="text-align: center; padding: 2rem; color: var(--text-muted);">Không tìm thấy dữ liệu phù hợp với bộ lọc hiện tại.</td></tr>`;
                 document.getElementById('paginationInfo').textContent = 'Hiển thị 0 dòng';
                 document.getElementById('paginationControls').innerHTML = '';
                 return;
@@ -2241,6 +2287,24 @@ html_content = """<!DOCTYPE html>
             pageData.forEach(r => {
                 const tr = document.createElement('tr');
                 
+                // Product chip badge
+                const prodName = r["Sản phẩm"] || "--";
+                const prodColorMap = {
+                    'DA': { bg: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' },
+                    'DE': { bg: 'rgba(14, 165, 233, 0.15)', color: '#38bdf8', border: 'rgba(14, 165, 233, 0.3)' },
+                    'BA': { bg: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', border: 'rgba(168, 85, 247, 0.3)' },
+                    'AI': { bg: 'rgba(236, 72, 153, 0.15)', color: '#f472b6', border: 'rgba(236, 72, 153, 0.3)' },
+                    'Nhúng': { bg: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: 'rgba(245, 158, 11, 0.3)' },
+                    'XueBa': { bg: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: 'rgba(239, 68, 68, 0.3)' },
+                    'Tsubasa': { bg: 'rgba(20, 184, 166, 0.15)', color: '#2dd4bf', border: 'rgba(20, 184, 166, 0.3)' },
+                    'Cyber': { bg: 'rgba(99, 102, 241, 0.15)', color: '#818cf8', border: 'rgba(99, 102, 241, 0.3)' },
+                    'PTIT': { bg: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: 'rgba(16, 185, 129, 0.3)' },
+                };
+                const pStyle = prodColorMap[prodName] || { bg: 'rgba(148, 163, 184, 0.15)', color: '#94a3b8', border: 'rgba(148, 163, 184, 0.3)' };
+                const prodHtml = (prodName && prodName !== '--') 
+                    ? `<span class="campaign-tag-chip" style="background: ${pStyle.bg}; color: ${pStyle.color}; border-color: ${pStyle.border}; font-weight: 700;">${prodName}</span>` 
+                    : `<span style="color: var(--text-muted); font-size: 0.75rem;">--</span>`;
+
                 // Campaign tags chips
                 const campTagsStr = r["Nhãn chiến dịch"] || "";
                 let campTagsHtml = `<span style="color: var(--text-muted); font-size: 0.75rem;">--</span>`;
@@ -2312,6 +2376,7 @@ html_content = """<!DOCTYPE html>
                     <td><b>${r["Tài khoản"]}</b></td>
                     <td>${r["Ngày"]}</td>
                     <td title="${r["Tên chiến dịch"]}">${(r["Tên chiến dịch"] || "").slice(0, 32)}${(r["Tên chiến dịch"] || "").length > 32 ? '…' : ''}</td>
+                    <td>${prodHtml}</td>
                     <td>${campTagsHtml}</td>
                     <td>${adLinkHtml}</td>
                     <td>${statusHtml}</td>
@@ -2385,6 +2450,7 @@ html_content = """<!DOCTYPE html>
         function setupEventListeners() {
             // Bộ lọc thay đổi
             document.getElementById('accountFilter').addEventListener('change', applyFilters);
+            document.getElementById('productFilter').addEventListener('change', applyFilters);
             document.getElementById('tagFilter').addEventListener('change', applyFilters);
             document.getElementById('monthFilter').addEventListener('change', (e) => {
                 const selectedMonth = e.target.value;
@@ -2509,6 +2575,7 @@ html_content = """<!DOCTYPE html>
             document.getElementById('btnResetFilter').addEventListener('click', () => {
                 document.getElementById('accountFilter').value = 'ALL';
                 document.getElementById('monthFilter').value = 'ALL';
+                if (document.getElementById('productFilter')) document.getElementById('productFilter').value = 'ALL';
                 document.getElementById('tagFilter').value = 'ALL';
                 document.getElementById('statusFilter').value = 'ALL';
                 document.getElementById('tableSearchInput').value = '';
