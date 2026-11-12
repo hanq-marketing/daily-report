@@ -88,9 +88,9 @@ def run_sync():
     try:
         ws_master = spreadsheet.worksheet("Master Data")
     except gspread.exceptions.WorksheetNotFound:
-        ws_master = spreadsheet.add_worksheet(title="Master Data", rows="2000", cols="25")
+        ws_master = spreadsheet.add_worksheet(title="Master Data", rows="3000", cols="26")
         ws_master.update([master_headers], "A1", value_input_option="USER_ENTERED")
-        ws_master.format("A1:W1", {"textFormat": {"bold": True}})
+        ws_master.format("A1:Y1", {"textFormat": {"bold": True}})
 
     existing_master = ws_master.get_all_values()
     if not existing_master:
@@ -100,24 +100,11 @@ def run_sync():
     m_acc_idx = m_headers.index("Account ID") if "Account ID" in m_headers else 1
     m_date_idx = m_headers.index("Ngày") if "Ngày" in m_headers else 2
     m_camp_idx = m_headers.index("Campaign ID") if "Campaign ID" in m_headers else 3
-    m_ad_idx = m_headers.index("ID quảng cáo") if "ID quảng cáo" in m_headers else 18
+    m_ad_idx = m_headers.index("ID quảng cáo") if "ID quảng cáo" in m_headers else 19
 
-    # Bản đồ vị trí dòng cũ: key -> row_idx (trong existing_master)
-    existing_row_indices = {}
-    for idx, row in enumerate(existing_master[1:], start=1):
-        if len(row) > max(m_acc_idx, m_date_idx):
-            a_id = row[m_acc_idx].strip()
-            d_val = row[m_date_idx].strip()
-            c_id = row[m_camp_idx].strip() if len(row) > m_camp_idx else ""
-            ad_id = row[m_ad_idx].strip() if len(row) > m_ad_idx else ""
-            existing_row_indices[(a_id, d_val, c_id, ad_id)] = idx
-
-    updated_master = [list(r) for r in existing_master]
-    updated_master[0] = master_headers
-
-    m_updated = 0
-    m_added = 0
-
+    # Xây dựng danh sách rows từ CSV chuẩn 25 cột
+    csv_keys = set()
+    master_rows = [master_headers]
     for r in csv_rows:
         key = (
             r.get("ID tài khoản", "").strip(),
@@ -125,20 +112,32 @@ def run_sync():
             r.get("Campaign ID", "").strip(),
             r.get("ID quảng cáo", "").strip()
         )
-        formatted_row = format_row(r, master_headers, csv_to_master_map)
+        csv_keys.add(key)
+        master_rows.append(format_row(r, master_headers, csv_to_master_map))
 
-        if key in existing_row_indices:
-            idx = existing_row_indices[key]
-            updated_master[idx] = formatted_row
-            m_updated += 1
-        else:
-            updated_master.append(formatted_row)
-            existing_row_indices[key] = len(updated_master) - 1
-            m_added += 1
+    # Nếu có dòng cũ trong existing_master mà không có trong CSV hiện tại (bảo toàn lịch sử cũ)
+    old_preserved_count = 0
+    if len(m_headers) >= len(master_headers):
+        for row in existing_master[1:]:
+            # Bỏ qua dòng bị lệch cột trước đó (Sản phẩm = CAMPAIGN_PAUSED)
+            if len(row) > 5 and row[5] == "CAMPAIGN_PAUSED":
+                continue
+            if len(row) > max(m_acc_idx, m_date_idx):
+                a_id = row[m_acc_idx].strip()
+                d_val = row[m_date_idx].strip()
+                c_id = row[m_camp_idx].strip() if len(row) > m_camp_idx else ""
+                ad_id = row[m_ad_idx].strip() if len(row) > m_ad_idx else ""
+                k = (a_id, d_val, c_id, ad_id)
+                if k not in csv_keys and any(k):
+                    # Đảm bảo đủ số cột
+                    padded = list(row) + [""] * max(0, len(master_headers) - len(row))
+                    master_rows.append(padded[:len(master_headers)])
+                    old_preserved_count += 1
 
-    ws_master.update(updated_master, "A1", value_input_option="USER_ENTERED")
+    ws_master.clear()
+    ws_master.update(master_rows, "A1", value_input_option="USER_ENTERED")
     ws_master.format("A1:Y1", {"textFormat": {"bold": True}})
-    print(f"-> Tab 'Master Data': Đã cập nhật {m_updated} dòng và thêm mới {m_added} dòng (Tổng: {len(updated_master)-1} dòng).")
+    print(f"-> Tab 'Master Data': Đã đồng bộ thành công {len(master_rows)-1} dòng (trong đó {len(csv_rows)} dòng mới/cập nhật, {old_preserved_count} dòng lịch sử bảo toàn).")
 
     # 2. CẬP NHẬT CÁC TAB TÀI KHOẢN RIÊNG
     print("\n[4] Đối soát và cập nhật các tab riêng của từng tài khoản...")
@@ -178,11 +177,8 @@ def run_sync():
                 matched_aid = aid
                 break
 
-        updated_acc = [list(r) for r in existing_acc_values]
-        updated_acc[0] = account_headers
-        a_updated = 0
-        a_added = 0
-
+        acc_keys = set()
+        updated_acc = [account_headers]
         if matched_aid and matched_aid in acc_rows_map:
             for r in acc_rows_map[matched_aid]:
                 key = (
@@ -190,20 +186,25 @@ def run_sync():
                     r.get("Campaign ID", "").strip(),
                     r.get("ID quảng cáo", "").strip()
                 )
-                formatted_row = format_row(r, account_headers, {})
+                acc_keys.add(key)
+                updated_acc.append(format_row(r, account_headers, {}))
 
-                if key in existing_acc_indices:
-                    idx = existing_acc_indices[key]
-                    updated_acc[idx] = formatted_row
-                    a_updated += 1
-                else:
-                    updated_acc.append(formatted_row)
-                    existing_acc_indices[key] = len(updated_acc) - 1
-                    a_added += 1
+        # Giữ lại các dòng lịch sử cũ nếu có đủ số cột
+        if len(acc_hdrs) >= len(account_headers):
+            for row in existing_acc_values[1:]:
+                if len(row) > max(date_idx, camp_idx):
+                    d_val = row[date_idx].strip()
+                    c_id = row[camp_idx].strip() if len(row) > camp_idx else ""
+                    ad_id = row[ad_idx].strip() if len(row) > ad_idx else ""
+                    k = (d_val, c_id, ad_id)
+                    if k not in acc_keys and any(k):
+                        padded = list(row) + [""] * max(0, len(account_headers) - len(row))
+                        updated_acc.append(padded[:len(account_headers)])
 
+        ws.clear()
         ws.update(updated_acc, "A1", value_input_option="USER_ENTERED")
         ws.format("A1:W1", {"textFormat": {"bold": True}})
-        print(f"  -> Tab '{title}': Đã cập nhật {a_updated} dòng và thêm mới {a_added} dòng (Tổng: {len(updated_acc)-1} dòng).")
+        print(f"  -> Tab '{title}': Đã đồng bộ {len(updated_acc)-1} dòng.")
         time.sleep(1)
 
     print("\n✅ HOÀN TẤT ĐỒNG BỘ: SỐ LIỆU ĐÃ ĐƯỢC CẬP NHẬT MỚI NHẤT, DỮ LIỆU LỊCH SỬ ĐƯỢC BẢO TOÀN!")
