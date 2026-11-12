@@ -149,9 +149,13 @@ def get_campaign_product(cname, aname=""):
     if re.search(r'[-\s]ba[-\s]|^\s*ba[-\s]|\bitba\b|business\s*analy', tl):
         return 'BA'
         
-    # AI Engineer: check for - AE - or AI
-    if re.search(r'[-\s]ae[-\s]|\baieg\b|\bai4life\b|\bai\b', tl):
-        return 'AI Enginner'
+    # RA8 - AI NEW: các chiến dịch có tên là AI -> AI driven
+    if ('ra8' in a or 'ai new' in a) and re.search(r'[-\s]ai[-\s]|^\s*ai[-\s]|\bai\b', tl):
+        return 'AI driven'
+
+    # AE, AIEG -> AI engineer
+    if re.search(r'[-\s]ae[-\s]|^\s*ae[-\s]|\baieg\b|\bai4life\b', tl):
+        return 'AI engineer'
         
     # PTIT / Đại học
     if re.search(r'ptit|cntt|qtkd', tl):
@@ -161,7 +165,8 @@ def get_campaign_product(cname, aname=""):
     if 'dabk' in a: return 'Data Analyst'
     if ' - de' in a or 'ra3' in a: return 'Data Engineer'
     if ' - ba' in a or 'ra4' in a: return 'BA'
-    if 'ai engineer' in a or 'ai new' in a or 'ra2' in a or 'ra8' in a: return 'AI Enginner'
+    if 'ai engineer' in a or 'ra2' in a: return 'AI engineer'
+    if 'ai new' in a or 'ra8' in a: return 'AI driven'
     if 'embedded' in a or 'ra1' in a: return 'Embeded'
     if 'line nhật' in a or 'ra5' in a: return 'BrSE'
     if 'ptit' in a: return 'PTIT'
