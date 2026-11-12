@@ -1,104 +1,196 @@
 {
+  "tags": [
+    "Chia sẻ",
+    "storytelling",
+    "PAS - problem - Agitation - solution",
+    "Tính năng - lợi ích ( đầu ra)",
+    "Ưu đãi khuyến mãi",
+    "Lộ trình khóa học",
+    "USP khóa học"
+  ],
   "rules": {
-    "Lộ trình khóa học": [
-      "lo trinh",
-      "lộ trình",
-      "lotrinh",
-      "4 gđ",
-      "5,5 thang",
-      "5 thang",
-      "58 buổi"
-    ],
-    "Giảng viên / Chuyên gia": [
-      "thầy tư",
-      "thay tu",
-      "giảng viên",
-      "giang vien",
-      "tiến sĩ",
-      "bản ngữ",
-      "16 năm"
-    ],
-    "Học thử / Trải nghiệm": [
-      "học thử",
-      "hoc thu",
-      "lớp học thử",
-      "lop hoc thu"
-    ],
-    "Sự kiện / Workshop": [
-      "workshop",
-      "sự kiện",
-      "su kien",
-      "21.11"
-    ],
-    "Định hướng việc làm": [
-      "thất nghiệp",
-      "bán thẳng",
-      "ban thang",
-      "nhận bằng nhận việc",
-      "techlead",
-      "thực tập",
-      "banking"
-    ],
-    "Đối tượng Sinh viên": [
-      "sinh viên",
-      "sinh vien",
-      " sv",
-      "svcnt",
-      "sv2-3",
-      "svnn"
-    ],
-    "Khai giảng / Mở lớp": [
-      "khai giảng",
-      "khai giang",
-      "mở lớp",
-      "mo lop"
-    ],
-    "Nhận biết thương hiệu": [
-      "nhận biết",
-      "brand"
-    ],
-    "Ngoại ngữ": [
-      "tiếng hàn",
-      "tiếng nhật",
-      "hàn & nhật",
-      "tiếng trung"
-    ]
+    "storytelling": {
+      "campaign_patterns": [
+        "câu\\s*chuyện",
+        "chuyện\\s*nghề",
+        "cđl",
+        "story",
+        "hành\\s*trình",
+        "coder\\s*->\\s*techlead",
+        "dân\\s*tiếng\\s*hàn",
+        "tiếng\\s*nhật",
+        "svnn"
+      ],
+      "hook_patterns": [
+        "đi\\s*làm\\s*chưa\\s*đầy",
+        "nghe\\s*vô\\s*lý",
+        "mình\\s*tự\\s*hào",
+        "xuất\\s*phát\\s*điểm",
+        "từng\\s*là",
+        "từ\\s*con\\s*số\\s*0",
+        "từ\\s*số\\s*0",
+        "hành\\s*trình",
+        "câu\\s*chuyện",
+        "chuyện\\s*của",
+        "tâm\\s*sự",
+        "cựu\\s*học\\s*viên"
+      ]
+    },
+    "PAS - problem - Agitation - solution": {
+      "campaign_patterns": [
+        "nỗi\\s*đau",
+        "thất\\s*nghiệp",
+        "ai\\s*thay\\s*thế",
+        "ai\\s*dịch\\s*thuật",
+        "dịch\\s*thuật\\s*thay\\s*thế",
+        "ai\\s*ko\\s*thể\\s*thay\\s*thế",
+        "bế\\s*tắc"
+      ],
+      "hook_patterns": [
+        "không\\s*học\\s*it",
+        "không\\s*biết\\s*kỹ\\s*thuật",
+        "người\\s*ngoài\\s*ngành",
+        "lo\\s*ngại",
+        "đứng\\s*ngoài\\s*cuộc",
+        "nỗi\\s*đau",
+        "thất\\s*nghiệp",
+        "ai\\s*thay\\s*thế",
+        "khó\\s*khăn",
+        "loay\\s*hoay",
+        "lay\\s*hoay",
+        "mất\\s*định\\s*hướng",
+        "rào\\s*cản",
+        "sợ",
+        "tại\\s*sao\\s*học\\s*mãi",
+        "sai\\s*lầm",
+        "cảnh\\s*báo"
+      ]
+    },
+    "Tính năng - lợi ích ( đầu ra)": {
+      "campaign_patterns": [
+        "bán\\s*thẳng",
+        "nhận\\s*bằng\\s*nhận\\s*việc",
+        "vừa\\s*học\\s*vừa\\s*thực\\s*tập",
+        "thực\\s*tập",
+        "việc\\s*làm",
+        "cvr\\s*cđ",
+        "đầu\\s*ra",
+        "cam\\s*kết"
+      ],
+      "hook_patterns": [
+        "bán\\s*thẳng",
+        "nhận\\s*bằng",
+        "vừa\\s*học\\s*vừa\\s*thực\\s*tập",
+        "mức\\s*lương",
+        "thu\\s*nhập\\s*lên\\s*tới",
+        "2000\\$",
+        "ngàn\\s*đô",
+        "cam\\s*kết\\s*việc\\s*làm",
+        "cơ\\s*hội\\s*việc\\s*làm",
+        "thực\\s*tập\\s*100%",
+        "tuyển\\s*dụng",
+        "giới\\s*thiệu\\s*cơ\\s*hội\\s*việc\\s*làm"
+      ]
+    },
+    "Lộ trình khóa học": {
+      "campaign_patterns": [
+        "lộ\\s*trình",
+        "lo\\s*trinh",
+        "lotrinh",
+        "roadmap",
+        "4\\s*gđ",
+        "5[,.]5\\s*tháng",
+        "5[,.]5\\s*thang",
+        "5\\s*tháng",
+        "5\\s*thang",
+        "6\\s*tháng",
+        "58\\s*buổi"
+      ],
+      "hook_patterns": [
+        "lộ\\s*trình",
+        "5\\.?5\\s*tháng",
+        "4\\.?5\\s*tháng",
+        "5\\s*tháng",
+        "6\\s*tháng",
+        "4\\s*giai\\s*đoạn",
+        "58\\s*buổi",
+        "timeline",
+        "giáo\\s*trình",
+        "giai\\s*đoạn",
+        "từng\\s*bước"
+      ]
+    },
+    "Ưu đãi khuyến mãi": {
+      "campaign_patterns": [
+        "học\\s*thử",
+        "lớp\\s*học\\s*thử",
+        "ưu\\s*đãi",
+        "khuyến\\s*mãi",
+        "quà",
+        "voucher",
+        "khai\\s*giảng",
+        "mở\\s*lớp"
+      ],
+      "hook_patterns": [
+        "học\\s*thử\\s*miễn\\s*phí",
+        "lớp\\s*học\\s*thử",
+        "ưu\\s*đãi\\s*học\\s*phí",
+        "ưu\\s*đãi\\s*đến",
+        "chỉ\\s*dành\\s*cho\\s*\\d+\\s*bạn",
+        "đăng\\s*ký\\s*đầu\\s*tiên",
+        "0đ",
+        "free",
+        "quà\\s*tặng",
+        "học\\s*bổng"
+      ]
+    },
+    "USP khóa học": {
+      "campaign_patterns": [
+        "giảng\\s*viên",
+        "thầy\\s*tư",
+        "tiến\\s*sĩ",
+        "bản\\s*ngữ",
+        "16\\s*năm",
+        "chuyên\\s*gia",
+        "ai4life",
+        "chứng\\s*nhận"
+      ],
+      "hook_patterns": [
+        "đại\\s*học\\s*bách\\s*khoa",
+        "đh\\s*bách\\s*khoa",
+        "viện\\s*công\\s*nghệ",
+        "ptit",
+        "thầy\\s*tư",
+        "tiến\\s*sĩ",
+        "giảng\\s*viên\\s*16\\s*năm",
+        "bản\\s*ngữ",
+        "giáo\\s*viên\\s*bản\\s*ngữ",
+        "ai-native",
+        "chuyên\\s*gia\\s*hàng\\s*đầu",
+        "độc\\s*quyền",
+        "duy\\s*nhất"
+      ]
+    },
+    "Chia sẻ": {
+      "campaign_patterns": [
+        "content\\s*note",
+        "\\bnote\\b",
+        "workshop",
+        "sự\\s*kiện",
+        "công\\s*cụ",
+        "video\\s*cu\\s*update"
+      ],
+      "hook_patterns": [
+        "chia\\s*sẻ",
+        "bí\\s*kíp",
+        "cẩm\\s*nang",
+        "tài\\s*liệu",
+        "tips?",
+        "hướng\\s*dẫn",
+        "kinh\\s*nghiệm"
+      ]
+    }
   },
-  "keyword_rules": {
-    "Keyword: DA": [
-      "\\bda\\b",
-      "data analy"
-    ],
-    "Keyword: DE": [
-      "\\bde\\b",
-      "data engin"
-    ],
-    "Keyword: BA": [
-      "\\bba\\b",
-      "business analy",
-      "itba"
-    ],
-    "Keyword: AI": [
-      "\\b(ai|aieg|ai engineer|ai-native|ae)\\b"
-    ],
-    "Keyword: Nhúng": [
-      "nhúng",
-      "embed",
-      "\\beb\\b"
-    ],
-    "Keyword: Tiếng Trung": [
-      "xueba",
-      "tiếng trung"
-    ],
-    "Keyword: Tsubasa": [
-      "tsu",
-      "tsubasa",
-      "brse"
-    ],
-    "Keyword: Cyber": [
-      "cyber"
-    ]
-  },
-  "default_angle": "Giới thiệu sản phẩm",
+  "default_tag": "Chia sẻ",
   "overrides": {}
 }
