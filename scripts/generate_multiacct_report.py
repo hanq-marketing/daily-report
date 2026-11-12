@@ -33,6 +33,45 @@ UNTIL_DATE = datetime.now(VN_TZ).strftime("%Y-%m-%d")
 since_ts = int(datetime.strptime(SINCE_DATE, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
 until_ts = int(datetime.strptime(UNTIL_DATE, "%Y-%m-%d").replace(hour=23, minute=59, second=59, tzinfo=timezone.utc).timestamp())
 
+# ─── Load Cấu hình Nhãn chiến dịch (Campaign Tags) ───────────────────────────
+TAGS_CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "campaign_tags.json")
+TAGS_CONFIG = {}
+if os.path.exists(TAGS_CONFIG_FILE):
+    try:
+        with open(TAGS_CONFIG_FILE, "r", encoding="utf-8") as f:
+            TAGS_CONFIG = json.load(f)
+    except Exception as e:
+        print(f"⚠️ Cảnh báo đọc campaign_tags.json: {e}")
+
+def get_campaign_tags(cid, cname, adname, aname):
+    if not TAGS_CONFIG:
+        return ""
+    overrides = TAGS_CONFIG.get("overrides", {})
+    if cid in overrides:
+        return ", ".join(overrides[cid])
+    
+    text = f"{cname} {adname} {aname}".lower()
+    tags = []
+    
+    # 1. Nhóm nội dung / Góc tiếp cận (Content Angles)
+    for angle, kws in TAGS_CONFIG.get("rules", {}).items():
+        if any(kw.lower() in text for kw in kws):
+            tags.append(angle)
+            
+    # Mặc định nếu chưa khớp góc nội dung nào
+    content_angles = set(TAGS_CONFIG.get("rules", {}).keys())
+    if not any(t in content_angles for t in tags):
+        default_angle = TAGS_CONFIG.get("default_angle", "Giới thiệu sản phẩm")
+        if default_angle:
+            tags.insert(0, default_angle)
+            
+    # 2. Keywords / Khóa học
+    for kw_label, patterns in TAGS_CONFIG.get("keyword_rules", {}).items():
+        if any(re.search(pat, text, re.IGNORECASE) for pat in patterns):
+            tags.append(kw_label)
+            
+    return ", ".join(tags)
+
 # ─── Helper: HTTP GET & POST ──────────────────────────────────────────────────
 def http_get_json(url, retries=2, timeout=30):
     req = urllib.request.Request(url)
@@ -308,6 +347,8 @@ for acc in accs:
         else:
             ad_link = f"https://adsmanager.facebook.com/adsmanager/manage/ads?act={aid.replace('act_', '')}&selected_ad_ids={adid}"
 
+        camp_tags = get_campaign_tags(cid, cname, adname, aname)
+
         all_rows.append({
             "Tài khoản": aname,
             "ID tài khoản": aid,
@@ -331,6 +372,7 @@ for acc in accs:
             "Tên quảng cáo": adname,
             "Sđt theo campain": sdt_count,
             "Tags Pancake": tags_str,
+            "Nhãn chiến dịch": camp_tags,
             "Link bài quảng cáo": ad_link,
         })
 
@@ -346,7 +388,7 @@ fieldnames = [
     "Tài khoản", "ID tài khoản", "Ngày", "Campaign ID", "Tên chiến dịch", "Trạng thái",
     "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", "CTR (%)", "CPC", "CPM",
     "Tin nhắn", "Lead", "Đăng ký", "CPA", "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo",
-    "Sđt theo campain", "Tags Pancake", "Link bài quảng cáo"
+    "Sđt theo campain", "Tags Pancake", "Nhãn chiến dịch", "Link bài quảng cáo"
 ]
 
 with open(csv_file, 'w', encoding='utf-8-sig', newline='') as f:
@@ -388,8 +430,29 @@ with open(md_file, 'w', encoding='utf-8') as f:
         cpa_v = (s["spend"] / conv_v) if conv_v > 0 else 0
         f.write(f"| **{aname}** | {s['spend']:,.0f} | {s['imp']:,.0f} | {s['clicks']:,.0f} | {ctr_v:.2f}% | {cpc_v:,.0f} | {s['msg']:,} | **{s['sdt']:,}** | {cpa_v:,.0f} |\n")
 
+    # Bảng tổng hợp theo Nhãn chiến dịch / Nhóm nội dung
     f.write("\n---\n")
-    f.write("## 📑 2. CHI TIẾT DỮ LIỆU CÁC CHIẾN DỊCH THEO TỪNG TÀI KHOẢN\n\n")
+    f.write("## 🏷️ 2. BẢNG TỔNG HỢP HIỆU SUẤT THEO NHÓM NỘI DUNG (NHÃN CHIẾN DỊCH)\n\n")
+    f.write("| Nhóm nội dung / Tag | Chi tiêu (VNĐ) | Tin nhắn | SĐT (Pancake) | Chi phí / SĐT (VNĐ) |\n")
+    f.write("|---|:---:|:---:|:---:|:---:|\n")
+    tag_summary = {}
+    for r in all_rows:
+        raw_tags = r.get("Nhãn chiến dịch", "")
+        t_list = [t.strip() for t in raw_tags.split(",") if t.strip()]
+        if not t_list:
+            t_list = ["Chưa phân loại"]
+        for t in t_list:
+            s = tag_summary.setdefault(t, {"spend": 0, "msg": 0, "sdt": 0})
+            s["spend"] += r["Chi tiêu"]
+            s["msg"] += r["Tin nhắn"]
+            s["sdt"] += int(r["Sđt theo campain"])
+
+    for tname, s in sorted(tag_summary.items(), key=lambda x: x[1]["sdt"], reverse=True):
+        cost_per_sdt = (s["spend"] / s["sdt"]) if s["sdt"] > 0 else 0
+        f.write(f"| **{tname}** | {s['spend']:,.0f} | {s['msg']:,} | **{s['sdt']:,}** | {cost_per_sdt:,.0f} |\n")
+
+    f.write("\n---\n")
+    f.write("## 📑 3. CHI TIẾT DỮ LIỆU CÁC CHIẾN DỊCH THEO TỪNG TÀI KHOẢN\n\n")
 
     for aname in acc_summary.keys():
         rows_acc = [r for r in all_rows if r["Tài khoản"] == aname]
