@@ -20,7 +20,13 @@ Tài liệu này chuẩn hóa toàn bộ quy trình thu thập số liệu Faceb
 4. **Gán Lead cho Ads ID (Ad Attribution):**
    * Endpoint `export_data` trả về trường `ad_clicks[].ad_id` — đây là **Lead ID (Ads ID)** trực tiếp của Pancake, không cần suy luận thêm.
    * Gán `+1 Lead` vào bộ khóa: `(ad_id, ngày_phát_sinh_SĐT)`.
-5. **Đồng bộ Google Sheets tự động:**
+5. **Cơ chế Cập nhật Tăng dần Thông minh (Incremental Update):**
+   * Tự động kiểm tra file dữ liệu hiện tại (`bao_cao_cac_tai_khoan_10_2026.csv`) để tìm ngày mới nhất (`max_existing_date`).
+   * So sánh với ngày hôm nay để tính số ngày chênh lệch (`diff_days`).
+   * **Chỉ quét và kéo dữ liệu cho những ngày còn thiếu** (kèm 1 ngày giáp ranh để làm mới số liệu chốt cuối ngày của hôm qua/hôm nay), tránh quét lại toàn bộ lịch sử từ đầu gây tốn thời gian, token và dính rate limit Facebook/Pancake.
+   * **Bảo toàn 100% dữ liệu lịch sử cũ** trước khoảng ngày quét, gộp (`merge`) dữ liệu theo khóa `(ID tài khoản, Ngày, Campaign ID, ID quảng cáo)`.
+   * Hỗ trợ cờ `--full` khi cần quét lại toàn bộ lịch sử từ đầu (`2026-10-01`) hoặc `--since`/`--until` cho khoảng ngày tùy chọn.
+6. **Đồng bộ Google Sheets tự động:**
    * Cập nhật chỉ số `Sđt theo campain` dưới dạng **số nguyên (integer: 0, 1, 2...)**.
    * Chỉ thêm mới các dòng ngày chưa có, **không xóa** dữ liệu cũ.
 
