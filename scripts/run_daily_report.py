@@ -15,9 +15,10 @@ def main():
     script_sync = os.path.join(base_dir, "scripts", "update_google_sheet.py")
     script_lark = os.path.join(base_dir, "scripts", "update_lark_base.py")
 
-    # Bước 1: Kéo dữ liệu từ Facebook Graph API và tạo CSV + Markdown
-    print("👉 BƯỚC 1: Thu thập dữ liệu từ Facebook API & đối soát SĐT theo ID quảng cáo...")
-    res1 = subprocess.run([sys.executable, script_gen], capture_output=False)
+    # Bước 1: Kéo dữ liệu từ Facebook Graph API và tạo CSV + Markdown (Chế độ Incremental thông minh)
+    print("👉 BƯỚC 1: Thu thập dữ liệu từ Facebook API & đối soát SĐT Pancake...")
+    cmd_gen = [sys.executable, script_gen] + sys.argv[1:]
+    res1 = subprocess.run(cmd_gen, capture_output=False)
     if res1.returncode != 0:
         print("\n❌ LỖI: Bước 1 thất bại! Dừng quy trình.")
         sys.exit(res1.returncode)
