@@ -1,0 +1,104 @@
+{
+  "rules": {
+    "Lộ trình khóa học": [
+      "lo trinh",
+      "lộ trình",
+      "lotrinh",
+      "4 gđ",
+      "5,5 thang",
+      "5 thang",
+      "58 buổi"
+    ],
+    "Giảng viên / Chuyên gia": [
+      "thầy tư",
+      "thay tu",
+      "giảng viên",
+      "giang vien",
+      "tiến sĩ",
+      "bản ngữ",
+      "16 năm"
+    ],
+    "Học thử / Trải nghiệm": [
+      "học thử",
+      "hoc thu",
+      "lớp học thử",
+      "lop hoc thu"
+    ],
+    "Sự kiện / Workshop": [
+      "workshop",
+      "sự kiện",
+      "su kien",
+      "21.11"
+    ],
+    "Định hướng việc làm": [
+      "thất nghiệp",
+      "bán thẳng",
+      "ban thang",
+      "nhận bằng nhận việc",
+      "techlead",
+      "thực tập",
+      "banking"
+    ],
+    "Đối tượng Sinh viên": [
+      "sinh viên",
+      "sinh vien",
+      " sv",
+      "svcnt",
+      "sv2-3",
+      "svnn"
+    ],
+    "Khai giảng / Mở lớp": [
+      "khai giảng",
+      "khai giang",
+      "mở lớp",
+      "mo lop"
+    ],
+    "Nhận biết thương hiệu": [
+      "nhận biết",
+      "brand"
+    ],
+    "Ngoại ngữ": [
+      "tiếng hàn",
+      "tiếng nhật",
+      "hàn & nhật",
+      "tiếng trung"
+    ]
+  },
+  "keyword_rules": {
+    "Keyword: DA": [
+      "\\bda\\b",
+      "data analy"
+    ],
+    "Keyword: DE": [
+      "\\bde\\b",
+      "data engin"
+    ],
+    "Keyword: BA": [
+      "\\bba\\b",
+      "business analy",
+      "itba"
+    ],
+    "Keyword: AI": [
+      "\\b(ai|aieg|ai engineer|ai-native|ae)\\b"
+    ],
+    "Keyword: Nhúng": [
+      "nhúng",
+      "embed",
+      "\\beb\\b"
+    ],
+    "Keyword: Tiếng Trung": [
+      "xueba",
+      "tiếng trung"
+    ],
+    "Keyword: Tsubasa": [
+      "tsu",
+      "tsubasa",
+      "brse"
+    ],
+    "Keyword: Cyber": [
+      "cyber"
+    ]
+  },
+  "default_angle": "Giới thiệu sản phẩm",
+  "overrides": {}
+}
