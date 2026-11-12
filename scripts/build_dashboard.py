@@ -587,6 +587,19 @@ html_content = """<!DOCTYPE html>
             border: 1px solid rgba(168, 85, 247, 0.3);
         }
 
+        .campaign-tag-chip {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            margin: 0.1rem;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            white-space: nowrap;
+        }
+
         .status-badge {
             display: inline-block;
             padding: 0.2rem 0.55rem;
@@ -872,6 +885,14 @@ html_content = """<!DOCTYPE html>
                     </select>
                 </div>
 
+                <!-- Lọc theo Nhãn Chiến Dịch -->
+                <div class="filter-group" style="flex: 1.2; min-width: 180px;">
+                    <label class="filter-label">🏷️ Nhóm Nội Dung / Nhãn</label>
+                    <select id="tagFilter" class="select-input">
+                        <option value="ALL">👉 Tất cả các nhãn</option>
+                    </select>
+                </div>
+
                 <!-- Từ ngày -->
                 <div class="filter-group" style="flex: 1; min-width: 140px;">
                     <label class="filter-label">📅 Từ ngày</label>
@@ -1083,6 +1104,7 @@ html_content = """<!DOCTYPE html>
                             <th data-sort="Tài khoản">Tài khoản ⬍</th>
                             <th data-sort="Ngày">Ngày ⬍</th>
                             <th data-sort="Tên chiến dịch">Tên chiến dịch ⬍</th>
+                            <th data-sort="Nhãn chiến dịch">Nhãn chiến dịch ⬍</th>
                             <th>Bài quảng cáo</th>
                             <th data-sort="Trạng thái">Trạng thái ⬍</th>
                             <th data-sort="Chi tiêu">Chi tiêu (VNĐ) ⬍</th>
@@ -1124,6 +1146,7 @@ html_content = """<!DOCTYPE html>
         let currentFilter = {
             account: "ALL",
             month: "ALL",
+            tag: "ALL",
             dateStart: "",
             dateEnd: "",
             status: "ALL",
@@ -1154,6 +1177,7 @@ html_content = """<!DOCTYPE html>
             setupEventListeners();
             initDateRange();
             populateMonthDropdown();
+            populateTagDropdown();
             populateAccountDropdown();
             applyFilters();
             
@@ -1280,6 +1304,36 @@ html_content = """<!DOCTYPE html>
             }
         }
 
+        // ─── Điền danh sách Nhãn vào Dropdown ───
+        function populateTagDropdown() {
+            const select = document.getElementById('tagFilter');
+            if (!select) return;
+            const currentVal = select.value;
+            select.innerHTML = '<option value="ALL">👉 Tất cả các nhãn</option>';
+            
+            const allTags = new Set();
+            RAW_DATA.forEach(r => {
+                const tStr = r["Nhãn chiến dịch"] || "";
+                tStr.split(',').forEach(t => {
+                    const tr = t.trim();
+                    if (tr) allTags.add(tr);
+                });
+            });
+
+            [...allTags].sort().forEach(tag => {
+                const opt = document.createElement('option');
+                opt.value = tag;
+                opt.textContent = `🏷️ ${tag}`;
+                select.appendChild(opt);
+            });
+
+            if (allTags.has(currentVal)) {
+                select.value = currentVal;
+            } else {
+                select.value = 'ALL';
+            }
+        }
+
         // ─── Kéo dữ liệu Live từ Google Sheets ───
         async function fetchLiveData() {
             const badge = document.getElementById('dataStatusBadge');
@@ -1306,6 +1360,7 @@ html_content = """<!DOCTYPE html>
                                 "Ngày": String(r["Ngày"] || "").trim(),
                                 "Campaign ID": String(r["Campaign ID"] || ""),
                                 "Tên chiến dịch": r["Tên chiến dịch"] || "",
+                                "Nhãn chiến dịch": r["Nhãn chiến dịch"] || "",
                                 "Trạng thái": r["Trạng thái"] || "UNKNOWN",
                                 "Ngân sách/ngày": r["Ngân sách/ngày"] || "",
                                 "Chi tiêu": parseFloat(r["Chi tiêu"] || 0),
@@ -1331,6 +1386,7 @@ html_content = """<!DOCTYPE html>
                             document.getElementById('lastUpdatedText').textContent = `Lần đồng bộ cuối: ${new Date().toLocaleTimeString('vi-VN')}`;
                             populateAccountDropdown();
                             populateMonthDropdown();
+                            populateTagDropdown();
                             initDateRange();
                             applyFilters();
                         }
@@ -1353,6 +1409,7 @@ html_content = """<!DOCTYPE html>
         function applyFilters() {
             currentFilter.account = document.getElementById('accountFilter').value;
             currentFilter.month = document.getElementById('monthFilter').value;
+            currentFilter.tag = document.getElementById('tagFilter').value;
             currentFilter.dateStart = document.getElementById('dateStart').value;
             currentFilter.dateEnd = document.getElementById('dateEnd').value;
             currentFilter.status = document.getElementById('statusFilter').value;
@@ -1368,6 +1425,11 @@ html_content = """<!DOCTYPE html>
                 if (currentFilter.month !== "ALL" && (!rowDate || !rowDate.startsWith(currentFilter.month))) {
                     return false;
                 }
+                // Lọc nhãn chiến dịch
+                if (currentFilter.tag !== "ALL") {
+                    const rowTags = (row["Nhãn chiến dịch"] || "").split(',').map(s => s.trim());
+                    if (!rowTags.includes(currentFilter.tag)) return false;
+                }
                 // Lọc ngày
                 if (currentFilter.dateStart && rowDate < currentFilter.dateStart) return false;
                 if (currentFilter.dateEnd && rowDate > currentFilter.dateEnd) return false;
@@ -1382,6 +1444,7 @@ html_content = """<!DOCTYPE html>
                     const q = currentFilter.search;
                     const match = (
                         (row["Tên chiến dịch"] && row["Tên chiến dịch"].toLowerCase().includes(q)) ||
+                        (row["Nhãn chiến dịch"] && row["Nhãn chiến dịch"].toLowerCase().includes(q)) ||
                         (row["Tên quảng cáo"] && row["Tên quảng cáo"].toLowerCase().includes(q)) ||
                         (row["ID quảng cáo"] && row["ID quảng cáo"].includes(q)) ||
                         (row["Tags Pancake"] && row["Tags Pancake"].toLowerCase().includes(q)) ||
@@ -1406,8 +1469,12 @@ html_content = """<!DOCTYPE html>
                 const parts = currentFilter.month.split('-');
                 if (parts.length >= 2) monthText = ` | Tháng ${parts[1]}/${parts[0]}`;
             }
+            let tagText = "";
+            if (currentFilter.tag !== "ALL") {
+                tagText = ` | Nhãn: <b>${currentFilter.tag}</b>`;
+            }
             const dateText = `${currentFilter.dateStart} → ${currentFilter.dateEnd}`;
-            document.getElementById('filterSummaryText').innerHTML = `Đang lọc: <b>${accText}</b>${monthText} | <b>${dateText}</b> (Khớp <b>${FILTERED_DATA.length}</b> / ${RAW_DATA.length} dòng)`;
+            document.getElementById('filterSummaryText').innerHTML = `Đang lọc: <b>${accText}</b>${monthText}${tagText} | <b>${dateText}</b> (Khớp <b>${FILTERED_DATA.length}</b> / ${RAW_DATA.length} dòng)`;
         }
 
         // ─── Cập nhật KPI Metrics ───
@@ -1784,6 +1851,7 @@ html_content = """<!DOCTYPE html>
                         "Ngày": r["Ngày"],
                         "Campaign ID": r["Campaign ID"] || "",
                         "Tên chiến dịch": r["Tên chiến dịch"] || "",
+                        "Nhãn chiến dịch": r["Nhãn chiến dịch"] || "",
                         "Trạng thái": r["Trạng thái"] || "UNKNOWN",
                         "Ngân sách/ngày": r["Ngân sách/ngày"] || "",
                         "Chi tiêu": 0,
@@ -1806,6 +1874,7 @@ html_content = """<!DOCTYPE html>
 
                 const g = grouped[campKey];
                 if (r["Trạng thái"] === "ACTIVE") g["Trạng thái"] = "ACTIVE";
+                if (r["Nhãn chiến dịch"] && !g["Nhãn chiến dịch"]) g["Nhãn chiến dịch"] = r["Nhãn chiến dịch"];
 
                 g["Chi tiêu"] += (r["Chi tiêu"] || 0);
                 g["Hiển thị"] += (r["Hiển thị"] || 0);
@@ -1874,7 +1943,7 @@ html_content = """<!DOCTYPE html>
             const pageData = sorted.slice(startIdx, endIdx);
 
             if (pageData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="15" style="text-align: center; padding: 2rem; color: var(--text-muted);">Không tìm thấy dữ liệu phù hợp với bộ lọc hiện tại.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="16" style="text-align: center; padding: 2rem; color: var(--text-muted);">Không tìm thấy dữ liệu phù hợp với bộ lọc hiện tại.</td></tr>`;
                 document.getElementById('paginationInfo').textContent = 'Hiển thị 0 dòng';
                 document.getElementById('paginationControls').innerHTML = '';
                 return;
@@ -1883,7 +1952,14 @@ html_content = """<!DOCTYPE html>
             pageData.forEach(r => {
                 const tr = document.createElement('tr');
                 
-                // Tags chips
+                // Campaign tags chips
+                const campTagsStr = r["Nhãn chiến dịch"] || "";
+                let campTagsHtml = `<span style="color: var(--text-muted); font-size: 0.75rem;">--</span>`;
+                if (campTagsStr) {
+                    campTagsHtml = campTagsStr.split(',').map(t => `<span class="campaign-tag-chip">${t.trim()}</span>`).join('');
+                }
+
+                // Tags chips (Pancake)
                 const tagsStr = r["Tags Pancake"] || "";
                 let tagsHtml = "--";
                 if (tagsStr) {
@@ -1947,6 +2023,7 @@ html_content = """<!DOCTYPE html>
                     <td><b>${r["Tài khoản"]}</b></td>
                     <td>${r["Ngày"]}</td>
                     <td title="${r["Tên chiến dịch"]}">${(r["Tên chiến dịch"] || "").slice(0, 32)}${(r["Tên chiến dịch"] || "").length > 32 ? '…' : ''}</td>
+                    <td>${campTagsHtml}</td>
                     <td>${adLinkHtml}</td>
                     <td>${statusHtml}</td>
                     <td><b>${formatMoney(r["Chi tiêu"])}</b></td>
@@ -2019,6 +2096,7 @@ html_content = """<!DOCTYPE html>
         function setupEventListeners() {
             // Bộ lọc thay đổi
             document.getElementById('accountFilter').addEventListener('change', applyFilters);
+            document.getElementById('tagFilter').addEventListener('change', applyFilters);
             document.getElementById('monthFilter').addEventListener('change', (e) => {
                 const selectedMonth = e.target.value;
                 document.querySelectorAll('.preset-chip').forEach(b => b.classList.remove('active'));
@@ -2142,6 +2220,7 @@ html_content = """<!DOCTYPE html>
             document.getElementById('btnResetFilter').addEventListener('click', () => {
                 document.getElementById('accountFilter').value = 'ALL';
                 document.getElementById('monthFilter').value = 'ALL';
+                document.getElementById('tagFilter').value = 'ALL';
                 document.getElementById('statusFilter').value = 'ALL';
                 document.getElementById('tableSearchInput').value = '';
                 document.querySelector('.preset-chip[data-range="all"]').click();
