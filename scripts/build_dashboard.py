@@ -1583,9 +1583,14 @@ html_content = """<!DOCTYPE html>
                 if (currentFilter.month !== "ALL" && (!rowDate || !rowDate.startsWith(currentFilter.month))) {
                     return false;
                 }
-                // Lọc sản phẩm
-                if (currentFilter.product !== "ALL" && String(row["Sản phẩm"] || "").trim() !== currentFilter.product) {
-                    return false;
+                // Lọc sản phẩm (Mặc định Tsu và BrSE là 1)
+                if (currentFilter.product !== "ALL") {
+                    const rowProd = String(row["Sản phẩm"] || "").trim();
+                    if (["BrSE", "Tsu", "Tsubasa"].includes(currentFilter.product)) {
+                        if (!["BrSE", "Tsu", "Tsubasa"].includes(rowProd)) return false;
+                    } else if (rowProd !== currentFilter.product) {
+                        return false;
+                    }
                 }
                 // Lọc nhãn chiến dịch
                 if (currentFilter.tag !== "ALL") {
