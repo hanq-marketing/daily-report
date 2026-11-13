@@ -195,8 +195,8 @@ def get_campaign_product(cname, aname=""):
     if re.search(r'\b(cyber|cbs)\b', tl):
         return 'Network Security'
     
-    # BrSE / Japanese
-    if re.search(r'\b(brse|tsu|tsubasa)\b', tl):
+    # BrSE / Tsubasa / Japanese (Mặc định Tsu và BrSE là 1)
+    if re.search(r'brse|tsu|tsubasa|tiếng\s*nhật|line\s*nhật', tl):
         return 'BrSE'
         
     # Embedded / Nhúng
