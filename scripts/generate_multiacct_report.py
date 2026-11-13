@@ -239,6 +239,25 @@ def get_campaign_product(cname, aname=""):
     
     return 'Khác'
 
+# ─── PHÂN LOẠI HÌNH THỨC CHẠY DỰA VÀO TÊN CHIẾN DỊCH & TÀI KHOẢN ─────────────
+def get_campaign_format(cname, aname=""):
+    tl = (cname or "").lower()
+    
+    # 1. Phễu Học Thử: workshop, học thử, phễu, sự kiện
+    if re.search(r"phễu|pheu|workshop|\bws\b|học\s*thử|hocthu|sự\s*kiện|su\s*kien", tl):
+        return "Phễu Học Thử"
+        
+    # 2. Branding (Nhận diện thương hiệu / Reach / Video View / Mức độ nhận biết)
+    if re.search(r"branding|thương\s*hiệu|thuong\s*hieu|\breach\b|nhận\s*diện|nhan\s*dien|nhận\s*biết|nhan\s*biet", tl):
+        return "Branding"
+
+    # 3. CĐ (Chuyển đổi / Lead / Landing / CVR / Form)
+    if re.search(r"(^|[\s\-_/])(cđ|cđl|cvr|ldp|landing|lead|form)([\s\-_/]|$)|\bchuyển\s*đổi\b|\bchuyen\s*doi\b", tl):
+        return "CĐ"
+        
+    # 4. Mess (mặc định cho các campain tin nhắn / fb ads sales)
+    return "Mess"
+
 def make_date_chunks(s_date, u_date, chunk_days=15):
     s_dt = datetime.strptime(s_date, "%Y-%m-%d")
     u_dt = datetime.strptime(u_date, "%Y-%m-%d")
@@ -566,6 +585,7 @@ for acc in accs:
         c_title = c_creative.get('title') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('name', '')
         camp_tags = get_campaign_tags(cid, cname, adname, aname, adid=adid, ad_title=c_title, ad_body=c_body)
         camp_prod = get_campaign_product(cname, aname)
+        camp_format = get_campaign_format(cname, aname)
 
         all_rows.append({
             "Tài khoản": aname,
@@ -574,6 +594,7 @@ for acc in accs:
             "Campaign ID": cid,
             "Tên chiến dịch": cname,
             "Sản phẩm": camp_prod,
+            "Hình thức chạy": camp_format,
             "Trạng thái": status,
             "Ngân sách/ngày": daily_budget_str,
             "Chi tiêu": round(spend, 0),
@@ -612,6 +633,8 @@ old_kept_count = 0
 for r in existing_rows:
     d = r.get("Ngày", "").strip()
     if d and d < SINCE_DATE:
+        if not r.get("Hình thức chạy"):
+            r["Hình thức chạy"] = get_campaign_format(r.get("Tên chiến dịch", ""), r.get("Tài khoản", ""))
         k = (r.get("ID tài khoản", "").strip(), d, r.get("Campaign ID", "").strip(), r.get("ID quảng cáo", "").strip())
         merged_map[k] = r
         old_kept_count += 1
@@ -639,7 +662,7 @@ print(f"  - Số bản ghi mới / làm mới vừa thu thập (>= {SINCE_DATE})
 print(f"  -> Tổng số dòng dữ liệu hoàn chỉnh sau khi gộp: {len(final_rows)}")
 
 fieldnames = [
-    "Tài khoản", "ID tài khoản", "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm", "Trạng thái",
+    "Tài khoản", "ID tài khoản", "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm", "Hình thức chạy", "Trạng thái",
     "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", "CTR (%)", "CPC", "CPM",
     "Tin nhắn", "Lead", "Đăng ký", "CPA", "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo",
     "Sđt theo campain", "Tags Pancake", "Nhãn chiến dịch", "Link bài quảng cáo"
