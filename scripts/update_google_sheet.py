@@ -1,6 +1,7 @@
 import csv
 import sys
 import time
+import re
 import gspread
 from google.oauth2.service_account import Credentials
 
@@ -9,6 +10,16 @@ sys.stdout.reconfigure(encoding='utf-8')
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1PD3zhqZ2rTZlMi7X3lsCh6fkvNcR-B2kGv0m9L0Fl_4/edit"
 SERVICE_ACCOUNT_FILE = "d:\\MCP\\google_service_account.json"
 CSV_FILE = "d:\\MCP\\data\\bao_cao_cac_tai_khoan_10_2026.csv"
+
+def get_campaign_format(cname, aname=""):
+    tl = (cname or "").lower()
+    if re.search(r"phễu|pheu|workshop|\bws\b|học\s*thử|hocthu|sự\s*kiện|su\s*kien", tl):
+        return "Phễu Học Thử"
+    if re.search(r"branding|thương\s*hiệu|thuong\s*hieu|\breach\b|nhận\s*diện|nhan\s*dien|nhận\s*biết|nhan\s*biet", tl):
+        return "Branding"
+    if re.search(r"(^|[\s\-_/])(cđ|cđl|cvr|ldp|landing|lead|form)([\s\-_/]|$)|\bchuyển\s*đổi\b|\bchuyen\s*doi\b", tl):
+        return "CĐ"
+    return "Mess"
 
 def format_row(r, headers, col_map):
     formatted = []
@@ -42,14 +53,14 @@ def run_sync():
     print(f"-> Đã kết nối thành công: '{spreadsheet.title}'")
 
     master_headers = [
-        "Account Name", "Account ID", "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm",
+        "Account Name", "Account ID", "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm", "Hình thức chạy",
         "Trạng thái", "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", 
         "CTR (%)", "CPC", "CPM", "Tin nhắn", "Lead", "Đăng ký", "CPA", 
         "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo", "Sđt theo campain", "Tags Pancake", "Nhãn chiến dịch", "Link bài quảng cáo"
     ]
 
     account_headers = [
-        "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm",
+        "Ngày", "Campaign ID", "Tên chiến dịch", "Sản phẩm", "Hình thức chạy",
         "Trạng thái", "Ngân sách/ngày", "Chi tiêu", "Hiển thị", "Click link", 
         "CTR (%)", "CPC", "CPM", "Tin nhắn", "Lead", "Đăng ký", "CPA", 
         "Cập nhật lúc", "ID quảng cáo", "Tên quảng cáo", "Sđt theo campain", "Tags Pancake", "Nhãn chiến dịch", "Link bài quảng cáo"
@@ -62,6 +73,7 @@ def run_sync():
         "Campaign ID": "Campaign ID",
         "Tên chiến dịch": "Tên chiến dịch",
         "Sản phẩm": "Sản phẩm",
+        "Hình thức chạy": "Hình thức chạy",
         "Trạng thái": "Trạng thái",
         "Ngân sách/ngày": "Ngân sách/ngày",
         "Chi tiêu": "Chi tiêu",
@@ -90,7 +102,7 @@ def run_sync():
     except gspread.exceptions.WorksheetNotFound:
         ws_master = spreadsheet.add_worksheet(title="Master Data", rows="3000", cols="26")
         ws_master.update([master_headers], "A1", value_input_option="USER_ENTERED")
-        ws_master.format("A1:Y1", {"textFormat": {"bold": True}})
+        ws_master.format("A1:Z1", {"textFormat": {"bold": True}})
 
     existing_master = ws_master.get_all_values()
     if not existing_master:
@@ -100,9 +112,9 @@ def run_sync():
     m_acc_idx = m_headers.index("Account ID") if "Account ID" in m_headers else 1
     m_date_idx = m_headers.index("Ngày") if "Ngày" in m_headers else 2
     m_camp_idx = m_headers.index("Campaign ID") if "Campaign ID" in m_headers else 3
-    m_ad_idx = m_headers.index("ID quảng cáo") if "ID quảng cáo" in m_headers else 19
+    m_ad_idx = m_headers.index("ID quảng cáo") if "ID quảng cáo" in m_headers else (20 if len(m_headers) >= 26 else 19)
 
-    # Xây dựng danh sách rows từ CSV chuẩn 25 cột
+    # Xây dựng danh sách rows từ CSV chuẩn 26 cột
     csv_keys = set()
     master_rows = [master_headers]
     for r in csv_rows:
@@ -117,26 +129,29 @@ def run_sync():
 
     # Nếu có dòng cũ trong existing_master mà không có trong CSV hiện tại (bảo toàn lịch sử cũ)
     old_preserved_count = 0
-    if len(m_headers) >= len(master_headers):
-        for row in existing_master[1:]:
-            # Bỏ qua dòng bị lệch cột trước đó (Sản phẩm = CAMPAIGN_PAUSED)
-            if len(row) > 5 and row[5] == "CAMPAIGN_PAUSED":
-                continue
-            if len(row) > max(m_acc_idx, m_date_idx):
-                a_id = row[m_acc_idx].strip()
-                d_val = row[m_date_idx].strip()
-                c_id = row[m_camp_idx].strip() if len(row) > m_camp_idx else ""
-                ad_id = row[m_ad_idx].strip() if len(row) > m_ad_idx else ""
-                k = (a_id, d_val, c_id, ad_id)
-                if k not in csv_keys and any(k):
-                    # Đảm bảo đủ số cột
-                    padded = list(row) + [""] * max(0, len(master_headers) - len(row))
-                    master_rows.append(padded[:len(master_headers)])
-                    old_preserved_count += 1
+    for row in existing_master[1:]:
+        # Bỏ qua dòng bị lệch cột trước đó (Sản phẩm = CAMPAIGN_PAUSED)
+        if len(row) > 5 and row[5] == "CAMPAIGN_PAUSED":
+            continue
+        if len(row) > max(m_acc_idx, m_date_idx):
+            a_id = row[m_acc_idx].strip()
+            d_val = row[m_date_idx].strip()
+            c_id = row[m_camp_idx].strip() if len(row) > m_camp_idx else ""
+            ad_id = row[m_ad_idx].strip() if len(row) > m_ad_idx else ""
+            k = (a_id, d_val, c_id, ad_id)
+            if k not in csv_keys and any(k):
+                row_dict = {m_headers[i]: row[i] for i in range(min(len(m_headers), len(row)))}
+                if "Hình thức chạy" not in row_dict or not row_dict["Hình thức chạy"]:
+                    cname = row_dict.get("Tên chiến dịch", "")
+                    aname = row_dict.get("Account Name", "")
+                    row_dict["Hình thức chạy"] = get_campaign_format(cname, aname)
+                new_row = [row_dict.get(h, "") for h in master_headers]
+                master_rows.append(new_row)
+                old_preserved_count += 1
 
     ws_master.clear()
     ws_master.update(master_rows, "A1", value_input_option="USER_ENTERED")
-    ws_master.format("A1:Y1", {"textFormat": {"bold": True}})
+    ws_master.format("A1:Z1", {"textFormat": {"bold": True}})
     print(f"-> Tab 'Master Data': Đã đồng bộ thành công {len(master_rows)-1} dòng (trong đó {len(csv_rows)} dòng mới/cập nhật, {old_preserved_count} dòng lịch sử bảo toàn).")
 
     # 2. CẬP NHẬT CÁC TAB TÀI KHOẢN RIÊNG
@@ -161,7 +176,7 @@ def run_sync():
         acc_hdrs = existing_acc_values[0]
         date_idx = acc_hdrs.index("Ngày") if "Ngày" in acc_hdrs else 0
         camp_idx = acc_hdrs.index("Campaign ID") if "Campaign ID" in acc_hdrs else 1
-        ad_idx = acc_hdrs.index("ID quảng cáo") if "ID quảng cáo" in acc_hdrs else 16
+        ad_idx = acc_hdrs.index("ID quảng cáo") if "ID quảng cáo" in acc_hdrs else (17 if len(acc_hdrs) >= 24 else 16)
 
         existing_acc_indices = {}
         for idx, row in enumerate(existing_acc_values[1:], start=1):
@@ -189,21 +204,24 @@ def run_sync():
                 acc_keys.add(key)
                 updated_acc.append(format_row(r, account_headers, {}))
 
-        # Giữ lại các dòng lịch sử cũ nếu có đủ số cột
-        if len(acc_hdrs) >= len(account_headers):
-            for row in existing_acc_values[1:]:
-                if len(row) > max(date_idx, camp_idx):
-                    d_val = row[date_idx].strip()
-                    c_id = row[camp_idx].strip() if len(row) > camp_idx else ""
-                    ad_id = row[ad_idx].strip() if len(row) > ad_idx else ""
-                    k = (d_val, c_id, ad_id)
-                    if k not in acc_keys and any(k):
-                        padded = list(row) + [""] * max(0, len(account_headers) - len(row))
-                        updated_acc.append(padded[:len(account_headers)])
+        # Giữ lại các dòng lịch sử cũ
+        for row in existing_acc_values[1:]:
+            if len(row) > max(date_idx, camp_idx):
+                d_val = row[date_idx].strip()
+                c_id = row[camp_idx].strip() if len(row) > camp_idx else ""
+                ad_id = row[ad_idx].strip() if len(row) > ad_idx else ""
+                k = (d_val, c_id, ad_id)
+                if k not in acc_keys and any(k):
+                    row_dict = {acc_hdrs[i]: row[i] for i in range(min(len(acc_hdrs), len(row)))}
+                    if "Hình thức chạy" not in row_dict or not row_dict["Hình thức chạy"]:
+                        cname = row_dict.get("Tên chiến dịch", "")
+                        row_dict["Hình thức chạy"] = get_campaign_format(cname)
+                    new_row = [row_dict.get(h, "") for h in account_headers]
+                    updated_acc.append(new_row)
 
         ws.clear()
         ws.update(updated_acc, "A1", value_input_option="USER_ENTERED")
-        ws.format("A1:W1", {"textFormat": {"bold": True}})
+        ws.format("A1:X1", {"textFormat": {"bold": True}})
         print(f"  -> Tab '{title}': Đã đồng bộ {len(updated_acc)-1} dòng.")
         time.sleep(1)
 
