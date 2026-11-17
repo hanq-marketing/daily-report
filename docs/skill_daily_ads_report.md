@@ -234,15 +234,20 @@ def build_lead_stats(page_id, conversations, tag_map):
         if not ad_id:
             continue
 
-        # Bóc tách SĐT từ messages
+        # Bóc tách SĐT từ messages hoặc recent_phone_numbers
         page_psid = conv.get("page_id")  # ID của Page
         phone, date_str = extract_phone_from_conversation(page_id, conv_id, page_psid)
-        if not phone:
-            continue  # Hội thoại không có SĐT → không tính lead
 
         # Lấy tags của hội thoại
         conv_tag_ids = {t["id"] for t in conv.get("tags", [])}
         conv_tag_names = {tag_map.get(tid, tid) for tid in conv_tag_ids}
+
+        # Điều kiện tính là 1 Lead: có SĐT hoặc tag chuyển đổi (SĐT, Zalo, Mess, Số QTKD)
+        has_lead_tag = any(re.search(r'sđt|số điện thoại|zalo|mess|số qtkd', t, re.IGNORECASE) for t in conv_tag_names)
+        if not phone and not has_lead_tag:
+            continue  # Hội thoại không có SĐT và không có tag chuyển đổi → không tính lead
+
+        lead_key = phone if phone else f"conv_{conv_id}"
 
         key = (ad_id, date_str)
         stats[key]["phone_count"] += 1
