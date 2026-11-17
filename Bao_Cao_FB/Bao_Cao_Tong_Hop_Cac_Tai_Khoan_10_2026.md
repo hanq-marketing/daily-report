@@ -2,38 +2,38 @@
 
 > **Thời gian ghi nhận:** 2026-10-01 – 2026-11-17
 > **Nguồn dữ liệu:** Facebook Graph API v19.0 (Insights) + **Pancake API** (SĐT bóc tách từ hội thoại quảng cáo, Tags).
-> **Tổng SĐT bóc tách từ Pancake gắn Ads:** 995 leads từ 227 Ad IDs
-> **Đợt cập nhật gần nhất:** 17/11/2026 15:56:56 (Chế độ: 2026-11-16 -> 2026-11-17)
+> **Tổng SĐT bóc tách từ Pancake gắn Ads:** 1041 leads từ 228 Ad IDs
+> **Đợt cập nhật gần nhất:** 17/11/2026 16:54:48 (Chế độ: 2026-11-12 -> 2026-11-17)
 > **File CSV chi tiết:** [`data/bao_cao_cac_tai_khoan_10_2026.csv`](file:///d:/MCP/data/bao_cao_cac_tai_khoan_10_2026.csv)
 
 ## 🏆 1. BẢNG TỔNG HỢP HIỆU SUẤT THEO TÀI KHOẢN
 
 | Tài khoản | Chi tiêu (VNĐ) | Hiển thị | Clicks | CTR TB | CPC TB | Tin nhắn | SĐT (Pancake) | CPA TB (VNĐ) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **RA10 - DABK** | 98,152,111 | 2,267,117 | 6,157 | 0.27% | 15,942 | 742 | **284** | 58,986 |
-| **Ra1 - EMBEDDED** | 67,422,524 | 1,626,828 | 5,768 | 0.35% | 11,689 | 515 | **212** | 63,130 |
-| **Ra2 - AI ENGINEER** | 57,504,318 | 1,507,679 | 5,668 | 0.38% | 10,145 | 735 | **260** | 44,336 |
-| **RA4 - BA** | 31,934,307 | 669,016 | 2,392 | 0.36% | 13,350 | 260 | **64** | 83,817 |
-| **RA3 - DE** | 26,749,429 | 499,857 | 2,410 | 0.48% | 11,099 | 222 | **46** | 84,383 |
-| **RA6 - PTIT CNTT** | 22,502,304 | 501,570 | 4,080 | 0.81% | 5,515 | 281 | **111** | 22,661 |
-| **RA5 - LINE NHẬT** | 22,025,094 | 312,754 | 1,077 | 0.34% | 20,450 | 5 | **0** | 1,468,340 |
+| **RA10 - DABK** | 98,302,021 | 2,269,392 | 6,167 | 0.27% | 15,940 | 744 | **300** | 58,374 |
+| **Ra1 - EMBEDDED** | 67,542,321 | 1,630,184 | 5,780 | 0.35% | 11,686 | 518 | **215** | 62,830 |
+| **Ra2 - AI ENGINEER** | 57,614,138 | 1,510,617 | 5,678 | 0.38% | 10,147 | 736 | **277** | 43,746 |
+| **RA4 - BA** | 31,957,940 | 669,491 | 2,393 | 0.36% | 13,355 | 260 | **64** | 83,879 |
+| **RA3 - DE** | 26,773,500 | 500,440 | 2,411 | 0.48% | 11,105 | 222 | **46** | 84,459 |
+| **RA6 - PTIT CNTT** | 22,523,083 | 502,707 | 4,092 | 0.81% | 5,504 | 281 | **113** | 22,636 |
+| **RA5 - LINE NHẬT** | 22,080,584 | 313,962 | 1,078 | 0.34% | 20,483 | 5 | **0** | 1,472,039 |
 | **RA8 - AI NEW** | 7,083,121 | 150,643 | 660 | 0.44% | 10,732 | 57 | **3** | 110,674 |
-| **RA9 PTIT - QTKD** | 3,535,536 | 92,711 | 426 | 0.46% | 8,299 | 57 | **15** | 40,638 |
+| **RA9 PTIT - QTKD** | 3,575,354 | 93,609 | 431 | 0.46% | 8,295 | 58 | **23** | 37,243 |
 
 ---
 ## 📦 2. BẢNG TỔNG HỢP HIỆU SUẤT THEO SẢN PHẨM
 
 | Sản phẩm | Chi tiêu (VNĐ) | Hiển thị | Clicks | CTR TB | Tin nhắn | SĐT (Pancake) | Chi phí / SĐT (VNĐ) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Data Analyst** | 98,152,111 | 2,267,117 | 6,157 | 0.27% | 742 | **284** | 345,606 |
-| **AI engineer** | 58,397,106 | 1,530,654 | 5,730 | 0.37% | 749 | **266** | 219,538 |
-| **Embeded** | 68,572,520 | 1,660,244 | 5,857 | 0.35% | 523 | **216** | 317,465 |
-| **XueBa** | 21,261,193 | 439,694 | 3,991 | 0.91% | 273 | **107** | 198,703 |
-| **BA** | 31,934,307 | 669,016 | 2,392 | 0.36% | 260 | **64** | 498,974 |
-| **Data Engineer** | 26,749,429 | 499,857 | 2,410 | 0.48% | 222 | **46** | 581,509 |
-| **Network Security** | 2,642,748 | 69,736 | 364 | 0.52% | 43 | **9** | 293,639 |
+| **Data Analyst** | 98,302,021 | 2,269,392 | 6,167 | 0.27% | 744 | **300** | 327,673 |
+| **AI engineer** | 58,506,926 | 1,533,592 | 5,740 | 0.37% | 750 | **283** | 206,738 |
+| **Embeded** | 68,692,317 | 1,663,600 | 5,869 | 0.35% | 526 | **219** | 313,664 |
+| **XueBa** | 21,281,972 | 440,831 | 4,003 | 0.91% | 273 | **109** | 195,247 |
+| **BA** | 31,957,940 | 669,491 | 2,393 | 0.36% | 260 | **64** | 499,343 |
+| **Data Engineer** | 26,773,500 | 500,440 | 2,411 | 0.48% | 222 | **46** | 582,033 |
+| **Network Security** | 2,682,566 | 70,634 | 369 | 0.52% | 44 | **17** | 157,798 |
 | **AI driven** | 6,897,637 | 148,722 | 656 | 0.44% | 57 | **3** | 2,299,212 |
-| **BrSE** | 22,210,578 | 314,675 | 1,081 | 0.34% | 5 | **0** | 0 |
+| **BrSE** | 22,266,068 | 315,883 | 1,082 | 0.34% | 5 | **0** | 0 |
 | **PTIT** | 91,115 | 28,460 | 0 | 0.00% | 0 | **0** | 0 |
 
 ---
@@ -41,13 +41,13 @@
 
 | Nhóm nội dung / Tag | Chi tiêu (VNĐ) | Tin nhắn | SĐT (Pancake) | Chi phí / SĐT (VNĐ) |
 |---|:---:|:---:|:---:|:---:|
-| **Lộ trình khóa học** | 164,295,457 | 1,685 | **582** | 282,295 |
-| **USP khóa học** | 86,450,681 | 825 | **318** | 271,857 |
-| **Chia sẻ** | 47,423,307 | 410 | **130** | 364,795 |
-| **Ưu đãi khuyến mãi** | 32,765,874 | 309 | **128** | 255,983 |
-| **Tính năng - lợi ích ( đầu ra)** | 48,775,685 | 316 | **79** | 617,414 |
-| **PAS - problem - Agitation - solution** | 19,045,262 | 187 | **64** | 297,582 |
-| **storytelling** | 50,014,226 | 82 | **24** | 2,083,926 |
+| **Lộ trình khóa học** | 164,552,636 | 1,686 | **603** | 272,890 |
+| **USP khóa học** | 86,582,095 | 827 | **330** | 262,370 |
+| **Chia sẻ** | 47,529,733 | 413 | **140** | 339,498 |
+| **Ưu đãi khuyến mãi** | 32,848,706 | 312 | **137** | 239,772 |
+| **Tính năng - lợi ích ( đầu ra)** | 48,848,731 | 317 | **87** | 561,480 |
+| **PAS - problem - Agitation - solution** | 19,086,534 | 187 | **69** | 276,616 |
+| **storytelling** | 50,070,435 | 82 | **24** | 2,086,268 |
 
 ---
 ## 📑 4. CHI TIẾT DỮ LIỆU CÁC CHIẾN DỊCH THEO TỪNG TÀI KHOẢN
@@ -56,81 +56,81 @@
 
 | Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |
 |:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
-| 2026-11-17 | Hanq - AE - BT2 | **AI engineer** | Lộ trình khóa học | ACTIVE | 14,786 | 0 | 0 | **0** |  | `120251671362170654` |
-| 2026-11-17 | Hanq - AE - BT1 | **AI engineer** | Lộ trình khóa học | ACTIVE | 173,412 | 7 | 3 | **3** | AI Engineer, T1 - SĐT | `120251659749910654` |
-| 2026-11-17 | ANHTH - AIEG - WORKSHOP 21.11 -  | **AI engineer** | Chia sẻ | ACTIVE | 173,858 | 0 | 1 | **0** |  | `120252597444180654` |
-| 2026-11-17 | ANHTH - AIEG - WORKSHOP 21.11 -  | **AI engineer** | Chia sẻ | ACTIVE | 44,924 | 0 | 0 | **0** |  | `120252633685420654` |
-| 2026-11-17 | ANHTH - AIEG - WORKSHOP 21.11 | **AI engineer** | Chia sẻ | ACTIVE | 126,802 | 0 | 0 | **0** |  | `120252545837820654` |
-| 2026-11-17 | ANHTH - AIEG - AIEGVD2 | **AI engineer** | Tính năng - lợi ích ( đầu ra), Ưu đãi khuyến mãi | ACTIVE | 169,936 | 5 | 3 | **2** | AI Engineer, T1 - SĐT | `120252443850880654` |
-| 2026-11-17 | ANHTH - AIEG - AIEG5 | **AI engineer** | Lộ trình khóa học, USP khóa học | ACTIVE | 84,584 | 1 | 1 | **0** |  | `120252510379990654` |
-| 2026-11-17 | ANHTH - AIEG - AIEG4 | **AI engineer** | USP khóa học | ACTIVE | 150,317 | 2 | 1 | **0** |  | `120252301867690654` |
+| 2026-11-17 | Hanq - AE - BT2 | **AI engineer** | Lộ trình khóa học | ACTIVE | 26,891 | 0 | 0 | **0** |  | `120251671362170654` |
+| 2026-11-17 | Hanq - AE - BT1 | **AI engineer** | Lộ trình khóa học | ACTIVE | 190,919 | 7 | 4 | **3** | AI Engineer, T1 - SĐT | `120251659749910654` |
+| 2026-11-17 | ANHTH - AIEG - WORKSHOP 21.11 -  | **AI engineer** | Chia sẻ | ACTIVE | 187,087 | 0 | 1 | **0** |  | `120252597444180654` |
+| 2026-11-17 | ANHTH - AIEG - WORKSHOP 21.11 -  | **AI engineer** | Chia sẻ | ACTIVE | 52,166 | 0 | 0 | **0** |  | `120252633685420654` |
+| 2026-11-17 | ANHTH - AIEG - WORKSHOP 21.11 | **AI engineer** | Chia sẻ | ACTIVE | 134,617 | 0 | 0 | **0** |  | `120252545837820654` |
+| 2026-11-17 | ANHTH - AIEG - AIEGVD2 | **AI engineer** | Tính năng - lợi ích ( đầu ra), Ưu đãi khuyến mãi | ACTIVE | 192,686 | 6 | 3 | **1** | AI Engineer, T1 - SĐT | `120252443850880654` |
+| 2026-11-17 | ANHTH - AIEG - AIEG5 | **AI engineer** | Lộ trình khóa học, USP khóa học | ACTIVE | 95,840 | 1 | 1 | **0** |  | `120252510379990654` |
+| 2026-11-17 | ANHTH - AIEG - AIEG4 | **AI engineer** | USP khóa học | ACTIVE | 168,207 | 2 | 1 | **0** |  | `120252301867690654` |
 | 2026-11-16 | Hanq - AE - BT2 | **AI engineer** | Lộ trình khóa học | ACTIVE | 0 | 0 | 0 | **0** |  | `120251671362170654` |
-| 2026-11-16 | Hanq - AE - BT1 | **AI engineer** | Lộ trình khóa học | ACTIVE | 398,807 | 9 | 1 | **1** | AI Engineer, T1 - SĐT | `120251659749910654` |
+| 2026-11-16 | Hanq - AE - BT1 | **AI engineer** | Lộ trình khóa học | ACTIVE | 398,807 | 9 | 1 | **3** | AI Engineer, T1 - SĐT, T2 - Me… | `120251659749910654` |
 | 2026-11-16 | ANHTH - AIEG - WORKSHOP 21.11 -  | **AI engineer** | Chia sẻ | ACTIVE | 201,333 | 1 | 0 | **0** |  | `120252597444180654` |
 | 2026-11-16 | ANHTH - AIEG - WORKSHOP 21.11 | **AI engineer** | Chia sẻ | ACTIVE | 235,936 | 0 | 0 | **0** |  | `120252545837820654` |
-| 2026-11-16 | ANHTH - AIEG - AIEGVD2 | **AI engineer** | Tính năng - lợi ích ( đầu ra), Ưu đãi khuyến mãi | ACTIVE | 391,751 | 6 | 1 | **0** |  | `120252443850880654` |
-| 2026-11-16 | ANHTH - AIEG - AIEG5 | **AI engineer** | Lộ trình khóa học, USP khóa học | ACTIVE | 265,755 | 3 | 3 | **0** |  | `120252510379990654` |
-| 2026-11-16 | ANHTH - AIEG - AIEG4 | **AI engineer** | USP khóa học | ACTIVE | 377,786 | 9 | 1 | **1** | AI Engineer, T1 - SĐT | `120252301867690654` |
+| 2026-11-16 | ANHTH - AIEG - AIEGVD2 | **AI engineer** | Tính năng - lợi ích ( đầu ra), Ưu đãi khuyến mãi | ACTIVE | 391,777 | 6 | 1 | **2** | AI Engineer, T1 - SĐT | `120252443850880654` |
+| 2026-11-16 | ANHTH - AIEG - AIEG5 | **AI engineer** | Lộ trình khóa học, USP khóa học | ACTIVE | 265,755 | 3 | 3 | **1** | AI Engineer, T1 - SĐT | `120252510379990654` |
+| 2026-11-16 | ANHTH - AIEG - AIEG4 | **AI engineer** | USP khóa học | ACTIVE | 377,786 | 9 | 1 | **3** | AI Engineer, T1 - SĐT | `120252301867690654` |
 | 2026-11-15 | Hanq - AE - BT1 | **AI engineer** | Lộ trình khóa học | ACTIVE | 278,974 | 1 | 1 | **0** |  | `120251659749910654` |
 | 2026-11-15 | ANHTH - AIEG - WORKSHOP 21.11 -  | **AI engineer** | Chia sẻ | ACTIVE | 182,460 | 0 | 1 | **0** |  | `120252597444180654` |
 | 2026-11-15 | ANHTH - AIEG - WORKSHOP 21.11 | **AI engineer** | Chia sẻ | ACTIVE | 278,282 | 0 | 0 | **0** |  | `120252545837820654` |
-| 2026-11-15 | ANHTH - AIEG - AIEGVD2 | **AI engineer** | Tính năng - lợi ích ( đầu ra), Ưu đãi khuyến mãi | ACTIVE | 255,428 | 5 | 0 | **1** | AI Engineer, T1 - SĐT | `120252443850880654` |
-| 2026-11-15 | ANHTH - AIEG - AIEG5 | **AI engineer** | Lộ trình khóa học, USP khóa học | ACTIVE | 201,452 | 5 | 2 | **1** | AI Engineer, T3 - Zalo | `120252510379990654` |
+| 2026-11-15 | ANHTH - AIEG - AIEGVD2 | **AI engineer** | Tính năng - lợi ích ( đầu ra), Ưu đãi khuyến mãi | ACTIVE | 255,428 | 5 | 0 | **4** | AI Engineer, T1 - SĐT | `120252443850880654` |
+| 2026-11-15 | ANHTH - AIEG - AIEG5 | **AI engineer** | Lộ trình khóa học, USP khóa học | ACTIVE | 201,452 | 5 | 2 | **3** | AI Engineer, T1 - SĐT, T3 - Za… | `120252510379990654` |
 
 *(Còn 222 dòng khác, xem trong file CSV)*
 
 
-### 🏢 Ra1 - EMBEDDED (614 dòng)
+### 🏢 Ra1 - EMBEDDED (615 dòng)
 
 | Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |
 |:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
-| 2026-11-17 | NamVT_Nhúng_ motion ko voice | **Embeded** | Chia sẻ | PAUSED | 96,671 | 0 | 1 | **0** |  | `120253900324050209` |
-| 2026-11-17 | NamVT_Nhúng_ motion ko voice | **Embeded** | Lộ trình khóa học, USP khóa học | ACTIVE | 98,252 | 0 | 0 | **0** |  | `120248251440720209` |
-| 2026-11-17 | NamVT_Nhúng_  Công cụ | **Embeded** | Chia sẻ | PAUSED | 110,421 | 0 | 0 | **1** | T1 - SĐT | `120253830496830209` |
-| 2026-11-17 | NamVT_MESS - EB T11_KỸ SƯ LẬP TR | **Embeded** | USP khóa học | CAMPAIGN_PAUSED | 45,184 | 0 | 0 | **0** |  | `120254203994380209` |
-| 2026-11-17 | NamVT_Ib_Nhúng_ mở lớp TB | **Embeded** | Ưu đãi khuyến mãi | ACTIVE | 97,759 | 1 | 0 | **0** |  | `120254095488130209` |
-| 2026-11-17 | NamVT_Ib_Nhúng_ Lộ trình Text ba | **Embeded** | Lộ trình khóa học | ACTIVE | 93,113 | 1 | 1 | **0** |  | `120254280076050209` |
-| 2026-11-17 | NAMVT_Nhúng_ Voice nữ T11 | **Embeded** | Lộ trình khóa học, USP khóa học | ACTIVE | 53,017 | 1 | 1 | **1** | T1 - SĐT | `120253827851090209` |
-| 2026-11-17 | NAMVT_Nhúng_ Voice nữ T11 | **Embeded** | USP khóa học | ACTIVE | 63,606 | 0 | 0 | **0** |  | `120253827803390209` |
-| 2026-11-17 | NAMVT_Embeded_content LƯƠNG | **Embeded** | Tính năng - lợi ích ( đầu ra), Ưu đãi khuyến mãi | PAUSED | 103,738 | 0 | 0 | **0** |  | `120254204739970209` |
-| 2026-11-17 | NAMVT_Embeded_TB_T11 Học bổng | **Embeded** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 116,756 | 3 | 1 | **2** | T1 - SĐT | `120254204451450209` |
-| 2026-11-17 | EB -CVR CĐ - text - Bản sao | **Embeded** | Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 2,361 | 0 | 0 | **0** |  | `120245908300660209` |
-| 2026-11-17 | Cũ - EB - content 2 | **Embeded** | Lộ trình khóa học, USP khóa học | PAUSED | 116,247 | 1 | 1 | **1** | T1 - SĐT | `120253148159450209` |
-| 2026-11-17 | Cũ - EB - content 2 | **Embeded** | Lộ trình khóa học, USP khóa học | ACTIVE | 3,324 | 0 | 0 | **0** |  | `120241258476140209` |
+| 2026-11-17 | NamVT_Nhúng_ thông báo học bổng  | **Embeded** | Lộ trình khóa học, Ưu đãi khuyến mãi | ACTIVE | 1,109 | 0 | 0 | **0** |  | `120254297805960209` |
+| 2026-11-17 | NamVT_Nhúng_ motion ko voice | **Embeded** | Chia sẻ | PAUSED | 97,278 | 0 | 1 | **0** |  | `120253900324050209` |
+| 2026-11-17 | NamVT_Nhúng_ motion ko voice | **Embeded** | Lộ trình khóa học, USP khóa học | ACTIVE | 129,910 | 0 | 0 | **0** |  | `120248251440720209` |
+| 2026-11-17 | NamVT_Nhúng_  Công cụ | **Embeded** | Chia sẻ | PAUSED | 111,972 | 0 | 0 | **0** |  | `120253830496830209` |
+| 2026-11-17 | NamVT_MESS - EB T11_KỸ SƯ LẬP TR | **Embeded** | USP khóa học | CAMPAIGN_PAUSED | 45,198 | 0 | 0 | **0** |  | `120254203994380209` |
+| 2026-11-17 | NamVT_Ib_Nhúng_ mở lớp TB | **Embeded** | Ưu đãi khuyến mãi | ACTIVE | 117,328 | 1 | 0 | **0** |  | `120254095488130209` |
+| 2026-11-17 | NamVT_Ib_Nhúng_ Lộ trình Text ba | **Embeded** | Lộ trình khóa học | ACTIVE | 106,613 | 2 | 2 | **1** | T1 - SĐT | `120254280076050209` |
+| 2026-11-17 | NAMVT_Nhúng_ Voice nữ T11 | **Embeded** | Lộ trình khóa học, USP khóa học | ACTIVE | 70,916 | 1 | 1 | **1** | T1 - SĐT | `120253827851090209` |
+| 2026-11-17 | NAMVT_Nhúng_ Voice nữ T11 | **Embeded** | USP khóa học | ACTIVE | 75,541 | 0 | 0 | **0** |  | `120253827803390209` |
+| 2026-11-17 | NAMVT_Embeded_content LƯƠNG | **Embeded** | Tính năng - lợi ích ( đầu ra), Ưu đãi khuyến mãi | PAUSED | 105,295 | 0 | 0 | **0** |  | `120254204739970209` |
+| 2026-11-17 | NAMVT_Embeded_TB_T11 Học bổng | **Embeded** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 133,798 | 5 | 1 | **2** | T1 - SĐT | `120254204451450209` |
+| 2026-11-17 | EB -CVR CĐ - text - Bản sao | **Embeded** | Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 2,368 | 0 | 0 | **0** |  | `120245908300660209` |
+| 2026-11-17 | Cũ - EB - content 2 | **Embeded** | Lộ trình khóa học, USP khóa học | PAUSED | 118,360 | 1 | 1 | **1** | T1 - SĐT | `120253148159450209` |
+| 2026-11-17 | Cũ - EB - content 2 | **Embeded** | Lộ trình khóa học, USP khóa học | ACTIVE | 4,518 | 0 | 0 | **0** |  | `120241258476140209` |
 | 2026-11-16 | NamVT_Nhúng_ motion ko voice | **Embeded** | Chia sẻ | PAUSED | 165,353 | 1 | 0 | **0** |  | `120253900324050209` |
 | 2026-11-16 | NamVT_Nhúng_ motion ko voice | **Embeded** | Chia sẻ | PAUSED | 801 | 0 | 0 | **0** |  | `120253845727820209` |
 | 2026-11-16 | NamVT_Nhúng_ motion ko voice | **Embeded** | Lộ trình khóa học, USP khóa học | PAUSED | 761 | 0 | 0 | **0** |  | `120253830697050209` |
 | 2026-11-16 | NamVT_Nhúng_ motion ko voice | **Embeded** | Lộ trình khóa học, USP khóa học | ACTIVE | 163,692 | 3 | 0 | **0** |  | `120248251440720209` |
 | 2026-11-16 | NamVT_Nhúng_  Công cụ | **Embeded** | Chia sẻ | PAUSED | 146,999 | 0 | 0 | **0** |  | `120253830496830209` |
 | 2026-11-16 | NamVT_MESS - EB T11_KỸ SƯ LẬP TR | **Embeded** | USP khóa học | CAMPAIGN_PAUSED | 103,640 | 0 | 0 | **0** |  | `120254203994380209` |
-| 2026-11-16 | NamVT_Ib_Nhúng_ mở lớp TB | **Embeded** | Ưu đãi khuyến mãi | ACTIVE | 185,161 | 0 | 0 | **0** |  | `120254095488130209` |
 
-*(Còn 594 dòng khác, xem trong file CSV)*
+*(Còn 595 dòng khác, xem trong file CSV)*
 
 
 ### 🏢 RA9 PTIT - QTKD (37 dòng)
 
 | Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |
 |:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
-| 2026-11-17 | ANHTH - CYBER - CBS4 | **Network Security** | Chia sẻ | ACTIVE | 34,945 | 1 | 0 | **0** |  | `120255435675140231` |
-| 2026-11-17 | ANHTH - CYBER - CBS3 | **Network Security** | Chia sẻ | ACTIVE | 66,343 | 0 | 1 | **0** |  | `120255351861510231` |
-| 2026-11-17 | ANHTH - CYBER - CBS2 | **Network Security** | Lộ trình khóa học | ACTIVE | 63,497 | 1 | 0 | **0** |  | `120255351983300231` |
-| 2026-11-17 | ANHTH - CYBER - CBS1 CHẠY LẠI | **Network Security** | storytelling | ACTIVE | 87,154 | 2 | 0 | **1** | T1 - SĐT | `120255413561840231` |
+| 2026-11-17 | ANHTH - CYBER - CBS4 | **Network Security** | Chia sẻ | ACTIVE | 45,130 | 1 | 0 | **0** |  | `120255435675140231` |
+| 2026-11-17 | ANHTH - CYBER - CBS3 | **Network Security** | Chia sẻ | ACTIVE | 76,862 | 1 | 1 | **0** |  | `120255351861510231` |
+| 2026-11-17 | ANHTH - CYBER - CBS2 | **Network Security** | Lộ trình khóa học | ACTIVE | 70,975 | 1 | 0 | **0** |  | `120255351983300231` |
+| 2026-11-17 | ANHTH - CYBER - CBS1 CHẠY LẠI | **Network Security** | storytelling | ACTIVE | 98,790 | 2 | 0 | **1** | T1 - SĐT | `120255413561840231` |
 | 2026-11-16 | ANHTH - CYBER - CBVD1 | **Network Security** | Chia sẻ | CAMPAIGN_PAUSED | 0 | 0 | 0 | **0** |  | `120255372132010231` |
 | 2026-11-16 | ANHTH - CYBER - CBS3 | **Network Security** | Chia sẻ | ACTIVE | 262,901 | 0 | 1 | **0** |  | `120255351861510231` |
 | 2026-11-16 | ANHTH - CYBER - CBS2 TT | **Network Security** | Lộ trình khóa học | CAMPAIGN_PAUSED | 43,603 | 0 | 0 | **0** |  | `120255389197190231` |
-| 2026-11-16 | ANHTH - CYBER - CBS2 | **Network Security** | Lộ trình khóa học | ACTIVE | 231,490 | 3 | 0 | **0** |  | `120255351983300231` |
+| 2026-11-16 | ANHTH - CYBER - CBS2 | **Network Security** | Lộ trình khóa học | ACTIVE | 231,490 | 3 | 0 | **1** | T1 - SĐT | `120255351983300231` |
 | 2026-11-16 | ANHTH - CYBER - CBS1 CHẠY LẠI | **Network Security** | storytelling | ACTIVE | 62,775 | 1 | 0 | **1** | T1 - SĐT | `120255413561840231` |
 | 2026-11-16 | ANHTH - CYBER - CBS1 | **Network Security** | Chia sẻ | CAMPAIGN_PAUSED | 37,760 | 0 | 0 | **0** |  | `120255398358730231` |
 | 2026-11-15 | ANHTH - CYBER - CBVD1 | **Network Security** | Chia sẻ | CAMPAIGN_PAUSED | 0 | 0 | 0 | **0** |  | `120255372132010231` |
 | 2026-11-15 | ANHTH - CYBER - CBS3 | **Network Security** | Chia sẻ | ACTIVE | 162,484 | 2 | 0 | **1** | T1 - SĐT | `120255351861510231` |
 | 2026-11-15 | ANHTH - CYBER - CBS2 TT | **Network Security** | Lộ trình khóa học | CAMPAIGN_PAUSED | 41,466 | 0 | 0 | **0** |  | `120255389197190231` |
-| 2026-11-15 | ANHTH - CYBER - CBS2 | **Network Security** | Lộ trình khóa học | ACTIVE | 164,271 | 1 | 0 | **1** | T1 - SĐT | `120255351983300231` |
+| 2026-11-15 | ANHTH - CYBER - CBS2 | **Network Security** | Lộ trình khóa học | ACTIVE | 164,271 | 1 | 0 | **0** |  | `120255351983300231` |
 | 2026-11-15 | ANHTH - CYBER - CBS1 | **Network Security** | Chia sẻ | CAMPAIGN_PAUSED | 50,208 | 0 | 0 | **0** |  | `120255398358730231` |
 | 2026-11-14 | ANHTH - CYBER - TT | **Network Security** | Lộ trình khóa học | PAUSED | 15,643 | 0 | 0 | **0** |  | `120255352061430231` |
 | 2026-11-14 | ANHTH - CYBER - CBVD1 | **Network Security** | Chia sẻ | CAMPAIGN_PAUSED | 34,319 | 1 | 0 | **0** |  | `120255372132010231` |
-| 2026-11-14 | ANHTH - CYBER - CBS3 | **Network Security** | Chia sẻ | ACTIVE | 138,096 | 2 | 1 | **0** |  | `120255351861510231` |
-| 2026-11-14 | ANHTH - CYBER - CBS2 TT | **Network Security** | Lộ trình khóa học | ACTIVE | 18,478 | 1 | 0 | **0** |  | `120255389197190231` |
+| 2026-11-14 | ANHTH - CYBER - CBS3 | **Network Security** | Chia sẻ | ACTIVE | 138,096 | 2 | 1 | **1** | T1 - SĐT | `120255351861510231` |
+| 2026-11-14 | ANHTH - CYBER - CBS2 TT | **Network Security** | Lộ trình khóa học | CAMPAIGN_PAUSED | 18,478 | 1 | 0 | **0** |  | `120255389197190231` |
 | 2026-11-14 | ANHTH - CYBER - CBS2 | **Network Security** | Lộ trình khóa học | ACTIVE | 120,973 | 2 | 1 | **0** |  | `120255351983300231` |
 
 *(Còn 17 dòng khác, xem trong file CSV)*
@@ -141,24 +141,24 @@
 | Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |
 |:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
 | 2026-11-17 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | CAMPAIGN_PAUSED | 0 | 0 | 1 | **0** |  | `120252389606710693` |
-| 2026-11-17 | Học thử Xueba 11_11 ldp Motion | **XueBa** | Ưu đãi khuyến mãi | ACTIVE | 106,342 | 0 | 0 | **0** |  | `120252587205830693` |
+| 2026-11-17 | Học thử Xueba 11_11 ldp Motion | **XueBa** | Ưu đãi khuyến mãi | ACTIVE | 114,053 | 0 | 0 | **0** |  | `120252587205830693` |
 | 2026-11-17 | Học thử Xueba 11_11 ldp - Bản sa | **XueBa** | Ưu đãi khuyến mãi | CAMPAIGN_PAUSED | 0 | 0 | 0 | **0** |  | `120252567473440693` |
-| 2026-11-17 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 93,752 | 0 | 0 | **0** |  | `120252658096460693` |
-| 2026-11-17 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 15,347 | 0 | 0 | **0** |  | `120252645700620693` |
-| 2026-11-17 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | USP khóa học, Ưu đãi khuyến mãi | ACTIVE | 64,324 | 0 | 0 | **0** |  | `120252661046520693` |
+| 2026-11-17 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 95,678 | 0 | 0 | **0** |  | `120252658096460693` |
+| 2026-11-17 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 15,976 | 0 | 0 | **0** |  | `120252645700620693` |
+| 2026-11-17 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | USP khóa học, Ưu đãi khuyến mãi | ACTIVE | 74,829 | 0 | 0 | **0** |  | `120252661046520693` |
 | 2026-11-16 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | CAMPAIGN_PAUSED | 27,589 | 0 | 0 | **0** |  | `120252461609720693` |
 | 2026-11-16 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | CAMPAIGN_PAUSED | 36,641 | 1 | 0 | **0** |  | `120252389606710693` |
 | 2026-11-16 | Học thử Xueba 11_11 ldp Motion | **XueBa** | Ưu đãi khuyến mãi | ACTIVE | 156,920 | 0 | 0 | **0** |  | `120252587205830693` |
-| 2026-11-16 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 165,150 | 0 | 0 | **0** |  | `120252658096460693` |
+| 2026-11-16 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 165,158 | 0 | 0 | **0** |  | `120252658096460693` |
 | 2026-11-16 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 64,272 | 0 | 0 | **0** |  | `120252645700620693` |
 | 2026-11-16 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | USP khóa học, Ưu đãi khuyến mãi | ACTIVE | 11,486 | 0 | 0 | **0** |  | `120252587015820693` |
 | 2026-11-15 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | CAMPAIGN_PAUSED | 72,192 | 2 | 2 | **2** | Phễu, T1 - SĐT | `120252461609720693` |
-| 2026-11-15 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | CAMPAIGN_PAUSED | 58,769 | 1 | 1 | **0** |  | `120252389606710693` |
+| 2026-11-15 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | CAMPAIGN_PAUSED | 58,769 | 1 | 1 | **1** | T1 - SĐT | `120252389606710693` |
 | 2026-11-15 | Học thử Xueba 11_11 ldp Motion | **XueBa** | Ưu đãi khuyến mãi | ACTIVE | 106,868 | 0 | 0 | **0** |  | `120252587205830693` |
 | 2026-11-15 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | Ưu đãi khuyến mãi, USP khóa học | ACTIVE | 132,909 | 0 | 0 | **0** |  | `120252645700620693` |
 | 2026-11-15 | Học thử Xueba 11_11 ldp  Page ti | **XueBa** | USP khóa học, Ưu đãi khuyến mãi | ACTIVE | 152,969 | 0 | 0 | **0** |  | `120252587015820693` |
-| 2026-11-14 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | ACTIVE | 46,775 | 3 | 1 | **0** |  | `120252461609720693` |
-| 2026-11-14 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | ACTIVE | 54,558 | 1 | 1 | **1** | T1 - SĐT | `120252389606710693` |
+| 2026-11-14 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | CAMPAIGN_PAUSED | 46,775 | 3 | 1 | **0** |  | `120252461609720693` |
+| 2026-11-14 | XueBa Test banner - Thầy Tư giản | **XueBa** | USP khóa học | CAMPAIGN_PAUSED | 54,558 | 1 | 1 | **0** |  | `120252389606710693` |
 | 2026-11-14 | XueBa Lớp học thử_11/11 - Bản sa | **XueBa** | Ưu đãi khuyến mãi | CAMPAIGN_PAUSED | 0 | 0 | 0 | **0** |  | `120252529999360693` |
 
 *(Còn 206 dòng khác, xem trong file CSV)*
@@ -168,10 +168,10 @@
 
 | Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |
 |:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
-| 2026-11-17 | Hanq - Tsu - video new hook4 - B | **BrSE** | storytelling, Lộ trình khóa học | ACTIVE | 119,550 | 0 | 0 | **0** |  | `120240122436860515` |
-| 2026-11-17 | Hanq - BrSE - VN - video lo trin | **BrSE** | Lộ trình khóa học | ACTIVE | 184,396 | 0 | 0 | **0** |  | `120246372881550515` |
-| 2026-11-17 | Hanq - BrSE - VN | **BrSE** | Lộ trình khóa học | ACTIVE | 205,450 | 0 | 0 | **0** |  | `120241845303280515` |
-| 2026-11-17 | Hanq - BrSE - NB - video new | **BrSE** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 93,706 | 0 | 0 | **0** |  | `120244977821040515` |
+| 2026-11-17 | Hanq - Tsu - video new hook4 - B | **BrSE** | storytelling, Lộ trình khóa học | ACTIVE | 131,090 | 0 | 0 | **0** |  | `120240122436860515` |
+| 2026-11-17 | Hanq - BrSE - VN - video lo trin | **BrSE** | Lộ trình khóa học | ACTIVE | 201,103 | 0 | 0 | **0** |  | `120246372881550515` |
+| 2026-11-17 | Hanq - BrSE - VN | **BrSE** | Lộ trình khóa học | ACTIVE | 221,464 | 0 | 0 | **0** |  | `120241845303280515` |
+| 2026-11-17 | Hanq - BrSE - NB - video new | **BrSE** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 104,935 | 0 | 0 | **0** |  | `120244977821040515` |
 | 2026-11-16 | Hanq - Tsu - video new hook4 - B | **BrSE** | storytelling, Lộ trình khóa học | ACTIVE | 214,451 | 0 | 1 | **0** |  | `120240122436860515` |
 | 2026-11-16 | Hanq - BrSE - VN - video lo trin | **BrSE** | Lộ trình khóa học | ACTIVE | 142,517 | 0 | 0 | **0** |  | `120246372881550515` |
 | 2026-11-16 | Hanq - BrSE - VN | **BrSE** | Lộ trình khóa học | ACTIVE | 156,935 | 0 | 0 | **0** |  | `120241845303280515` |
@@ -196,26 +196,26 @@
 
 | Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |
 |:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
-| 2026-11-17 | ANHTH - BA - ADS BAVIDEO9 CHẠY L | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 88,939 | 2 | 1 | **0** |  | `120250504781760298` |
-| 2026-11-17 | ANHTH - BA - ADS BAVIDEO 7 TT | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | CAMPAIGN_PAUSED | 14,817 | 0 | 0 | **0** |  | `120250313482670298` |
-| 2026-11-17 | ANHTH - BA - ADS BAVIDEO 7 | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 101,143 | 2 | 0 | **0** |  | `120250313319320298` |
-| 2026-11-17 | ANHTH - BA - ADS BAVIDEO 6 | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 56,149 | 0 | 0 | **0** |  | `120250201337220298` |
+| 2026-11-17 | ANHTH - BA - ADS BAVIDEO9 CHẠY L | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 96,197 | 2 | 1 | **0** |  | `120250504781760298` |
+| 2026-11-17 | ANHTH - BA - ADS BAVIDEO 7 TT | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | CAMPAIGN_PAUSED | 14,902 | 0 | 0 | **0** |  | `120250313482670298` |
+| 2026-11-17 | ANHTH - BA - ADS BAVIDEO 7 | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 112,259 | 2 | 0 | **0** |  | `120250313319320298` |
+| 2026-11-17 | ANHTH - BA - ADS BAVIDEO 6 | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 61,078 | 0 | 0 | **0** |  | `120250201337220298` |
 | 2026-11-16 | ANHTH - BA - BAVIDEO9 TT | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 18,551 | 0 | 0 | **0** |  | `120250462370720298` |
 | 2026-11-16 | ANHTH - BA - BAVIDEO9 | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 23,071 | 1 | 0 | **0** |  | `120250461873570298` |
-| 2026-11-16 | ANHTH - BA - ADS BAVIDEO9 CHẠY L | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 112,041 | 3 | 0 | **0** |  | `120250504781760298` |
-| 2026-11-16 | ANHTH - BA - ADS BAVIDEO 7 TT | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | CAMPAIGN_PAUSED | 57,465 | 0 | 0 | **0** |  | `120250313482670298` |
-| 2026-11-16 | ANHTH - BA - ADS BAVIDEO 7 | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 260,707 | 5 | 0 | **0** |  | `120250313319320298` |
+| 2026-11-16 | ANHTH - BA - ADS BAVIDEO9 CHẠY L | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 112,263 | 3 | 0 | **0** |  | `120250504781760298` |
+| 2026-11-16 | ANHTH - BA - ADS BAVIDEO 7 TT | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | CAMPAIGN_PAUSED | 57,478 | 0 | 0 | **0** |  | `120250313482670298` |
+| 2026-11-16 | ANHTH - BA - ADS BAVIDEO 7 | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 260,717 | 5 | 0 | **0** |  | `120250313319320298` |
 | 2026-11-15 | ANHTH - BA - BAVIDEO9 TT | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 55,097 | 0 | 0 | **0** |  | `120250462370720298` |
 | 2026-11-15 | ANHTH - BA - BAVIDEO9 | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 146,084 | 4 | 0 | **0** |  | `120250461873570298` |
 | 2026-11-15 | ANHTH - BA - ADS BAVIDEO 7 TT | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | CAMPAIGN_PAUSED | 51,899 | 0 | 0 | **0** |  | `120250313482670298` |
 | 2026-11-15 | ANHTH - BA - ADS BAVIDEO 7 | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 190,425 | 7 | 0 | **1** | BA, T2 - Mess | `120250313319320298` |
-| 2026-11-14 | ANHTH - BA - BAVIDEO9 TT | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 56,778 | 0 | 0 | **0** |  | `120250462370720298` |
-| 2026-11-14 | ANHTH - BA - BAVIDEO9 | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 170,465 | 2 | 0 | **0** |  | `120250461873570298` |
-| 2026-11-14 | ANHTH - BA - ADS BAVIDEO 7 TT | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 43,918 | 0 | 0 | **0** |  | `120250313482670298` |
+| 2026-11-14 | ANHTH - BA - BAVIDEO9 TT | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 56,778 | 0 | 0 | **0** |  | `120250462370720298` |
+| 2026-11-14 | ANHTH - BA - BAVIDEO9 | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 170,465 | 2 | 0 | **0** |  | `120250461873570298` |
+| 2026-11-14 | ANHTH - BA - ADS BAVIDEO 7 TT | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | CAMPAIGN_PAUSED | 43,918 | 0 | 0 | **0** |  | `120250313482670298` |
 | 2026-11-14 | ANHTH - BA - ADS BAVIDEO 7 | **BA** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 149,070 | 1 | 0 | **0** |  | `120250313319320298` |
 | 2026-11-13 | ANHTH - BÀ ADS BA17 TT | **BA** | storytelling | CAMPAIGN_PAUSED | 8,030 | 0 | 0 | **0** |  | `120250442037120298` |
-| 2026-11-13 | ANHTH - BA - BAVIDEO9 TT | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 10,468 | 0 | 0 | **0** |  | `120250462370720298` |
-| 2026-11-13 | ANHTH - BA - BAVIDEO9 | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | ACTIVE | 94,186 | 1 | 0 | **0** |  | `120250461873570298` |
+| 2026-11-13 | ANHTH - BA - BAVIDEO9 TT | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 10,468 | 0 | 0 | **0** |  | `120250462370720298` |
+| 2026-11-13 | ANHTH - BA - BAVIDEO9 | **BA** | storytelling, Tính năng - lợi ích ( đầu ra) | CAMPAIGN_PAUSED | 94,186 | 1 | 0 | **0** |  | `120250461873570298` |
 
 *(Còn 267 dòng khác, xem trong file CSV)*
 
@@ -224,8 +224,8 @@
 
 | Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |
 |:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
-| 2026-11-17 | Hanq - DE - video lo trinh | **Data Engineer** | Lộ trình khóa học | ACTIVE | 64,121 | 1 | 0 | **0** |  | `120248925608750499` |
-| 2026-11-17 | Hanq - DE - content 10 AI | **Data Engineer** | Tính năng - lợi ích ( đầu ra), Lộ trình khóa học | ACTIVE | 60,784 | 0 | 0 | **0** |  | `120249123276590499` |
+| 2026-11-17 | Hanq - DE - video lo trinh | **Data Engineer** | Lộ trình khóa học | ACTIVE | 79,254 | 1 | 0 | **0** |  | `120248925608750499` |
+| 2026-11-17 | Hanq - DE - content 10 AI | **Data Engineer** | Tính năng - lợi ích ( đầu ra), Lộ trình khóa học | ACTIVE | 69,722 | 0 | 0 | **0** |  | `120249123276590499` |
 | 2026-11-16 | Hanq - DE - video lo trinh | **Data Engineer** | Lộ trình khóa học | ACTIVE | 125,031 | 1 | 0 | **0** |  | `120248925608750499` |
 | 2026-11-16 | Hanq - DE - content 10 AI anh lo | **Data Engineer** | Lộ trình khóa học | CAMPAIGN_PAUSED | 0 | 0 | 0 | **0** |  | `120250289864910499` |
 | 2026-11-16 | Hanq - DE - content 10 AI | **Data Engineer** | Tính năng - lợi ích ( đầu ra), Lộ trình khóa học | ACTIVE | 110,064 | 1 | 0 | **0** |  | `120249123276590499` |
@@ -252,24 +252,24 @@
 
 | Ngày | Chiến dịch | Sản phẩm | Tag chiến dịch | Trạng thái | Chi tiêu | Tin nhắn | Lead | **SĐT** | Tags Pancake | ID quảng cáo |
 |:---:|---|:---:|---|:---:|:---:|:---:|:---:|:---:|---|:---:|
-| 2026-11-17 | Hanq - DA - cđl - text | **Data Analyst** | storytelling | ACTIVE | 92,257 | 0 | 0 | **0** |  | `120235059475460495` |
-| 2026-11-17 | Hanq - DA - cđl - text | **Data Analyst** | storytelling | ACTIVE | 225,081 | 0 | 0 | **0** |  | `120235059068200495` |
-| 2026-11-17 | Hanq - DA - content AI update | **Data Analyst** | Chia sẻ | ACTIVE | 50,322 | 0 | 0 | **0** |  | `120250326884410495` |
-| 2026-11-17 | Hanq - DA - CĐ - content thongba | **Data Analyst** | USP khóa học | ACTIVE | 185,486 | 1 | 1 | **0** |  | `120250326863020495` |
-| 2026-11-17 | HA - DA -imnew -content 10 | **Data Analyst** | Lộ trình khóa học | ACTIVE | 58,437 | 1 | 0 | **0** |  | `120231642799740495` |
-| 2026-11-17 | HA - DA -imnew -content 10 | **Data Analyst** | Lộ trình khóa học | ACTIVE | 31,163 | 1 | 0 | **0** |  | `120228558067470495` |
-| 2026-11-17 | HA - DA -imnew - video lo trinh | **Data Analyst** | Lộ trình khóa học | ACTIVE | 54,214 | 0 | 0 | **0** |  | `120230390167550495` |
-| 2026-11-17 | HA - DA -imnew - video lo trinh | **Data Analyst** | Lộ trình khóa học | ACTIVE | 55,266 | 1 | 0 | **0** |  | `120230390064730495` |
-| 2026-11-17 | HA - DA -imnew - 5,5 thang | **Data Analyst** | Lộ trình khóa học | ACTIVE | 21,172 | 1 | 0 | **0** |  | `120231642716040495` |
-| 2026-11-17 | HA - DA -imnew - 5,5 thang | **Data Analyst** | Lộ trình khóa học | ACTIVE | 117,530 | 2 | 1 | **1** | T1  -  SĐT | `120228557318650495` |
-| 2026-11-17 | HA - DA -imnew | **Data Analyst** | PAS - problem - Agitation - solution, Tính năng - lợi ích ( đầu ra) | ACTIVE | 48,529 | 0 | 0 | **0** |  | `120228557230570495` |
-| 2026-11-17 | HA - DA - content new | **Data Analyst** | Chia sẻ | ACTIVE | 110,081 | 0 | 0 | **0** |  | `120237360596590495` |
-| 2026-11-17 | HA - DA - content 5 | **Data Analyst** | Lộ trình khóa học | ACTIVE | 10,707 | 0 | 0 | **0** |  | `120231698034870495` |
-| 2026-11-17 | HA - DA - content 5 | **Data Analyst** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 53,841 | 0 | 0 | **0** |  | `120228557190850495` |
-| 2026-11-17 | HA - DA - content 1 | **Data Analyst** | PAS - problem - Agitation - solution, Tính năng - lợi ích ( đầu ra) | ACTIVE | 32,858 | 0 | 0 | **0** |  | `120231656770140495` |
-| 2026-11-17 | HA - DA - content 1 | **Data Analyst** | PAS - problem - Agitation - solution, Tính năng - lợi ích ( đầu ra) | ACTIVE | 23,715 | 0 | 0 | **0** |  | `120228557088400495` |
-| 2026-11-17 | HA - DA - Video cu update | **Data Analyst** | Chia sẻ | ACTIVE | 53,504 | 1 | 0 | **0** |  | `120231875541740495` |
-| 2026-11-17 | HA - DA - Video cu update | **Data Analyst** | Chia sẻ | ACTIVE | 92,955 | 2 | 0 | **0** |  | `120231875541730495` |
+| 2026-11-17 | Hanq - DA - cđl - text | **Data Analyst** | storytelling | ACTIVE | 96,421 | 0 | 0 | **0** |  | `120235059475460495` |
+| 2026-11-17 | Hanq - DA - cđl - text | **Data Analyst** | storytelling | ACTIVE | 230,312 | 0 | 0 | **0** |  | `120235059068200495` |
+| 2026-11-17 | Hanq - DA - content AI update | **Data Analyst** | Chia sẻ | ACTIVE | 58,065 | 0 | 0 | **0** |  | `120250326884410495` |
+| 2026-11-17 | Hanq - DA - CĐ - content thongba | **Data Analyst** | USP khóa học | ACTIVE | 192,789 | 1 | 1 | **0** |  | `120250326863020495` |
+| 2026-11-17 | HA - DA -imnew -content 10 | **Data Analyst** | Lộ trình khóa học | ACTIVE | 69,481 | 1 | 0 | **0** |  | `120231642799740495` |
+| 2026-11-17 | HA - DA -imnew -content 10 | **Data Analyst** | Lộ trình khóa học | ACTIVE | 35,622 | 1 | 0 | **0** |  | `120228558067470495` |
+| 2026-11-17 | HA - DA -imnew - video lo trinh | **Data Analyst** | Lộ trình khóa học | ACTIVE | 57,885 | 0 | 0 | **0** |  | `120230390167550495` |
+| 2026-11-17 | HA - DA -imnew - video lo trinh | **Data Analyst** | Lộ trình khóa học | ACTIVE | 61,903 | 1 | 1 | **0** |  | `120230390064730495` |
+| 2026-11-17 | HA - DA -imnew - 5,5 thang | **Data Analyst** | Lộ trình khóa học | ACTIVE | 24,889 | 1 | 0 | **0** |  | `120231642716040495` |
+| 2026-11-17 | HA - DA -imnew - 5,5 thang | **Data Analyst** | Lộ trình khóa học | ACTIVE | 134,165 | 2 | 1 | **1** | T1  -  SĐT | `120228557318650495` |
+| 2026-11-17 | HA - DA -imnew | **Data Analyst** | PAS - problem - Agitation - solution, Tính năng - lợi ích ( đầu ra) | ACTIVE | 55,138 | 0 | 0 | **0** |  | `120228557230570495` |
+| 2026-11-17 | HA - DA - content new | **Data Analyst** | Chia sẻ | ACTIVE | 125,923 | 1 | 1 | **1** | T1  -  SĐT | `120237360596590495` |
+| 2026-11-17 | HA - DA - content 5 | **Data Analyst** | Lộ trình khóa học | ACTIVE | 12,406 | 0 | 0 | **0** |  | `120231698034870495` |
+| 2026-11-17 | HA - DA - content 5 | **Data Analyst** | PAS - problem - Agitation - solution, Lộ trình khóa học | ACTIVE | 67,759 | 0 | 0 | **0** |  | `120228557190850495` |
+| 2026-11-17 | HA - DA - content 1 | **Data Analyst** | PAS - problem - Agitation - solution, Tính năng - lợi ích ( đầu ra) | ACTIVE | 38,060 | 0 | 0 | **0** |  | `120231656770140495` |
+| 2026-11-17 | HA - DA - content 1 | **Data Analyst** | PAS - problem - Agitation - solution, Tính năng - lợi ích ( đầu ra) | ACTIVE | 28,034 | 0 | 0 | **0** |  | `120228557088400495` |
+| 2026-11-17 | HA - DA - Video cu update | **Data Analyst** | Chia sẻ | ACTIVE | 65,596 | 2 | 0 | **0** |  | `120231875541740495` |
+| 2026-11-17 | HA - DA - Video cu update | **Data Analyst** | Chia sẻ | ACTIVE | 112,556 | 2 | 0 | **0** |  | `120231875541730495` |
 | 2026-11-16 | Hanq - content 5 update | **Data Analyst** | Lộ trình khóa học | CAMPAIGN_PAUSED | 0 | 0 | 0 | **0** |  | `120250193993500495` |
 | 2026-11-16 | Hanq - DA - cđl - text | **Data Analyst** | storytelling | ACTIVE | 183,805 | 0 | 0 | **0** |  | `120235059475460495` |
 
