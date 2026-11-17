@@ -12,11 +12,12 @@ Tài liệu này chuẩn hóa toàn bộ quy trình thu thập số liệu Faceb
    * Đọc nội dung tin nhắn từng hội thoại qua **`GET /pages/{page_id}/conversations/{conversation_id}/messages`** để bóc tách SĐT.
 2. **Khai thác Thẻ (Tags) Pancake:**
    * Lấy danh sách thẻ qua **`GET /pages/{page_id}/tags`**.
-   * Lọc hội thoại theo thẻ liên quan (ví dụ: tag "Có SĐT", "Lead xác nhận") để ưu tiên xử lý trước.
-   * Thống kê số SĐT theo thẻ: mỗi thẻ có bao nhiêu lead phát sinh từ `ad_id` nào.
+   * Lọc hội thoại theo thẻ liên quan (ví dụ: tag "Có SĐT", "T1 - SĐT", "T2 - Mess", "T3 - Zalo") để ưu tiên xử lý và đo lường.
+   * Thống kê số SĐT/Lead theo thẻ: mỗi thẻ có bao nhiêu lead phát sinh từ `ad_id` nào.
 3. **Quy tắc tính Lead chuẩn:**
-   * **Mỗi cuộc trò chuyện có SĐT được tính là đúng 1 Lead** (khử trùng lặp nếu khách nhắn số nhiều lần).
-   * **Ngày phát sinh Lead:** Là ngày khách hàng gửi tin nhắn chứa SĐT (`inserted_at` của message từ Pancake), không phải ngày bắt đầu chiến dịch.
+   * **Mỗi cuộc trò chuyện có SĐT HOẶC có gắn thẻ tag Zalo/Mess** (ví dụ: `T3 - Zalo`, `T2 - Mess`, `Mess cũ`...) đều được tính là **đúng 1 Lead (SĐT)** (khử trùng lặp 1 hội thoại = 1 lead).
+   * **Bảo toàn thẻ tag nguyên bản:** Dù được tính là Lead vào cột SĐT / CPL / Tỷ lệ, thẻ tag thực tế gắn trên hội thoại vẫn được giữ nguyên bản trong cột `Tags Pancake` (không đổi tên thẻ).
+   * **Ngày phát sinh Lead:** Là ngày khách hàng gửi tin nhắn chứa SĐT hoặc thời điểm tương tác gắn thẻ (`inserted_at` từ Pancake export_data), không phải ngày bắt đầu chiến dịch.
 4. **Gán Lead cho Ads ID (Ad Attribution):**
    * Endpoint `export_data` trả về trường `ad_clicks[].ad_id` — đây là **Lead ID (Ads ID)** trực tiếp của Pancake, không cần suy luận thêm.
    * Gán `+1 Lead` vào bộ khóa: `(ad_id, ngày_phát_sinh_SĐT)`.
