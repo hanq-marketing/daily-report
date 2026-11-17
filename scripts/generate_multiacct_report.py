@@ -73,17 +73,17 @@ else:
     diff_days = (today_dt - max_dt).days
 
     if diff_days <= 0:
-        # Dữ liệu đã có đến hôm nay: quét lại 2 ngày gần nhất (hôm qua & hôm nay) để cập nhật số liệu mới nhất trong ngày
-        fetch_start_dt = max_dt - timedelta(days=1)
-        SINCE_DATE = fetch_start_dt.strftime("%Y-%m-%d")
+        # Dữ liệu đã có đến hôm nay: quét lại 5 ngày gần nhất để cập nhật số liệu mới nhất trong ngày và các chuyển đổi trễ
+        fetch_start_dt = max_dt - timedelta(days=5)
+        SINCE_DATE = max(fetch_start_dt.strftime("%Y-%m-%d"), DEFAULT_HISTORICAL_START)
         UNTIL_DATE = today_str
-        MODE_TEXT = f"INCREMENTAL: Quét làm mới hôm nay & hôm qua ({SINCE_DATE} -> {UNTIL_DATE}), bảo toàn dữ liệu cũ trước {SINCE_DATE}."
+        MODE_TEXT = f"INCREMENTAL: Quét đối soát 5 ngày gần nhất ({SINCE_DATE} -> {UNTIL_DATE}), bảo toàn dữ liệu cũ trước {SINCE_DATE}."
     else:
-        # Dữ liệu thiếu diff_days ngày: quét từ (max_existing_date - 1 ngày) để bao quát ngày giáp ranh
-        fetch_start_dt = max_dt - timedelta(days=1)
-        SINCE_DATE = fetch_start_dt.strftime("%Y-%m-%d")
+        # Dữ liệu thiếu diff_days ngày: quét từ (max_existing_date - 3 ngày) để bao quát ngày giáp ranh và chuyển đổi trễ
+        fetch_start_dt = max_dt - timedelta(days=3)
+        SINCE_DATE = max(fetch_start_dt.strftime("%Y-%m-%d"), DEFAULT_HISTORICAL_START)
         UNTIL_DATE = today_str
-        MODE_TEXT = f"INCREMENTAL: Bổ sung {diff_days} ngày còn thiếu ({SINCE_DATE} -> {UNTIL_DATE}), bảo toàn dữ liệu cũ trước {SINCE_DATE}."
+        MODE_TEXT = f"INCREMENTAL: Bổ sung {diff_days} ngày còn thiếu kèm đối soát giáp ranh ({SINCE_DATE} -> {UNTIL_DATE}), bảo toàn dữ liệu cũ trước {SINCE_DATE}."
 
 print("\n" + "=" * 70)
 print(f"📅 PHÂN TÍCH MỐC DỮ LIỆU CẬP NHẬT HÀNG NGÀY:")
@@ -437,12 +437,22 @@ for pid, pat in page_tokens.items():
             if raw_phone:
                 phone = str(raw_phone).strip()
 
+        # Fallback tìm SĐT trong nội dung tin nhắn nếu recent_phone_numbers trống
+        if not phone:
+            for x in it_list:
+                msg = x.get("message", "")
+                if msg and isinstance(msg, str):
+                    m = PHONE_REGEX.search(msg)
+                    if m:
+                        phone = m.group(0).strip()
+                        break
+
         # 4. Điều kiện tính là 1 Lead (SĐT):
         # - Hoặc cuộc trò chuyện có để lại SĐT
-        # - Hoặc cuộc trò chuyện được gắn thẻ tag Zalo hoặc Mess (ví dụ: 'T3 - Zalo', 'T2 - Mess', v.v.)
-        has_zalo_or_mess_tag = any(re.search(r'zalo|mess', t, re.IGNORECASE) for t in conv_tag_names)
+        # - Hoặc cuộc trò chuyện được gắn các thẻ tag chuyển đổi: SĐT, Zalo, Mess, Số QTKD
+        has_lead_tag = any(re.search(r'sđt|số điện thoại|zalo|mess|số qtkd', t, re.IGNORECASE) for t in conv_tag_names)
 
-        if not phone and not has_zalo_or_mess_tag:
+        if not phone and not has_lead_tag:
             continue
 
         # Khóa định danh lead (khử trùng lặp 1 conv = 1 lead)
