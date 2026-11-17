@@ -1756,7 +1756,6 @@ html_content = """<!DOCTYPE html>
             renderTopCampaignsChart();
             renderContentTagsSection();
         }
-
         // 1. Trend Chart (Ngày x Chi tiêu & SĐT)
         function renderTrendChart() {
             const ctx = document.getElementById('trendChart').getContext('2d');
