@@ -96,8 +96,8 @@ else:
 print(f"  -> {MODE_TEXT}")
 print("=" * 70 + "\n")
 
-since_ts = int(datetime.strptime(SINCE_DATE, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
-until_ts = int(datetime.strptime(UNTIL_DATE, "%Y-%m-%d").replace(hour=23, minute=59, second=59, tzinfo=timezone.utc).timestamp())
+since_ts = int(datetime.strptime(SINCE_DATE, "%Y-%m-%d").replace(tzinfo=VN_TZ).timestamp())
+until_ts = int(datetime.strptime(UNTIL_DATE, "%Y-%m-%d").replace(hour=23, minute=59, second=59, tzinfo=VN_TZ).timestamp())
 
 # ─── Load Cấu hình Nhãn chiến dịch & Ad Creatives ──────────────────────────────
 TAGS_CONFIG_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "campaign_tags.json")
@@ -403,14 +403,14 @@ for pid, pat in page_tokens.items():
         if not items_with_ads:
             continue
 
-        # Ưu tiên lấy item có cả phone và ad_clicks, nếu không lấy item có ad_clicks mới nhất
+        # Ưu tiên lấy item có cả phone và ad_clicks (lấy tương tác đầu tiên phát sinh lead để khớp đúng ngày chuyển đổi)
         items_with_phone_and_ad = [x for x in items_with_ads if x.get("recent_phone_numbers")]
         if items_with_phone_and_ad:
             items_with_phone_and_ad.sort(key=lambda x: x.get("inserted_at", ""))
-            best_item = items_with_phone_and_ad[-1]
+            best_item = items_with_phone_and_ad[0]
         else:
             items_with_ads.sort(key=lambda x: x.get("inserted_at", ""))
-            best_item = items_with_ads[-1]
+            best_item = items_with_ads[0]
 
         ad_clicks = best_item.get("ad_clicks", [])
         if not ad_clicks:
@@ -432,7 +432,7 @@ for pid, pat in page_tokens.items():
         items_with_phone = [x for x in it_list if x.get("recent_phone_numbers")]
         if items_with_phone:
             items_with_phone.sort(key=lambda x: x.get("inserted_at", ""))
-            first_p = items_with_phone[-1]["recent_phone_numbers"][0]
+            first_p = items_with_phone[0]["recent_phone_numbers"][0]
             raw_phone = first_p.get("phone_number") if isinstance(first_p, dict) else str(first_p)
             if raw_phone:
                 phone = str(raw_phone).strip()
