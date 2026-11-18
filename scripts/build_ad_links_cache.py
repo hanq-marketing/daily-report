@@ -23,8 +23,16 @@ with open(csv_path, 'r', encoding='utf-8-sig') as f:
         if aid and adid:
             acc_ads.setdefault(aid, set()).add(adid)
 
-print(f"Đang quét {len(acc_ads)} tài khoản Facebook Ads...")
+cache_file = os.path.join(base_dir, 'data', 'ad_links_cache.json')
 ad_links = {}
+if os.path.exists(cache_file):
+    try:
+        with open(cache_file, 'r', encoding='utf-8') as f:
+            ad_links = json.load(f)
+    except Exception:
+        ad_links = {}
+
+print(f"Đang quét {len(acc_ads)} tài khoản Facebook Ads (đã có {len(ad_links)} ads trong cache)...")
 
 for aid, adids in acc_ads.items():
     url = f"https://graph.facebook.com/v19.0/{aid}/ads?fields=id,name,creative{{id,name,effective_object_story_id,thumbnail_url,body,title,object_story_spec}}&limit=300&access_token={token}"
@@ -55,6 +63,42 @@ for aid, adids in acc_ads.items():
                 }
     except Exception as e:
         print(f"Lỗi tài khoản {aid}: {e}")
+
+# Quét bổ sung cho các ad ID đơn lẻ chưa có trong cache
+missing_cache_ads = set()
+for adids in acc_ads.values():
+    for adid in adids:
+        if adid not in ad_links:
+            missing_cache_ads.add(adid)
+
+if missing_cache_ads:
+    print(f"Tra cứu bổ sung {len(missing_cache_ads)} ads đơn lẻ...")
+    for adid in missing_cache_ads:
+        url_single = f"https://graph.facebook.com/v19.0/{adid}?fields=id,name,account_id,creative{{id,name,effective_object_story_id,thumbnail_url,body,title,object_story_spec}}&access_token={token}"
+        try:
+            req = urllib.request.Request(url_single)
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                a = json.loads(resp.read().decode('utf-8'))
+            if a and 'error' not in a:
+                c = a.get('creative', {})
+                story_id = c.get('effective_object_story_id')
+                aid_str = a.get('account_id', '')
+                if story_id:
+                    post_url = f"https://www.facebook.com/{story_id}"
+                else:
+                    post_url = f"https://adsmanager.facebook.com/adsmanager/manage/ads?act={aid_str}&selected_ad_ids={adid}"
+                ad_links[adid] = {
+                    "url": post_url,
+                    "story_id": story_id or "",
+                    "thumb": c.get('thumbnail_url', ''),
+                    "name": a.get('name', ''),
+                    "title": c.get('title') or '',
+                    "body": c.get('body') or ''
+                }
+            else:
+                ad_links[adid] = {"url": "", "story_id": "", "thumb": "", "name": f"Ad {adid}", "title": "", "body": ""}
+        except Exception:
+            ad_links[adid] = {"url": "", "story_id": "", "thumb": "", "name": f"Ad {adid}", "title": "", "body": ""}
 
 cache_file = os.path.join(base_dir, 'data', 'ad_links_cache.json')
 with open(cache_file, 'w', encoding='utf-8') as f:
