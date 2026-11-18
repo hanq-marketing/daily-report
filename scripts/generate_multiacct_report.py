@@ -200,7 +200,7 @@ def get_campaign_product(cname, aname=""):
         return 'BrSE'
         
     # Embedded / Nhúng
-    if re.search(r'nhúng|nhung|\b(embed|eb)\b', tl):
+    if re.search(r'nhúng|nhung|\b(embed|eb)\b|embedded|embeded', tl):
         return 'Embeded'
         
     # Data Engineer: check for - DE - or DE at start/key position
@@ -313,7 +313,10 @@ if not pancake_pages:
 if not pancake_pages:
     sys.exit("❌ Lỗi kết nối mạng hoặc Token: Không lấy được danh sách Fanpage từ Pancake và Facebook API.")
 
-print(f"-> Tìm thấy {len(pancake_pages)} trang Fanpage đang kích hoạt.")
+# Lọc bỏ các page không thuộc Rikkei Education (ví dụ shop Cô Miện Ăn Dặm)
+pancake_pages = [p for p in pancake_pages if not re.search(r'cô miện|ăn dặm', p.get('name', ''), re.IGNORECASE)]
+
+print(f"-> Tìm thấy {len(pancake_pages)} trang Fanpage Rikkei đang kích hoạt.")
 
 # ─── BƯỚC 2: TẠO PAGE ACCESS TOKEN & LẤY TAGS CHO TỪNG PAGE ─────────────────
 print("\n=== 2. TẠO PAGE ACCESS TOKEN & LẤY DANH SÁCH TAGS PANCAKE ===")
@@ -356,6 +359,8 @@ print(f"\n=== 3. QUÉT HỘI THOẠI TỪ ADS QUA PANCAKE ({SINCE_DATE} -> {UNTI
 ad_phones_by_date = {}
 # ad_tags_by_date: {ad_id -> {date_str -> set(tag_names)}}
 ad_tags_by_date = {}
+# ad_page_map: {ad_id -> (page_name, page_id)}
+ad_page_map = {}
 
 total_convs = 0
 total_leads = 0
@@ -465,6 +470,7 @@ for pid, pat in page_tokens.items():
         ad_phones_by_date.setdefault(ad_id, {}).setdefault(date_str, set()).add(lead_key)
         if conv_tag_names:
             ad_tags_by_date.setdefault(ad_id, {}).setdefault(date_str, set()).update(conv_tag_names)
+        ad_page_map[ad_id] = (page_name, pid)
         page_lead_count += 1
         total_leads += 1
 
@@ -483,10 +489,16 @@ time_range = json.dumps({'since': SINCE_DATE, 'until': UNTIL_DATE})
 encoded_tr = urllib.parse.quote(time_range)
 
 all_rows = []
+all_ads_map = {}
+all_camps_map = {}
+all_accs_map = {}
+recorded_pairs = set()
 
 for acc in accs:
     aid = acc['id']
     aname = acc['name']
+    all_accs_map[aid] = aname
+    all_accs_map[aid.replace('act_', '')] = aname
 
     print(f"\n--- Đang xử lý tài khoản: {aname} ({aid}) ---")
 
@@ -497,6 +509,7 @@ for acc in accs:
     if camps_data and 'data' in camps_data:
         for c in camps_data['data']:
             camps_map[c['id']] = c
+    all_camps_map.update(camps_map)
 
     # Lấy ads
     url_ads = f"https://graph.facebook.com/v19.0/{aid}/ads?fields=id,name,status,effective_status,updated_time,campaign_id,creative{{id,name,effective_object_story_id,thumbnail_url,body,title,object_story_spec}}&limit=300&access_token={FB_TOKEN}"
@@ -504,12 +517,14 @@ for acc in accs:
     ads_map = {}
     if ads_data and 'data' in ads_data:
         for a in ads_data['data']:
+            a['account_id'] = aid
             ads_map[a['id']] = a
             cr = a.get('creative', {})
             b_text = cr.get('body') or cr.get('object_story_spec', {}).get('link_data', {}).get('message', '') or ''
             t_text = cr.get('title') or cr.get('object_story_spec', {}).get('link_data', {}).get('name', '') or ''
             if b_text or t_text:
                 AD_CREATIVES[a['id']] = {'title': t_text, 'body': b_text}
+    all_ads_map.update(ads_map)
 
     # Lấy insights cấp Ad theo ngày (có phân trang và tự động chia chặng nếu Facebook timeout)
     fields = "date_start,campaign_id,campaign_name,ad_id,ad_name,spend,impressions,inline_link_clicks,ctr,cpc,cpm,actions"
@@ -648,6 +663,118 @@ for acc in accs:
             "Nhãn chiến dịch": camp_tags,
             "Link bài quảng cáo": ad_link,
         })
+        recorded_pairs.add((adid, date_str))
+
+# ─── BƯỚC 4.5: BỔ SUNG SĐT TỪ PANCAKE CHO CÁC NGÀY/AD KHÔNG CÓ INSIGHTS ───────
+print("\n=== 4.5. ĐỐI SOÁT & BỔ SUNG SĐT PANCAKE (BẢO TOÀN LEAD KHÔNG INSIGHTS / AD TẮT) ===")
+supplementary_count = 0
+supplementary_leads = 0
+
+page_fallback = {
+    '100849009489967': ('RA9 PTIT - QTKD', 'act_1006369474778163', 'PTIT'),
+    '105493795664944': ('RA3 - DATA ANALYST', 'act_2288953284832110', 'Data Analyst'),
+}
+
+for adid, d_dict in ad_phones_by_date.items():
+    for date_str, phone_set in d_dict.items():
+        if date_str < SINCE_DATE or date_str > UNTIL_DATE:
+            continue
+        if (adid, date_str) in recorded_pairs:
+            continue
+
+        sdt_count = len(phone_set)
+        if sdt_count == 0:
+            continue
+
+        tags_str = ", ".join(sorted(ad_tags_by_date.get(adid, {}).get(date_str, set())))
+
+        # Resolve ad metadata
+        ad_obj = all_ads_map.get(adid)
+        if ad_obj:
+            cid = ad_obj.get('campaign_id', '')
+            c_obj = all_camps_map.get(cid, {})
+            cname = c_obj.get('name', '')
+            adname = ad_obj.get('name', '')
+            aid = ad_obj.get('account_id', '')
+            aname = all_accs_map.get(aid) or all_accs_map.get(f"act_{aid}") or f"act_{aid}"
+            status = ad_obj.get('effective_status', 'PAUSED')
+            c_creative = ad_obj.get('creative', {})
+            story_id = c_creative.get('effective_object_story_id')
+            ad_link = f"https://www.facebook.com/{story_id}" if story_id else f"https://adsmanager.facebook.com/adsmanager/manage/ads?act={aid.replace('act_', '')}&selected_ad_ids={adid}"
+            c_body = c_creative.get('body') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('message', '')
+            c_title = c_creative.get('title') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('name', '')
+        else:
+            url_ad = f"https://graph.facebook.com/v19.0/{adid}?fields=id,name,account_id,campaign{{id,name}},effective_status,creative{{effective_object_story_id,body,title,object_story_spec}}&access_token={FB_TOKEN}"
+            ad_data = http_get_json(url_ad, retries=1, timeout=15)
+            if ad_data and 'error' not in ad_data:
+                aid = ad_data.get('account_id', '')
+                aname = all_accs_map.get(aid) or all_accs_map.get(f"act_{aid}") or f"act_{aid}"
+                cid = ad_data.get('campaign', {}).get('id', '')
+                cname = ad_data.get('campaign', {}).get('name', '')
+                adname = ad_data.get('name', '')
+                status = ad_data.get('effective_status', 'PAUSED')
+                c_creative = ad_data.get('creative', {})
+                story_id = c_creative.get('effective_object_story_id')
+                ad_link = f"https://www.facebook.com/{story_id}" if story_id else f"https://adsmanager.facebook.com/adsmanager/manage/ads?act={aid.replace('act_', '')}&selected_ad_ids={adid}"
+                c_body = c_creative.get('body') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('message', '')
+                c_title = c_creative.get('title') or c_creative.get('object_story_spec', {}).get('link_data', {}).get('name', '')
+            else:
+                pname, pid = ad_page_map.get(adid, ('', ''))
+                fb_info = page_fallback.get(pid)
+                if fb_info:
+                    aname, aid, prod = fb_info
+                else:
+                    aname = 'Chưa xác định'
+                    aid = ''
+                    prod = 'Khác'
+                cid = 'PAUSED_OLD_AD'
+                cname = f"[Lead Pancake - Ad cũ / Paused] {prod}"
+                adname = f"Ad {adid}"
+                status = 'PAUSED'
+                ad_link = ''
+                c_body = ''
+                c_title = ''
+
+        if aid and not aid.startswith('act_'):
+            aid = f"act_{aid}"
+
+        camp_tags = get_campaign_tags(cid, cname, adname, aname, adid=adid, ad_title=c_title, ad_body=c_body)
+        camp_prod = get_campaign_product(cname, aname)
+        camp_format = get_campaign_format(cname, aname)
+
+        all_rows.append({
+            "Tài khoản": aname,
+            "ID tài khoản": aid,
+            "Ngày": date_str,
+            "Campaign ID": cid,
+            "Tên chiến dịch": cname,
+            "Sản phẩm": camp_prod,
+            "Hình thức chạy": camp_format,
+            "Trạng thái": status,
+            "Ngân sách/ngày": "0",
+            "Chi tiêu": 0,
+            "Hiển thị": 0,
+            "Click link": 0,
+            "CTR (%)": 0.0,
+            "CPC": 0,
+            "CPM": 0,
+            "Tin nhắn": 0,
+            "Lead": 0,
+            "Đăng ký": 0,
+            "CPA": 0,
+            "Cập nhật lúc": datetime.now(VN_TZ).strftime('%Y-%m-%dT%H:%M:%S'),
+            "ID quảng cáo": adid,
+            "Tên quảng cáo": adname,
+            "Sđt theo campain": sdt_count,
+            "Tags Pancake": tags_str,
+            "Nhãn chiến dịch": camp_tags,
+            "Link bài quảng cáo": ad_link,
+        })
+        recorded_pairs.add((adid, date_str))
+        supplementary_count += 1
+        supplementary_leads += sdt_count
+
+print(f"-> Đã bổ sung {supplementary_count} dòng phụ cho {supplementary_leads} SĐT phát sinh khi ad không có impressions / tắt.")
 
 print(f"\n-> Tổng số dòng dữ liệu tổng hợp: {len(all_rows)}")
 
