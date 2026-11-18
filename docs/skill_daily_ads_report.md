@@ -31,8 +31,8 @@ Tài liệu này chuẩn hóa toàn bộ quy trình thu thập số liệu Faceb
    * Cập nhật chỉ số `Sđt theo campain` dưới dạng **số nguyên (integer: 0, 1, 2...)**.
    * Chỉ thêm mới các dòng ngày chưa có, **không xóa** dữ liệu cũ.
 7. **Bộ Lọc Fanpage Hệ Thống Rikkei (Strict Page Filtering):**
-   * **Chỉ quét các Fanpage thuộc hệ thống Rikkei:** Bao gồm các trang trực thuộc Rikkei Education, Rikkei Academy, Rikkeisoft, hợp tác ĐH Bách Khoa Hà Nội & Rikkeisoft, PTIT RikkeiSoft, Tiếng Trung XUEBA, Mankai Academy, Giang Sensei, Rikkei Cyber Academy, IT Tsubasa.
-   * **Tuyệt đối không quét các Fanpage ngoài luồng:** Tự động loại trừ toàn bộ các trang cá nhân/thương mại không thuộc hệ thống (như Cô Miện Ăn Dặm) qua hàm kiểm định `is_rikkei_page()`.
+   * **Chỉ quét các Fanpage thuộc hệ thống Rikkei:** Bao gồm các trang trực thuộc Rikkei Education, Rikkei Academy, Rikkeisoft, hợp tác ĐH Bách Khoa Hà Nội & Rikkeisoft, PTIT RikkeiSoft, Tiếng Trung XUEBA, Rikkei Cyber Academy, IT Tsubasa.
+   * **Tuyệt đối không quét các Fanpage ngoài luồng / không thuộc phạm vi:** Tự động loại trừ toàn bộ các trang cá nhân/thương mại ngoài luồng hoặc không quét (như Cô Miện Ăn Dặm, Mankai Academy) qua hàm kiểm định `is_rikkei_page()`.
 8. **Bảo Toàn Lead Không Insights / Ad Tắt (Step 4.5):**
    * Facebook Graph API chỉ trả về Insights khi `impressions > 0`. Đối với các lead Pancake phát sinh khi ad đã tắt hoặc chưa cắn tiền, hệ thống tự động tạo bản ghi bù (Chi phí = 0, Hiển thị = 0, SĐT = số lượng thực tế) để đảm bảo tỷ lệ khớp Pancake đạt 100.0%.
 
