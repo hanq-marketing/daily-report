@@ -316,11 +316,11 @@ if not pancake_pages:
 # ─── BỘ LỌC CHUẨN XÁC: CHỈ QUÉT CÁC FANPAGE THUỘC HỆ THỐNG RIKKEI ────────────
 def is_rikkei_page(name):
     p = (name or '').lower()
-    # Loại trừ tuyệt đối các page không thuộc hệ thống Rikkei (ví dụ shop Cô Miện Ăn Dặm)
-    if re.search(r'cô miện|ăn dặm|comien|andam', p):
+    # Loại trừ tuyệt đối các page không quét: Cô Miện Ăn Dặm, Mankai,...
+    if re.search(r'cô miện|ăn dặm|comien|andam|mankai', p):
         return False
     # Phải thuộc các thương hiệu / chương trình đào tạo của hệ thống giáo dục Rikkei
-    rikkei_kw = r'rikkei|rikkeisoft|bách khoa|bach khoa|ptit|bưu chính|tsubasa|mankai|giang sensei|xueba|ai-driven|ai agent|cyber'
+    rikkei_kw = r'rikkei|rikkeisoft|bách khoa|bach khoa|ptit|bưu chính|tsubasa|giang sensei|xueba|ai-driven|ai agent|cyber'
     return bool(re.search(rikkei_kw, p))
 
 pancake_pages = [p for p in pancake_pages if is_rikkei_page(p.get('name', ''))]
