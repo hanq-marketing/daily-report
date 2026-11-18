@@ -313,10 +313,19 @@ if not pancake_pages:
 if not pancake_pages:
     sys.exit("❌ Lỗi kết nối mạng hoặc Token: Không lấy được danh sách Fanpage từ Pancake và Facebook API.")
 
-# Lọc bỏ các page không thuộc Rikkei Education (ví dụ shop Cô Miện Ăn Dặm)
-pancake_pages = [p for p in pancake_pages if not re.search(r'cô miện|ăn dặm', p.get('name', ''), re.IGNORECASE)]
+# ─── BỘ LỌC CHUẨN XÁC: CHỈ QUÉT CÁC FANPAGE THUỘC HỆ THỐNG RIKKEI ────────────
+def is_rikkei_page(name):
+    p = (name or '').lower()
+    # Loại trừ tuyệt đối các page không thuộc hệ thống Rikkei (ví dụ shop Cô Miện Ăn Dặm)
+    if re.search(r'cô miện|ăn dặm|comien|andam', p):
+        return False
+    # Phải thuộc các thương hiệu / chương trình đào tạo của hệ thống giáo dục Rikkei
+    rikkei_kw = r'rikkei|rikkeisoft|bách khoa|bach khoa|ptit|bưu chính|tsubasa|mankai|giang sensei|xueba|ai-driven|ai agent|cyber'
+    return bool(re.search(rikkei_kw, p))
 
-print(f"-> Tìm thấy {len(pancake_pages)} trang Fanpage Rikkei đang kích hoạt.")
+pancake_pages = [p for p in pancake_pages if is_rikkei_page(p.get('name', ''))]
+
+print(f"-> Tìm thấy {len(pancake_pages)} trang Fanpage thuộc hệ thống Rikkei đang kích hoạt.")
 
 # ─── BƯỚC 2: TẠO PAGE ACCESS TOKEN & LẤY TAGS CHO TỪNG PAGE ─────────────────
 print("\n=== 2. TẠO PAGE ACCESS TOKEN & LẤY DANH SÁCH TAGS PANCAKE ===")
